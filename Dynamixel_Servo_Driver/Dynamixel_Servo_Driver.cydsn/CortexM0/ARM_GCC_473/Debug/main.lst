@@ -1,0 +1,2001 @@
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.comm	SpiReg,20,4
+  18              		.section	.text.main,"ax",%progbits
+  19              		.align	2
+  20              		.global	main
+  21              		.code	16
+  22              		.thumb_func
+  23              		.type	main, %function
+  24              	main:
+  25              	.LFB33:
+  26              		.file 1 ".\\main.c"
+   1:.\main.c      **** /* ========================================
+   2:.\main.c      ****  * 2015 BYU Mars Rover
+   3:.\main.c      ****  * Dynamixel Wrist PWM to UART Driver
+   4:.\main.c      ****  * 
+   5:.\main.c      ****  * 
+   6:.\main.c      ****  * Copyright BYU Mars Rover Team, 2015
+   7:.\main.c      ****  * All Rights Reserved
+   8:.\main.c      ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   9:.\main.c      ****  *
+  10:.\main.c      ****  *
+  11:.\main.c      ****  *
+  12:.\main.c      ****  * ========================================
+  13:.\main.c      **** */
+  14:.\main.c      **** #include <project.h>
+  15:.\main.c      **** 
+  16:.\main.c      **** typedef union SPIReg
+  17:.\main.c      **** {
+  18:.\main.c      ****     uint8 RegArray[20];
+  19:.\main.c      ****     // 
+  20:.\main.c      ****     struct
+  21:.\main.c      ****     {
+  22:.\main.c      ****         uint16 base_rotate_pos1;
+  23:.\main.c      ****         uint16 shoulder_pos;
+  24:.\main.c      ****         uint16 elbow_pos;  
+  25:.\main.c      ****         uint16 wrist_rotate_pos; //Value between 1000 and 2000 (approximate)
+  26:.\main.c      ****         uint16 wrist_flap_pos; //Value between 1000 and 2000 (approximate)
+  27:.\main.c      ****         uint16 claw_dir;  //0 Neutral, 1 Closing, 2 Opening
+  28:.\main.c      ****         uint16 claw_wheels;  //0 Neutral, 1 Closing, 2 Opening
+  29:.\main.c      ****         uint16 checksum;
+  30:.\main.c      ****         
+  31:.\main.c      ****     }SPIReg_struct;
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 2
+
+
+  32:.\main.c      ****     
+  33:.\main.c      **** }SPIReg;
+  34:.\main.c      **** 
+  35:.\main.c      **** SPIReg SpiReg;
+  36:.\main.c      **** 
+  37:.\main.c      **** void ServoGoalPosition( uint8 servoID, uint16 position);
+  38:.\main.c      **** void ServoSpeed( uint8 servoID, uint16 speed);
+  39:.\main.c      **** void ReadRequest(uint8 id, uint16 address, uint8 length);
+  40:.\main.c      **** void UartWriteLED( uint8 ledvalue);
+  41:.\main.c      **** void SetServoTorque( uint8 servoID, uint16 torque);
+  42:.\main.c      **** 
+  43:.\main.c      **** int main()
+  44:.\main.c      **** {
+  27              		.loc 1 44 0
+  28              		.cfi_startproc
+  29 0000 80B5     		push	{r7, lr}
+  30              	.LCFI0:
+  31              		.cfi_def_cfa_offset 8
+  32              		.cfi_offset 7, -8
+  33              		.cfi_offset 14, -4
+  34 0002 82B0     		sub	sp, sp, #8
+  35              	.LCFI1:
+  36              		.cfi_def_cfa_offset 16
+  37 0004 00AF     		add	r7, sp, #0
+  38              	.LCFI2:
+  39              		.cfi_def_cfa_register 7
+  45:.\main.c      **** 
+  46:.\main.c      ****     UART_1_Start();
+  40              		.loc 1 46 0
+  41 0006 FFF7FEFF 		bl	UART_1_Start
+  47:.\main.c      ****     Timer_1_Start();
+  42              		.loc 1 47 0
+  43 000a FFF7FEFF 		bl	Timer_1_Start
+  48:.\main.c      ****     Timer_2_Start();
+  44              		.loc 1 48 0
+  45 000e FFF7FEFF 		bl	Timer_2_Start
+  49:.\main.c      ****     ServoSpeed(0xFE, 100);
+  46              		.loc 1 49 0
+  47 0012 FE20     		mov	r0, #254
+  48 0014 6421     		mov	r1, #100
+  49 0016 FFF7FEFF 		bl	ServoSpeed
+  50:.\main.c      ****     
+  51:.\main.c      ****     
+  52:.\main.c      ****      CyGlobalIntEnable; // Uncomment this line to enable global interrupts. */
+  50              		.loc 1 52 0
+  51              	@ 52 ".\main.c" 1
+  52 001a 62B6     		CPSIE   i
+  53              	@ 0 "" 2
+  54              		.code	16
+  55 001c 00E0     		b	.L5
+  56              	.L6:
+  53:.\main.c      ****     for(;;)
+  54:.\main.c      ****     {
+  55:.\main.c      ****         
+  56:.\main.c      ****         uint16 timer1 = Timer_1_ReadCapture();
+  57:.\main.c      ****         if (timer1 >= 1000 && timer1 <= 2000){
+  58:.\main.c      ****             CyDelay(4);
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 3
+
+
+  59:.\main.c      ****             ServoGoalPosition(0x02, timer1);
+  60:.\main.c      ****             LED_Write(1);
+  61:.\main.c      ****             
+  62:.\main.c      ****         }
+  63:.\main.c      ****         else{
+  64:.\main.c      ****             LED_Write(0);
+  65:.\main.c      ****         }
+  66:.\main.c      ****         uint16 timer2 = Timer_2_ReadCapture();
+  67:.\main.c      ****         if (timer2 >= 1000 && timer2 <= 2000){
+  68:.\main.c      ****             timer2 = (timer2-1000)*3;
+  69:.\main.c      ****             CyDelay(4);
+  70:.\main.c      ****             ServoGoalPosition(0x01, timer2);
+  71:.\main.c      ****         }
+  72:.\main.c      ****         
+  73:.\main.c      **** //        UartWriteLED(1);
+  74:.\main.c      **** //        SetServoTorque(0xFE, 0x03FF);       
+  75:.\main.c      **** //        LED_Write(1);
+  76:.\main.c      **** //        CyDelay(1000);
+  77:.\main.c      **** //        ServoGoalPosition(0x02, 1000);
+  78:.\main.c      **** //        LED_Write(0);
+  79:.\main.c      **** //        UartWriteLED(0);
+  80:.\main.c      **** //        CyDelay(1000);
+  81:.\main.c      ****             
+  82:.\main.c      ****         
+  83:.\main.c      ****         
+  84:.\main.c      ****         
+  85:.\main.c      ****         
+  86:.\main.c      ****         
+  87:.\main.c      ****     }
+  57              		.loc 1 87 0
+  58 001e C046     		mov	r8, r8
+  59              	.L5:
+  60              	.LBB2:
+  56:.\main.c      ****         uint16 timer1 = Timer_1_ReadCapture();
+  61              		.loc 1 56 0
+  62 0020 FFF7FEFF 		bl	Timer_1_ReadCapture
+  63 0024 021C     		mov	r2, r0
+  64 0026 BB1D     		add	r3, r7, #6
+  65 0028 1A80     		strh	r2, [r3]
+  57:.\main.c      ****         if (timer1 >= 1000 && timer1 <= 2000){
+  66              		.loc 1 57 0
+  67 002a BB1D     		add	r3, r7, #6
+  68 002c 1A88     		ldrh	r2, [r3]
+  69 002e 1E4B     		ldr	r3, .L7
+  70 0030 9A42     		cmp	r2, r3
+  71 0032 12D9     		bls	.L2
+  57:.\main.c      ****         if (timer1 >= 1000 && timer1 <= 2000){
+  72              		.loc 1 57 0 is_stmt 0 discriminator 1
+  73 0034 BB1D     		add	r3, r7, #6
+  74 0036 1A88     		ldrh	r2, [r3]
+  75 0038 FA23     		mov	r3, #250
+  76 003a DB00     		lsl	r3, r3, #3
+  77 003c 9A42     		cmp	r2, r3
+  78 003e 0CD8     		bhi	.L2
+  58:.\main.c      ****             CyDelay(4);
+  79              		.loc 1 58 0 is_stmt 1
+  80 0040 0420     		mov	r0, #4
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 4
+
+
+  81 0042 FFF7FEFF 		bl	CyDelay
+  59:.\main.c      ****             ServoGoalPosition(0x02, timer1);
+  82              		.loc 1 59 0
+  83 0046 BB1D     		add	r3, r7, #6
+  84 0048 1B88     		ldrh	r3, [r3]
+  85 004a 0220     		mov	r0, #2
+  86 004c 191C     		mov	r1, r3
+  87 004e FFF7FEFF 		bl	ServoGoalPosition
+  60:.\main.c      ****             LED_Write(1);
+  88              		.loc 1 60 0
+  89 0052 0120     		mov	r0, #1
+  90 0054 FFF7FEFF 		bl	LED_Write
+  91 0058 02E0     		b	.L3
+  92              	.L2:
+  64:.\main.c      ****             LED_Write(0);
+  93              		.loc 1 64 0
+  94 005a 0020     		mov	r0, #0
+  95 005c FFF7FEFF 		bl	LED_Write
+  96              	.L3:
+  66:.\main.c      ****         uint16 timer2 = Timer_2_ReadCapture();
+  97              		.loc 1 66 0
+  98 0060 FFF7FEFF 		bl	Timer_2_ReadCapture
+  99 0064 021C     		mov	r2, r0
+ 100 0066 3B1D     		add	r3, r7, #4
+ 101 0068 1A80     		strh	r2, [r3]
+  67:.\main.c      ****         if (timer2 >= 1000 && timer2 <= 2000){
+ 102              		.loc 1 67 0
+ 103 006a 3B1D     		add	r3, r7, #4
+ 104 006c 1A88     		ldrh	r2, [r3]
+ 105 006e 0E4B     		ldr	r3, .L7
+ 106 0070 9A42     		cmp	r2, r3
+ 107 0072 D4D9     		bls	.L6
+  67:.\main.c      ****         if (timer2 >= 1000 && timer2 <= 2000){
+ 108              		.loc 1 67 0 is_stmt 0 discriminator 1
+ 109 0074 3B1D     		add	r3, r7, #4
+ 110 0076 1A88     		ldrh	r2, [r3]
+ 111 0078 FA23     		mov	r3, #250
+ 112 007a DB00     		lsl	r3, r3, #3
+ 113 007c 9A42     		cmp	r2, r3
+ 114 007e CED8     		bhi	.L6
+  68:.\main.c      ****             timer2 = (timer2-1000)*3;
+ 115              		.loc 1 68 0 is_stmt 1
+ 116 0080 3B1D     		add	r3, r7, #4
+ 117 0082 1B88     		ldrh	r3, [r3]
+ 118 0084 1A1C     		add	r2, r3, #0
+ 119 0086 5200     		lsl	r2, r2, #1
+ 120 0088 D318     		add	r3, r2, r3
+ 121 008a 9AB2     		uxth	r2, r3
+ 122 008c 3B1D     		add	r3, r7, #4
+ 123 008e 0749     		ldr	r1, .L7+4
+ 124 0090 5218     		add	r2, r2, r1
+ 125 0092 1A80     		strh	r2, [r3]
+  69:.\main.c      ****             CyDelay(4);
+ 126              		.loc 1 69 0
+ 127 0094 0420     		mov	r0, #4
+ 128 0096 FFF7FEFF 		bl	CyDelay
+  70:.\main.c      ****             ServoGoalPosition(0x01, timer2);
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 5
+
+
+ 129              		.loc 1 70 0
+ 130 009a 3B1D     		add	r3, r7, #4
+ 131 009c 1B88     		ldrh	r3, [r3]
+ 132 009e 0120     		mov	r0, #1
+ 133 00a0 191C     		mov	r1, r3
+ 134 00a2 FFF7FEFF 		bl	ServoGoalPosition
+ 135              	.LBE2:
+ 136              		.loc 1 87 0
+ 137 00a6 BAE7     		b	.L6
+ 138              	.L8:
+ 139              		.align	2
+ 140              	.L7:
+ 141 00a8 E7030000 		.word	999
+ 142 00ac 48F4FFFF 		.word	-3000
+ 143              		.cfi_endproc
+ 144              	.LFE33:
+ 145              		.size	main, .-main
+ 146              		.section	.text.ServoGoalPosition,"ax",%progbits
+ 147              		.align	2
+ 148              		.global	ServoGoalPosition
+ 149              		.code	16
+ 150              		.thumb_func
+ 151              		.type	ServoGoalPosition, %function
+ 152              	ServoGoalPosition:
+ 153              	.LFB34:
+  88:.\main.c      **** }
+  89:.\main.c      ****     
+  90:.\main.c      ****     void ServoGoalPosition( uint8 servoID, uint16 position){
+ 154              		.loc 1 90 0
+ 155              		.cfi_startproc
+ 156 0000 80B5     		push	{r7, lr}
+ 157              	.LCFI3:
+ 158              		.cfi_def_cfa_offset 8
+ 159              		.cfi_offset 7, -8
+ 160              		.cfi_offset 14, -4
+ 161 0002 86B0     		sub	sp, sp, #24
+ 162              	.LCFI4:
+ 163              		.cfi_def_cfa_offset 32
+ 164 0004 00AF     		add	r7, sp, #0
+ 165              	.LCFI5:
+ 166              		.cfi_def_cfa_register 7
+ 167 0006 0A1C     		mov	r2, r1
+ 168 0008 FB1D     		add	r3, r7, #7
+ 169 000a 011C     		add	r1, r0, #0
+ 170 000c 1970     		strb	r1, [r3]
+ 171 000e 3B1D     		add	r3, r7, #4
+ 172 0010 1A80     		strh	r2, [r3]
+  91:.\main.c      ****     uint8 array[9];
+  92:.\main.c      ****     
+  93:.\main.c      ****     array[0] = 0xFF;
+ 173              		.loc 1 93 0
+ 174 0012 3B1C     		mov	r3, r7
+ 175 0014 0C33     		add	r3, r3, #12
+ 176 0016 FF22     		mov	r2, #255
+ 177 0018 1A70     		strb	r2, [r3]
+  94:.\main.c      ****     array[1] = 0xFF;
+ 178              		.loc 1 94 0
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 6
+
+
+ 179 001a 3B1C     		mov	r3, r7
+ 180 001c 0C33     		add	r3, r3, #12
+ 181 001e FF22     		mov	r2, #255
+ 182 0020 5A70     		strb	r2, [r3, #1]
+  95:.\main.c      ****     array[2] = servoID; //this is a broadcast ID.  Change for daisychained servos.
+ 183              		.loc 1 95 0
+ 184 0022 3B1C     		mov	r3, r7
+ 185 0024 0C33     		add	r3, r3, #12
+ 186 0026 FA1D     		add	r2, r7, #7
+ 187 0028 1278     		ldrb	r2, [r2]
+ 188 002a 9A70     		strb	r2, [r3, #2]
+  96:.\main.c      ****     array[3] = 0x05;
+ 189              		.loc 1 96 0
+ 190 002c 3B1C     		mov	r3, r7
+ 191 002e 0C33     		add	r3, r3, #12
+ 192 0030 0522     		mov	r2, #5
+ 193 0032 DA70     		strb	r2, [r3, #3]
+  97:.\main.c      ****     array[4] = 0x03; //write instruction
+ 194              		.loc 1 97 0
+ 195 0034 3B1C     		mov	r3, r7
+ 196 0036 0C33     		add	r3, r3, #12
+ 197 0038 0322     		mov	r2, #3
+ 198 003a 1A71     		strb	r2, [r3, #4]
+  98:.\main.c      ****     array[5] = 0x1E;
+ 199              		.loc 1 98 0
+ 200 003c 3B1C     		mov	r3, r7
+ 201 003e 0C33     		add	r3, r3, #12
+ 202 0040 1E22     		mov	r2, #30
+ 203 0042 5A71     		strb	r2, [r3, #5]
+  99:.\main.c      ****     array[6] = position;
+ 204              		.loc 1 99 0
+ 205 0044 3B1D     		add	r3, r7, #4
+ 206 0046 1B88     		ldrh	r3, [r3]
+ 207 0048 DAB2     		uxtb	r2, r3
+ 208 004a 3B1C     		mov	r3, r7
+ 209 004c 0C33     		add	r3, r3, #12
+ 210 004e 9A71     		strb	r2, [r3, #6]
+ 100:.\main.c      ****     array[7] = position >> 8;
+ 211              		.loc 1 100 0
+ 212 0050 3B1D     		add	r3, r7, #4
+ 213 0052 1B88     		ldrh	r3, [r3]
+ 214 0054 1B0A     		lsr	r3, r3, #8
+ 215 0056 9BB2     		uxth	r3, r3
+ 216 0058 DAB2     		uxtb	r2, r3
+ 217 005a 3B1C     		mov	r3, r7
+ 218 005c 0C33     		add	r3, r3, #12
+ 219 005e DA71     		strb	r2, [r3, #7]
+ 101:.\main.c      ****     array[8] = ~(servoID + 0x05 + 0x1E + array[6] + array[7] + 0x03);
+ 220              		.loc 1 101 0
+ 221 0060 3B1C     		mov	r3, r7
+ 222 0062 0C33     		add	r3, r3, #12
+ 223 0064 9A79     		ldrb	r2, [r3, #6]
+ 224 0066 FB1D     		add	r3, r7, #7
+ 225 0068 1B78     		ldrb	r3, [r3]
+ 226 006a D318     		add	r3, r2, r3
+ 227 006c DAB2     		uxtb	r2, r3
+ 228 006e 3B1C     		mov	r3, r7
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 7
+
+
+ 229 0070 0C33     		add	r3, r3, #12
+ 230 0072 DB79     		ldrb	r3, [r3, #7]
+ 231 0074 D318     		add	r3, r2, r3
+ 232 0076 DBB2     		uxtb	r3, r3
+ 233 0078 2633     		add	r3, r3, #38
+ 234 007a DBB2     		uxtb	r3, r3
+ 235 007c DB43     		mvn	r3, r3
+ 236 007e DAB2     		uxtb	r2, r3
+ 237 0080 3B1C     		mov	r3, r7
+ 238 0082 0C33     		add	r3, r3, #12
+ 239 0084 1A72     		strb	r2, [r3, #8]
+ 102:.\main.c      ****     
+ 103:.\main.c      ****     UART_1_PutArray(array, 0x09);
+ 240              		.loc 1 103 0
+ 241 0086 3B1C     		mov	r3, r7
+ 242 0088 0C33     		add	r3, r3, #12
+ 243 008a 181C     		mov	r0, r3
+ 244 008c 0921     		mov	r1, #9
+ 245 008e FFF7FEFF 		bl	UART_1_PutArray
+ 104:.\main.c      ****     
+ 105:.\main.c      **** }
+ 246              		.loc 1 105 0
+ 247 0092 BD46     		mov	sp, r7
+ 248 0094 06B0     		add	sp, sp, #24
+ 249              		@ sp needed for prologue
+ 250 0096 80BD     		pop	{r7, pc}
+ 251              		.cfi_endproc
+ 252              	.LFE34:
+ 253              		.size	ServoGoalPosition, .-ServoGoalPosition
+ 254              		.section	.text.SetServoTorque,"ax",%progbits
+ 255              		.align	2
+ 256              		.global	SetServoTorque
+ 257              		.code	16
+ 258              		.thumb_func
+ 259              		.type	SetServoTorque, %function
+ 260              	SetServoTorque:
+ 261              	.LFB35:
+ 106:.\main.c      ****     
+ 107:.\main.c      **** void SetServoTorque( uint8 servoID, uint16 torque){
+ 262              		.loc 1 107 0
+ 263              		.cfi_startproc
+ 264 0000 80B5     		push	{r7, lr}
+ 265              	.LCFI6:
+ 266              		.cfi_def_cfa_offset 8
+ 267              		.cfi_offset 7, -8
+ 268              		.cfi_offset 14, -4
+ 269 0002 86B0     		sub	sp, sp, #24
+ 270              	.LCFI7:
+ 271              		.cfi_def_cfa_offset 32
+ 272 0004 00AF     		add	r7, sp, #0
+ 273              	.LCFI8:
+ 274              		.cfi_def_cfa_register 7
+ 275 0006 0A1C     		mov	r2, r1
+ 276 0008 FB1D     		add	r3, r7, #7
+ 277 000a 011C     		add	r1, r0, #0
+ 278 000c 1970     		strb	r1, [r3]
+ 279 000e 3B1D     		add	r3, r7, #4
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 8
+
+
+ 280 0010 1A80     		strh	r2, [r3]
+ 108:.\main.c      ****     uint8 array[9];
+ 109:.\main.c      ****     
+ 110:.\main.c      ****     array[0] = 0xFF;
+ 281              		.loc 1 110 0
+ 282 0012 3B1C     		mov	r3, r7
+ 283 0014 0C33     		add	r3, r3, #12
+ 284 0016 FF22     		mov	r2, #255
+ 285 0018 1A70     		strb	r2, [r3]
+ 111:.\main.c      ****     array[1] = 0xFF;
+ 286              		.loc 1 111 0
+ 287 001a 3B1C     		mov	r3, r7
+ 288 001c 0C33     		add	r3, r3, #12
+ 289 001e FF22     		mov	r2, #255
+ 290 0020 5A70     		strb	r2, [r3, #1]
+ 112:.\main.c      ****     array[2] = servoID; 
+ 291              		.loc 1 112 0
+ 292 0022 3B1C     		mov	r3, r7
+ 293 0024 0C33     		add	r3, r3, #12
+ 294 0026 FA1D     		add	r2, r7, #7
+ 295 0028 1278     		ldrb	r2, [r2]
+ 296 002a 9A70     		strb	r2, [r3, #2]
+ 113:.\main.c      ****     array[3] = 0x05;
+ 297              		.loc 1 113 0
+ 298 002c 3B1C     		mov	r3, r7
+ 299 002e 0C33     		add	r3, r3, #12
+ 300 0030 0522     		mov	r2, #5
+ 301 0032 DA70     		strb	r2, [r3, #3]
+ 114:.\main.c      ****     array[4] = 0x03; //write instruction
+ 302              		.loc 1 114 0
+ 303 0034 3B1C     		mov	r3, r7
+ 304 0036 0C33     		add	r3, r3, #12
+ 305 0038 0322     		mov	r2, #3
+ 306 003a 1A71     		strb	r2, [r3, #4]
+ 115:.\main.c      ****     array[5] = 0x0E;
+ 307              		.loc 1 115 0
+ 308 003c 3B1C     		mov	r3, r7
+ 309 003e 0C33     		add	r3, r3, #12
+ 310 0040 0E22     		mov	r2, #14
+ 311 0042 5A71     		strb	r2, [r3, #5]
+ 116:.\main.c      ****     array[6] = torque;
+ 312              		.loc 1 116 0
+ 313 0044 3B1D     		add	r3, r7, #4
+ 314 0046 1B88     		ldrh	r3, [r3]
+ 315 0048 DAB2     		uxtb	r2, r3
+ 316 004a 3B1C     		mov	r3, r7
+ 317 004c 0C33     		add	r3, r3, #12
+ 318 004e 9A71     		strb	r2, [r3, #6]
+ 117:.\main.c      ****     array[7] = torque >> 8;
+ 319              		.loc 1 117 0
+ 320 0050 3B1D     		add	r3, r7, #4
+ 321 0052 1B88     		ldrh	r3, [r3]
+ 322 0054 1B0A     		lsr	r3, r3, #8
+ 323 0056 9BB2     		uxth	r3, r3
+ 324 0058 DAB2     		uxtb	r2, r3
+ 325 005a 3B1C     		mov	r3, r7
+ 326 005c 0C33     		add	r3, r3, #12
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 9
+
+
+ 327 005e DA71     		strb	r2, [r3, #7]
+ 118:.\main.c      ****     array[8] = ~(servoID + 0x05 + 0x0E + array[6] + array[7] + 0x03);
+ 328              		.loc 1 118 0
+ 329 0060 3B1C     		mov	r3, r7
+ 330 0062 0C33     		add	r3, r3, #12
+ 331 0064 9A79     		ldrb	r2, [r3, #6]
+ 332 0066 FB1D     		add	r3, r7, #7
+ 333 0068 1B78     		ldrb	r3, [r3]
+ 334 006a D318     		add	r3, r2, r3
+ 335 006c DAB2     		uxtb	r2, r3
+ 336 006e 3B1C     		mov	r3, r7
+ 337 0070 0C33     		add	r3, r3, #12
+ 338 0072 DB79     		ldrb	r3, [r3, #7]
+ 339 0074 D318     		add	r3, r2, r3
+ 340 0076 DBB2     		uxtb	r3, r3
+ 341 0078 1633     		add	r3, r3, #22
+ 342 007a DBB2     		uxtb	r3, r3
+ 343 007c DB43     		mvn	r3, r3
+ 344 007e DAB2     		uxtb	r2, r3
+ 345 0080 3B1C     		mov	r3, r7
+ 346 0082 0C33     		add	r3, r3, #12
+ 347 0084 1A72     		strb	r2, [r3, #8]
+ 119:.\main.c      ****     
+ 120:.\main.c      ****     UART_1_PutArray(array, 0x09);
+ 348              		.loc 1 120 0
+ 349 0086 3B1C     		mov	r3, r7
+ 350 0088 0C33     		add	r3, r3, #12
+ 351 008a 181C     		mov	r0, r3
+ 352 008c 0921     		mov	r1, #9
+ 353 008e FFF7FEFF 		bl	UART_1_PutArray
+ 121:.\main.c      ****     
+ 122:.\main.c      **** }    
+ 354              		.loc 1 122 0
+ 355 0092 BD46     		mov	sp, r7
+ 356 0094 06B0     		add	sp, sp, #24
+ 357              		@ sp needed for prologue
+ 358 0096 80BD     		pop	{r7, pc}
+ 359              		.cfi_endproc
+ 360              	.LFE35:
+ 361              		.size	SetServoTorque, .-SetServoTorque
+ 362              		.section	.text.ServoSpeed,"ax",%progbits
+ 363              		.align	2
+ 364              		.global	ServoSpeed
+ 365              		.code	16
+ 366              		.thumb_func
+ 367              		.type	ServoSpeed, %function
+ 368              	ServoSpeed:
+ 369              	.LFB36:
+ 123:.\main.c      **** 
+ 124:.\main.c      **** void ServoSpeed( uint8 servoID, uint16 speed){
+ 370              		.loc 1 124 0
+ 371              		.cfi_startproc
+ 372 0000 80B5     		push	{r7, lr}
+ 373              	.LCFI9:
+ 374              		.cfi_def_cfa_offset 8
+ 375              		.cfi_offset 7, -8
+ 376              		.cfi_offset 14, -4
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 10
+
+
+ 377 0002 86B0     		sub	sp, sp, #24
+ 378              	.LCFI10:
+ 379              		.cfi_def_cfa_offset 32
+ 380 0004 00AF     		add	r7, sp, #0
+ 381              	.LCFI11:
+ 382              		.cfi_def_cfa_register 7
+ 383 0006 0A1C     		mov	r2, r1
+ 384 0008 FB1D     		add	r3, r7, #7
+ 385 000a 011C     		add	r1, r0, #0
+ 386 000c 1970     		strb	r1, [r3]
+ 387 000e 3B1D     		add	r3, r7, #4
+ 388 0010 1A80     		strh	r2, [r3]
+ 125:.\main.c      ****     uint8 array[9];
+ 126:.\main.c      ****     
+ 127:.\main.c      ****     array[0] = 0xFF;
+ 389              		.loc 1 127 0
+ 390 0012 3B1C     		mov	r3, r7
+ 391 0014 0C33     		add	r3, r3, #12
+ 392 0016 FF22     		mov	r2, #255
+ 393 0018 1A70     		strb	r2, [r3]
+ 128:.\main.c      ****     array[1] = 0xFF;
+ 394              		.loc 1 128 0
+ 395 001a 3B1C     		mov	r3, r7
+ 396 001c 0C33     		add	r3, r3, #12
+ 397 001e FF22     		mov	r2, #255
+ 398 0020 5A70     		strb	r2, [r3, #1]
+ 129:.\main.c      ****     array[2] = servoID; //this is a broadcast ID.  Change for daisychained servos.
+ 399              		.loc 1 129 0
+ 400 0022 3B1C     		mov	r3, r7
+ 401 0024 0C33     		add	r3, r3, #12
+ 402 0026 FA1D     		add	r2, r7, #7
+ 403 0028 1278     		ldrb	r2, [r2]
+ 404 002a 9A70     		strb	r2, [r3, #2]
+ 130:.\main.c      ****     array[3] = 0x05;
+ 405              		.loc 1 130 0
+ 406 002c 3B1C     		mov	r3, r7
+ 407 002e 0C33     		add	r3, r3, #12
+ 408 0030 0522     		mov	r2, #5
+ 409 0032 DA70     		strb	r2, [r3, #3]
+ 131:.\main.c      ****     array[4] = 0x03; //write instruction
+ 410              		.loc 1 131 0
+ 411 0034 3B1C     		mov	r3, r7
+ 412 0036 0C33     		add	r3, r3, #12
+ 413 0038 0322     		mov	r2, #3
+ 414 003a 1A71     		strb	r2, [r3, #4]
+ 132:.\main.c      ****     array[5] = 0x20;
+ 415              		.loc 1 132 0
+ 416 003c 3B1C     		mov	r3, r7
+ 417 003e 0C33     		add	r3, r3, #12
+ 418 0040 2022     		mov	r2, #32
+ 419 0042 5A71     		strb	r2, [r3, #5]
+ 133:.\main.c      ****     array[6] = speed;
+ 420              		.loc 1 133 0
+ 421 0044 3B1D     		add	r3, r7, #4
+ 422 0046 1B88     		ldrh	r3, [r3]
+ 423 0048 DAB2     		uxtb	r2, r3
+ 424 004a 3B1C     		mov	r3, r7
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 11
+
+
+ 425 004c 0C33     		add	r3, r3, #12
+ 426 004e 9A71     		strb	r2, [r3, #6]
+ 134:.\main.c      ****     array[7] = speed >> 8;
+ 427              		.loc 1 134 0
+ 428 0050 3B1D     		add	r3, r7, #4
+ 429 0052 1B88     		ldrh	r3, [r3]
+ 430 0054 1B0A     		lsr	r3, r3, #8
+ 431 0056 9BB2     		uxth	r3, r3
+ 432 0058 DAB2     		uxtb	r2, r3
+ 433 005a 3B1C     		mov	r3, r7
+ 434 005c 0C33     		add	r3, r3, #12
+ 435 005e DA71     		strb	r2, [r3, #7]
+ 135:.\main.c      ****     array[8] = ~(servoID + 0x05 + 0x20 + array[6] + array[7] + 0x03);
+ 436              		.loc 1 135 0
+ 437 0060 3B1C     		mov	r3, r7
+ 438 0062 0C33     		add	r3, r3, #12
+ 439 0064 9A79     		ldrb	r2, [r3, #6]
+ 440 0066 FB1D     		add	r3, r7, #7
+ 441 0068 1B78     		ldrb	r3, [r3]
+ 442 006a D318     		add	r3, r2, r3
+ 443 006c DAB2     		uxtb	r2, r3
+ 444 006e 3B1C     		mov	r3, r7
+ 445 0070 0C33     		add	r3, r3, #12
+ 446 0072 DB79     		ldrb	r3, [r3, #7]
+ 447 0074 D318     		add	r3, r2, r3
+ 448 0076 DBB2     		uxtb	r3, r3
+ 449 0078 2833     		add	r3, r3, #40
+ 450 007a DBB2     		uxtb	r3, r3
+ 451 007c DB43     		mvn	r3, r3
+ 452 007e DAB2     		uxtb	r2, r3
+ 453 0080 3B1C     		mov	r3, r7
+ 454 0082 0C33     		add	r3, r3, #12
+ 455 0084 1A72     		strb	r2, [r3, #8]
+ 136:.\main.c      ****     
+ 137:.\main.c      ****     UART_1_PutArray(array, 0x09);
+ 456              		.loc 1 137 0
+ 457 0086 3B1C     		mov	r3, r7
+ 458 0088 0C33     		add	r3, r3, #12
+ 459 008a 181C     		mov	r0, r3
+ 460 008c 0921     		mov	r1, #9
+ 461 008e FFF7FEFF 		bl	UART_1_PutArray
+ 138:.\main.c      ****     
+ 139:.\main.c      **** }
+ 462              		.loc 1 139 0
+ 463 0092 BD46     		mov	sp, r7
+ 464 0094 06B0     		add	sp, sp, #24
+ 465              		@ sp needed for prologue
+ 466 0096 80BD     		pop	{r7, pc}
+ 467              		.cfi_endproc
+ 468              	.LFE36:
+ 469              		.size	ServoSpeed, .-ServoSpeed
+ 470              		.section	.text.ReadRequest,"ax",%progbits
+ 471              		.align	2
+ 472              		.global	ReadRequest
+ 473              		.code	16
+ 474              		.thumb_func
+ 475              		.type	ReadRequest, %function
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 12
+
+
+ 476              	ReadRequest:
+ 477              	.LFB37:
+ 140:.\main.c      **** 
+ 141:.\main.c      **** void ReadRequest(uint8 id,uint16 address, uint8 length){ // note that this uses a broadcast ID - it
+ 478              		.loc 1 141 0
+ 479              		.cfi_startproc
+ 480 0000 80B5     		push	{r7, lr}
+ 481              	.LCFI12:
+ 482              		.cfi_def_cfa_offset 8
+ 483              		.cfi_offset 7, -8
+ 484              		.cfi_offset 14, -4
+ 485 0002 84B0     		sub	sp, sp, #16
+ 486              	.LCFI13:
+ 487              		.cfi_def_cfa_offset 24
+ 488 0004 00AF     		add	r7, sp, #0
+ 489              	.LCFI14:
+ 490              		.cfi_def_cfa_register 7
+ 491 0006 FB1D     		add	r3, r7, #7
+ 492 0008 1870     		strb	r0, [r3]
+ 493 000a 3B1D     		add	r3, r7, #4
+ 494 000c 1980     		strh	r1, [r3]
+ 495 000e BB1D     		add	r3, r7, #6
+ 496 0010 1A70     		strb	r2, [r3]
+ 142:.\main.c      ****     uint8 array[8];
+ 143:.\main.c      ****     
+ 144:.\main.c      ****     array[0] = 0xFE;
+ 497              		.loc 1 144 0
+ 498 0012 3B1C     		mov	r3, r7
+ 499 0014 0833     		add	r3, r3, #8
+ 500 0016 FE22     		mov	r2, #254
+ 501 0018 1A70     		strb	r2, [r3]
+ 145:.\main.c      ****     array[1] = 0xFE;
+ 502              		.loc 1 145 0
+ 503 001a 3B1C     		mov	r3, r7
+ 504 001c 0833     		add	r3, r3, #8
+ 505 001e FE22     		mov	r2, #254
+ 506 0020 5A70     		strb	r2, [r3, #1]
+ 146:.\main.c      ****     array[2] = id; //this is a broadcast ID.  Change for daisychained servos.
+ 507              		.loc 1 146 0
+ 508 0022 3B1C     		mov	r3, r7
+ 509 0024 0833     		add	r3, r3, #8
+ 510 0026 FA1D     		add	r2, r7, #7
+ 511 0028 1278     		ldrb	r2, [r2]
+ 512 002a 9A70     		strb	r2, [r3, #2]
+ 147:.\main.c      ****     array[3] = 0x04; //length = number of parameters + 2
+ 513              		.loc 1 147 0
+ 514 002c 3B1C     		mov	r3, r7
+ 515 002e 0833     		add	r3, r3, #8
+ 516 0030 0422     		mov	r2, #4
+ 517 0032 DA70     		strb	r2, [r3, #3]
+ 148:.\main.c      ****     array[4] = 0x02; //write instruction
+ 518              		.loc 1 148 0
+ 519 0034 3B1C     		mov	r3, r7
+ 520 0036 0833     		add	r3, r3, #8
+ 521 0038 0222     		mov	r2, #2
+ 522 003a 1A71     		strb	r2, [r3, #4]
+ 149:.\main.c      ****     array[5] = address;
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 13
+
+
+ 523              		.loc 1 149 0
+ 524 003c 3B1D     		add	r3, r7, #4
+ 525 003e 1B88     		ldrh	r3, [r3]
+ 526 0040 DAB2     		uxtb	r2, r3
+ 527 0042 3B1C     		mov	r3, r7
+ 528 0044 0833     		add	r3, r3, #8
+ 529 0046 5A71     		strb	r2, [r3, #5]
+ 150:.\main.c      ****     array[6] = length;
+ 530              		.loc 1 150 0
+ 531 0048 3B1C     		mov	r3, r7
+ 532 004a 0833     		add	r3, r3, #8
+ 533 004c BA1D     		add	r2, r7, #6
+ 534 004e 1278     		ldrb	r2, [r2]
+ 535 0050 9A71     		strb	r2, [r3, #6]
+ 151:.\main.c      ****     array[7]= ~(id + 0x04 + address + length +0x02);
+ 536              		.loc 1 151 0
+ 537 0052 3B1D     		add	r3, r7, #4
+ 538 0054 1B88     		ldrh	r3, [r3]
+ 539 0056 DAB2     		uxtb	r2, r3
+ 540 0058 FB1D     		add	r3, r7, #7
+ 541 005a 1B78     		ldrb	r3, [r3]
+ 542 005c D318     		add	r3, r2, r3
+ 543 005e DAB2     		uxtb	r2, r3
+ 544 0060 BB1D     		add	r3, r7, #6
+ 545 0062 1B78     		ldrb	r3, [r3]
+ 546 0064 D318     		add	r3, r2, r3
+ 547 0066 DBB2     		uxtb	r3, r3
+ 548 0068 0633     		add	r3, r3, #6
+ 549 006a DBB2     		uxtb	r3, r3
+ 550 006c DB43     		mvn	r3, r3
+ 551 006e DAB2     		uxtb	r2, r3
+ 552 0070 3B1C     		mov	r3, r7
+ 553 0072 0833     		add	r3, r3, #8
+ 554 0074 DA71     		strb	r2, [r3, #7]
+ 152:.\main.c      ****  
+ 153:.\main.c      ****     
+ 154:.\main.c      ****     UART_1_PutArray(array, 0x08);
+ 555              		.loc 1 154 0
+ 556 0076 3B1C     		mov	r3, r7
+ 557 0078 0833     		add	r3, r3, #8
+ 558 007a 181C     		mov	r0, r3
+ 559 007c 0821     		mov	r1, #8
+ 560 007e FFF7FEFF 		bl	UART_1_PutArray
+ 155:.\main.c      ****     
+ 156:.\main.c      **** }
+ 561              		.loc 1 156 0
+ 562 0082 BD46     		mov	sp, r7
+ 563 0084 04B0     		add	sp, sp, #16
+ 564              		@ sp needed for prologue
+ 565 0086 80BD     		pop	{r7, pc}
+ 566              		.cfi_endproc
+ 567              	.LFE37:
+ 568              		.size	ReadRequest, .-ReadRequest
+ 569              		.section	.text.UartWriteLED,"ax",%progbits
+ 570              		.align	2
+ 571              		.global	UartWriteLED
+ 572              		.code	16
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 14
+
+
+ 573              		.thumb_func
+ 574              		.type	UartWriteLED, %function
+ 575              	UartWriteLED:
+ 576              	.LFB38:
+ 157:.\main.c      **** 
+ 158:.\main.c      **** void UartWriteLED( uint8 ledvalue){
+ 577              		.loc 1 158 0
+ 578              		.cfi_startproc
+ 579 0000 80B5     		push	{r7, lr}
+ 580              	.LCFI15:
+ 581              		.cfi_def_cfa_offset 8
+ 582              		.cfi_offset 7, -8
+ 583              		.cfi_offset 14, -4
+ 584 0002 84B0     		sub	sp, sp, #16
+ 585              	.LCFI16:
+ 586              		.cfi_def_cfa_offset 24
+ 587 0004 00AF     		add	r7, sp, #0
+ 588              	.LCFI17:
+ 589              		.cfi_def_cfa_register 7
+ 590 0006 021C     		mov	r2, r0
+ 591 0008 FB1D     		add	r3, r7, #7
+ 592 000a 1A70     		strb	r2, [r3]
+ 159:.\main.c      ****     uint8 array[8];
+ 160:.\main.c      ****     
+ 161:.\main.c      ****     array[0] = 0xFE;
+ 593              		.loc 1 161 0
+ 594 000c 3B1C     		mov	r3, r7
+ 595 000e 0833     		add	r3, r3, #8
+ 596 0010 FE22     		mov	r2, #254
+ 597 0012 1A70     		strb	r2, [r3]
+ 162:.\main.c      ****     array[1] = 0xFE;
+ 598              		.loc 1 162 0
+ 599 0014 3B1C     		mov	r3, r7
+ 600 0016 0833     		add	r3, r3, #8
+ 601 0018 FE22     		mov	r2, #254
+ 602 001a 5A70     		strb	r2, [r3, #1]
+ 163:.\main.c      ****     array[2] = 0x0FE; //this is a broadcast ID.  Change for daisychained servos.
+ 603              		.loc 1 163 0
+ 604 001c 3B1C     		mov	r3, r7
+ 605 001e 0833     		add	r3, r3, #8
+ 606 0020 FE22     		mov	r2, #254
+ 607 0022 9A70     		strb	r2, [r3, #2]
+ 164:.\main.c      ****     array[3] = 0x04;
+ 608              		.loc 1 164 0
+ 609 0024 3B1C     		mov	r3, r7
+ 610 0026 0833     		add	r3, r3, #8
+ 611 0028 0422     		mov	r2, #4
+ 612 002a DA70     		strb	r2, [r3, #3]
+ 165:.\main.c      ****     array[4] = 0x03; //write instruction
+ 613              		.loc 1 165 0
+ 614 002c 3B1C     		mov	r3, r7
+ 615 002e 0833     		add	r3, r3, #8
+ 616 0030 0322     		mov	r2, #3
+ 617 0032 1A71     		strb	r2, [r3, #4]
+ 166:.\main.c      ****     array[5] = 0x19;
+ 618              		.loc 1 166 0
+ 619 0034 3B1C     		mov	r3, r7
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 15
+
+
+ 620 0036 0833     		add	r3, r3, #8
+ 621 0038 1922     		mov	r2, #25
+ 622 003a 5A71     		strb	r2, [r3, #5]
+ 167:.\main.c      ****     array[6] = ledvalue;
+ 623              		.loc 1 167 0
+ 624 003c 3B1C     		mov	r3, r7
+ 625 003e 0833     		add	r3, r3, #8
+ 626 0040 FA1D     		add	r2, r7, #7
+ 627 0042 1278     		ldrb	r2, [r2]
+ 628 0044 9A71     		strb	r2, [r3, #6]
+ 168:.\main.c      ****     array[7] = ~(0x0FE + 0x04 + 0x19 + ledvalue + 0x03);
+ 629              		.loc 1 168 0
+ 630 0046 FB1D     		add	r3, r7, #7
+ 631 0048 1B78     		ldrb	r3, [r3]
+ 632 004a 1E33     		add	r3, r3, #30
+ 633 004c DBB2     		uxtb	r3, r3
+ 634 004e DB43     		mvn	r3, r3
+ 635 0050 DAB2     		uxtb	r2, r3
+ 636 0052 3B1C     		mov	r3, r7
+ 637 0054 0833     		add	r3, r3, #8
+ 638 0056 DA71     		strb	r2, [r3, #7]
+ 169:.\main.c      ****     
+ 170:.\main.c      ****     UART_1_PutArray(array, 0x08);
+ 639              		.loc 1 170 0
+ 640 0058 3B1C     		mov	r3, r7
+ 641 005a 0833     		add	r3, r3, #8
+ 642 005c 181C     		mov	r0, r3
+ 643 005e 0821     		mov	r1, #8
+ 644 0060 FFF7FEFF 		bl	UART_1_PutArray
+ 171:.\main.c      ****     
+ 172:.\main.c      **** }
+ 645              		.loc 1 172 0
+ 646 0064 BD46     		mov	sp, r7
+ 647 0066 04B0     		add	sp, sp, #16
+ 648              		@ sp needed for prologue
+ 649 0068 80BD     		pop	{r7, pc}
+ 650              		.cfi_endproc
+ 651              	.LFE38:
+ 652              		.size	UartWriteLED, .-UartWriteLED
+ 653 006a C046     		.text
+ 654              	.Letext0:
+ 655              		.file 2 "./Generated_Source/PSoC4/cytypes.h"
+ 656              		.section	.debug_info,"",%progbits
+ 657              	.Ldebug_info0:
+ 658 0000 23030000 		.4byte	0x323
+ 659 0004 0200     		.2byte	0x2
+ 660 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 661 000a 04       		.byte	0x4
+ 662 000b 01       		.uleb128 0x1
+ 663 000c C4010000 		.4byte	.LASF42
+ 664 0010 01       		.byte	0x1
+ 665 0011 D0000000 		.4byte	.LASF43
+ 666 0015 14020000 		.4byte	.LASF44
+ 667 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 668 001d 00000000 		.4byte	0
+ 669 0021 00000000 		.4byte	0
+ 670 0025 00000000 		.4byte	.Ldebug_line0
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 16
+
+
+ 671 0029 02       		.uleb128 0x2
+ 672 002a 01       		.byte	0x1
+ 673 002b 06       		.byte	0x6
+ 674 002c A3010000 		.4byte	.LASF0
+ 675 0030 02       		.uleb128 0x2
+ 676 0031 01       		.byte	0x1
+ 677 0032 08       		.byte	0x8
+ 678 0033 6E000000 		.4byte	.LASF1
+ 679 0037 02       		.uleb128 0x2
+ 680 0038 02       		.byte	0x2
+ 681 0039 05       		.byte	0x5
+ 682 003a 3E000000 		.4byte	.LASF2
+ 683 003e 02       		.uleb128 0x2
+ 684 003f 02       		.byte	0x2
+ 685 0040 07       		.byte	0x7
+ 686 0041 22000000 		.4byte	.LASF3
+ 687 0045 02       		.uleb128 0x2
+ 688 0046 04       		.byte	0x4
+ 689 0047 05       		.byte	0x5
+ 690 0048 95010000 		.4byte	.LASF4
+ 691 004c 02       		.uleb128 0x2
+ 692 004d 04       		.byte	0x4
+ 693 004e 07       		.byte	0x7
+ 694 004f 9E000000 		.4byte	.LASF5
+ 695 0053 02       		.uleb128 0x2
+ 696 0054 08       		.byte	0x8
+ 697 0055 05       		.byte	0x5
+ 698 0056 52010000 		.4byte	.LASF6
+ 699 005a 02       		.uleb128 0x2
+ 700 005b 08       		.byte	0x8
+ 701 005c 07       		.byte	0x7
+ 702 005d 1F010000 		.4byte	.LASF7
+ 703 0061 03       		.uleb128 0x3
+ 704 0062 04       		.byte	0x4
+ 705 0063 05       		.byte	0x5
+ 706 0064 696E7400 		.ascii	"int\000"
+ 707 0068 02       		.uleb128 0x2
+ 708 0069 04       		.byte	0x4
+ 709 006a 07       		.byte	0x7
+ 710 006b 0A010000 		.4byte	.LASF8
+ 711 006f 04       		.uleb128 0x4
+ 712 0070 B0000000 		.4byte	.LASF9
+ 713 0074 02       		.byte	0x2
+ 714 0075 5B       		.byte	0x5b
+ 715 0076 30000000 		.4byte	0x30
+ 716 007a 04       		.uleb128 0x4
+ 717 007b D9000000 		.4byte	.LASF10
+ 718 007f 02       		.byte	0x2
+ 719 0080 5C       		.byte	0x5c
+ 720 0081 3E000000 		.4byte	0x3e
+ 721 0085 02       		.uleb128 0x2
+ 722 0086 04       		.byte	0x4
+ 723 0087 04       		.byte	0x4
+ 724 0088 5F000000 		.4byte	.LASF11
+ 725 008c 02       		.uleb128 0x2
+ 726 008d 08       		.byte	0x8
+ 727 008e 04       		.byte	0x4
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 17
+
+
+ 728 008f BC000000 		.4byte	.LASF12
+ 729 0093 02       		.uleb128 0x2
+ 730 0094 01       		.byte	0x1
+ 731 0095 08       		.byte	0x8
+ 732 0096 9E010000 		.4byte	.LASF13
+ 733 009a 02       		.uleb128 0x2
+ 734 009b 04       		.byte	0x4
+ 735 009c 07       		.byte	0x7
+ 736 009d 49010000 		.4byte	.LASF14
+ 737 00a1 05       		.uleb128 0x5
+ 738 00a2 10       		.byte	0x10
+ 739 00a3 01       		.byte	0x1
+ 740 00a4 14       		.byte	0x14
+ 741 00a5 1A010000 		.4byte	0x11a
+ 742 00a9 06       		.uleb128 0x6
+ 743 00aa 8D000000 		.4byte	.LASF15
+ 744 00ae 01       		.byte	0x1
+ 745 00af 16       		.byte	0x16
+ 746 00b0 7A000000 		.4byte	0x7a
+ 747 00b4 02       		.byte	0x2
+ 748 00b5 23       		.byte	0x23
+ 749 00b6 00       		.uleb128 0
+ 750 00b7 06       		.uleb128 0x6
+ 751 00b8 36010000 		.4byte	.LASF16
+ 752 00bc 01       		.byte	0x1
+ 753 00bd 17       		.byte	0x17
+ 754 00be 7A000000 		.4byte	0x7a
+ 755 00c2 02       		.byte	0x2
+ 756 00c3 23       		.byte	0x23
+ 757 00c4 02       		.uleb128 0x2
+ 758 00c5 06       		.uleb128 0x6
+ 759 00c6 60010000 		.4byte	.LASF17
+ 760 00ca 01       		.byte	0x1
+ 761 00cb 18       		.byte	0x18
+ 762 00cc 7A000000 		.4byte	0x7a
+ 763 00d0 02       		.byte	0x2
+ 764 00d1 23       		.byte	0x23
+ 765 00d2 04       		.uleb128 0x4
+ 766 00d3 06       		.uleb128 0x6
+ 767 00d4 7C000000 		.4byte	.LASF18
+ 768 00d8 01       		.byte	0x1
+ 769 00d9 19       		.byte	0x19
+ 770 00da 7A000000 		.4byte	0x7a
+ 771 00de 02       		.byte	0x2
+ 772 00df 23       		.byte	0x23
+ 773 00e0 06       		.uleb128 0x6
+ 774 00e1 06       		.uleb128 0x6
+ 775 00e2 48000000 		.4byte	.LASF19
+ 776 00e6 01       		.byte	0x1
+ 777 00e7 1A       		.byte	0x1a
+ 778 00e8 7A000000 		.4byte	0x7a
+ 779 00ec 02       		.byte	0x2
+ 780 00ed 23       		.byte	0x23
+ 781 00ee 08       		.uleb128 0x8
+ 782 00ef 06       		.uleb128 0x6
+ 783 00f0 0B000000 		.4byte	.LASF20
+ 784 00f4 01       		.byte	0x1
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 18
+
+
+ 785 00f5 1B       		.byte	0x1b
+ 786 00f6 7A000000 		.4byte	0x7a
+ 787 00fa 02       		.byte	0x2
+ 788 00fb 23       		.byte	0x23
+ 789 00fc 0A       		.uleb128 0xa
+ 790 00fd 06       		.uleb128 0x6
+ 791 00fe FE000000 		.4byte	.LASF21
+ 792 0102 01       		.byte	0x1
+ 793 0103 1C       		.byte	0x1c
+ 794 0104 7A000000 		.4byte	0x7a
+ 795 0108 02       		.byte	0x2
+ 796 0109 23       		.byte	0x23
+ 797 010a 0C       		.uleb128 0xc
+ 798 010b 06       		.uleb128 0x6
+ 799 010c 65000000 		.4byte	.LASF22
+ 800 0110 01       		.byte	0x1
+ 801 0111 1D       		.byte	0x1d
+ 802 0112 7A000000 		.4byte	0x7a
+ 803 0116 02       		.byte	0x2
+ 804 0117 23       		.byte	0x23
+ 805 0118 0E       		.uleb128 0xe
+ 806 0119 00       		.byte	0
+ 807 011a 07       		.uleb128 0x7
+ 808 011b AF010000 		.4byte	.LASF25
+ 809 011f 14       		.byte	0x14
+ 810 0120 01       		.byte	0x1
+ 811 0121 10       		.byte	0x10
+ 812 0122 3D010000 		.4byte	0x13d
+ 813 0126 08       		.uleb128 0x8
+ 814 0127 35000000 		.4byte	.LASF23
+ 815 012b 01       		.byte	0x1
+ 816 012c 12       		.byte	0x12
+ 817 012d 3D010000 		.4byte	0x13d
+ 818 0131 08       		.uleb128 0x8
+ 819 0132 B6010000 		.4byte	.LASF24
+ 820 0136 01       		.byte	0x1
+ 821 0137 1F       		.byte	0x1f
+ 822 0138 A1000000 		.4byte	0xa1
+ 823 013c 00       		.byte	0
+ 824 013d 09       		.uleb128 0x9
+ 825 013e 6F000000 		.4byte	0x6f
+ 826 0142 4D010000 		.4byte	0x14d
+ 827 0146 0A       		.uleb128 0xa
+ 828 0147 9A000000 		.4byte	0x9a
+ 829 014b 13       		.byte	0x13
+ 830 014c 00       		.byte	0
+ 831 014d 04       		.uleb128 0x4
+ 832 014e AF010000 		.4byte	.LASF25
+ 833 0152 01       		.byte	0x1
+ 834 0153 21       		.byte	0x21
+ 835 0154 1A010000 		.4byte	0x11a
+ 836 0158 0B       		.uleb128 0xb
+ 837 0159 01       		.byte	0x1
+ 838 015a F9000000 		.4byte	.LASF28
+ 839 015e 01       		.byte	0x1
+ 840 015f 2B       		.byte	0x2b
+ 841 0160 61000000 		.4byte	0x61
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 19
+
+
+ 842 0164 00000000 		.4byte	.LFB33
+ 843 0168 B0000000 		.4byte	.LFE33
+ 844 016c 00000000 		.4byte	.LLST0
+ 845 0170 01       		.byte	0x1
+ 846 0171 9C010000 		.4byte	0x19c
+ 847 0175 0C       		.uleb128 0xc
+ 848 0176 20000000 		.4byte	.LBB2
+ 849 017a A6000000 		.4byte	.LBE2
+ 850 017e 0D       		.uleb128 0xd
+ 851 017f 14000000 		.4byte	.LASF26
+ 852 0183 01       		.byte	0x1
+ 853 0184 38       		.byte	0x38
+ 854 0185 7A000000 		.4byte	0x7a
+ 855 0189 02       		.byte	0x2
+ 856 018a 91       		.byte	0x91
+ 857 018b 76       		.sleb128 -10
+ 858 018c 0D       		.uleb128 0xd
+ 859 018d 1B000000 		.4byte	.LASF27
+ 860 0191 01       		.byte	0x1
+ 861 0192 42       		.byte	0x42
+ 862 0193 7A000000 		.4byte	0x7a
+ 863 0197 02       		.byte	0x2
+ 864 0198 91       		.byte	0x91
+ 865 0199 74       		.sleb128 -12
+ 866 019a 00       		.byte	0
+ 867 019b 00       		.byte	0
+ 868 019c 0E       		.uleb128 0xe
+ 869 019d 01       		.byte	0x1
+ 870 019e E0000000 		.4byte	.LASF29
+ 871 01a2 01       		.byte	0x1
+ 872 01a3 5A       		.byte	0x5a
+ 873 01a4 01       		.byte	0x1
+ 874 01a5 00000000 		.4byte	.LFB34
+ 875 01a9 98000000 		.4byte	.LFE34
+ 876 01ad 38000000 		.4byte	.LLST1
+ 877 01b1 01       		.byte	0x1
+ 878 01b2 E1010000 		.4byte	0x1e1
+ 879 01b6 0F       		.uleb128 0xf
+ 880 01b7 57000000 		.4byte	.LASF30
+ 881 01bb 01       		.byte	0x1
+ 882 01bc 5A       		.byte	0x5a
+ 883 01bd 6F000000 		.4byte	0x6f
+ 884 01c1 02       		.byte	0x2
+ 885 01c2 91       		.byte	0x91
+ 886 01c3 67       		.sleb128 -25
+ 887 01c4 0F       		.uleb128 0xf
+ 888 01c5 7D010000 		.4byte	.LASF31
+ 889 01c9 01       		.byte	0x1
+ 890 01ca 5A       		.byte	0x5a
+ 891 01cb 7A000000 		.4byte	0x7a
+ 892 01cf 02       		.byte	0x2
+ 893 01d0 91       		.byte	0x91
+ 894 01d1 64       		.sleb128 -28
+ 895 01d2 0D       		.uleb128 0xd
+ 896 01d3 B6000000 		.4byte	.LASF32
+ 897 01d7 01       		.byte	0x1
+ 898 01d8 5B       		.byte	0x5b
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 20
+
+
+ 899 01d9 E1010000 		.4byte	0x1e1
+ 900 01dd 02       		.byte	0x2
+ 901 01de 91       		.byte	0x91
+ 902 01df 6C       		.sleb128 -20
+ 903 01e0 00       		.byte	0
+ 904 01e1 09       		.uleb128 0x9
+ 905 01e2 6F000000 		.4byte	0x6f
+ 906 01e6 F1010000 		.4byte	0x1f1
+ 907 01ea 0A       		.uleb128 0xa
+ 908 01eb 9A000000 		.4byte	0x9a
+ 909 01ef 08       		.byte	0x8
+ 910 01f0 00       		.byte	0
+ 911 01f1 0E       		.uleb128 0xe
+ 912 01f2 01       		.byte	0x1
+ 913 01f3 86010000 		.4byte	.LASF33
+ 914 01f7 01       		.byte	0x1
+ 915 01f8 6B       		.byte	0x6b
+ 916 01f9 01       		.byte	0x1
+ 917 01fa 00000000 		.4byte	.LFB35
+ 918 01fe 98000000 		.4byte	.LFE35
+ 919 0202 70000000 		.4byte	.LLST2
+ 920 0206 01       		.byte	0x1
+ 921 0207 36020000 		.4byte	0x236
+ 922 020b 0F       		.uleb128 0xf
+ 923 020c 57000000 		.4byte	.LASF30
+ 924 0210 01       		.byte	0x1
+ 925 0211 6B       		.byte	0x6b
+ 926 0212 6F000000 		.4byte	0x6f
+ 927 0216 02       		.byte	0x2
+ 928 0217 91       		.byte	0x91
+ 929 0218 67       		.sleb128 -25
+ 930 0219 0F       		.uleb128 0xf
+ 931 021a 76010000 		.4byte	.LASF34
+ 932 021e 01       		.byte	0x1
+ 933 021f 6B       		.byte	0x6b
+ 934 0220 7A000000 		.4byte	0x7a
+ 935 0224 02       		.byte	0x2
+ 936 0225 91       		.byte	0x91
+ 937 0226 64       		.sleb128 -28
+ 938 0227 0D       		.uleb128 0xd
+ 939 0228 B6000000 		.4byte	.LASF32
+ 940 022c 01       		.byte	0x1
+ 941 022d 6C       		.byte	0x6c
+ 942 022e E1010000 		.4byte	0x1e1
+ 943 0232 02       		.byte	0x2
+ 944 0233 91       		.byte	0x91
+ 945 0234 6C       		.sleb128 -20
+ 946 0235 00       		.byte	0
+ 947 0236 0E       		.uleb128 0xe
+ 948 0237 01       		.byte	0x1
+ 949 0238 00000000 		.4byte	.LASF35
+ 950 023c 01       		.byte	0x1
+ 951 023d 7C       		.byte	0x7c
+ 952 023e 01       		.byte	0x1
+ 953 023f 00000000 		.4byte	.LFB36
+ 954 0243 98000000 		.4byte	.LFE36
+ 955 0247 A8000000 		.4byte	.LLST3
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 21
+
+
+ 956 024b 01       		.byte	0x1
+ 957 024c 7B020000 		.4byte	0x27b
+ 958 0250 0F       		.uleb128 0xf
+ 959 0251 57000000 		.4byte	.LASF30
+ 960 0255 01       		.byte	0x1
+ 961 0256 7C       		.byte	0x7c
+ 962 0257 6F000000 		.4byte	0x6f
+ 963 025b 02       		.byte	0x2
+ 964 025c 91       		.byte	0x91
+ 965 025d 67       		.sleb128 -25
+ 966 025e 0F       		.uleb128 0xf
+ 967 025f 43010000 		.4byte	.LASF36
+ 968 0263 01       		.byte	0x1
+ 969 0264 7C       		.byte	0x7c
+ 970 0265 7A000000 		.4byte	0x7a
+ 971 0269 02       		.byte	0x2
+ 972 026a 91       		.byte	0x91
+ 973 026b 64       		.sleb128 -28
+ 974 026c 0D       		.uleb128 0xd
+ 975 026d B6000000 		.4byte	.LASF32
+ 976 0271 01       		.byte	0x1
+ 977 0272 7D       		.byte	0x7d
+ 978 0273 E1010000 		.4byte	0x1e1
+ 979 0277 02       		.byte	0x2
+ 980 0278 91       		.byte	0x91
+ 981 0279 6C       		.sleb128 -20
+ 982 027a 00       		.byte	0
+ 983 027b 0E       		.uleb128 0xe
+ 984 027c 01       		.byte	0x1
+ 985 027d 6A010000 		.4byte	.LASF37
+ 986 0281 01       		.byte	0x1
+ 987 0282 8D       		.byte	0x8d
+ 988 0283 01       		.byte	0x1
+ 989 0284 00000000 		.4byte	.LFB37
+ 990 0288 88000000 		.4byte	.LFE37
+ 991 028c E0000000 		.4byte	.LLST4
+ 992 0290 01       		.byte	0x1
+ 993 0291 CD020000 		.4byte	0x2cd
+ 994 0295 10       		.uleb128 0x10
+ 995 0296 696400   		.ascii	"id\000"
+ 996 0299 01       		.byte	0x1
+ 997 029a 8D       		.byte	0x8d
+ 998 029b 6F000000 		.4byte	0x6f
+ 999 029f 02       		.byte	0x2
+ 1000 02a0 91       		.byte	0x91
+ 1001 02a1 6F       		.sleb128 -17
+ 1002 02a2 0F       		.uleb128 0xf
+ 1003 02a3 17010000 		.4byte	.LASF38
+ 1004 02a7 01       		.byte	0x1
+ 1005 02a8 8D       		.byte	0x8d
+ 1006 02a9 7A000000 		.4byte	0x7a
+ 1007 02ad 02       		.byte	0x2
+ 1008 02ae 91       		.byte	0x91
+ 1009 02af 6C       		.sleb128 -20
+ 1010 02b0 0F       		.uleb128 0xf
+ 1011 02b1 0D020000 		.4byte	.LASF39
+ 1012 02b5 01       		.byte	0x1
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 22
+
+
+ 1013 02b6 8D       		.byte	0x8d
+ 1014 02b7 6F000000 		.4byte	0x6f
+ 1015 02bb 02       		.byte	0x2
+ 1016 02bc 91       		.byte	0x91
+ 1017 02bd 6E       		.sleb128 -18
+ 1018 02be 0D       		.uleb128 0xd
+ 1019 02bf B6000000 		.4byte	.LASF32
+ 1020 02c3 01       		.byte	0x1
+ 1021 02c4 8E       		.byte	0x8e
+ 1022 02c5 CD020000 		.4byte	0x2cd
+ 1023 02c9 02       		.byte	0x2
+ 1024 02ca 91       		.byte	0x91
+ 1025 02cb 70       		.sleb128 -16
+ 1026 02cc 00       		.byte	0
+ 1027 02cd 09       		.uleb128 0x9
+ 1028 02ce 6F000000 		.4byte	0x6f
+ 1029 02d2 DD020000 		.4byte	0x2dd
+ 1030 02d6 0A       		.uleb128 0xa
+ 1031 02d7 9A000000 		.4byte	0x9a
+ 1032 02db 07       		.byte	0x7
+ 1033 02dc 00       		.byte	0
+ 1034 02dd 0E       		.uleb128 0xe
+ 1035 02de 01       		.byte	0x1
+ 1036 02df C3000000 		.4byte	.LASF40
+ 1037 02e3 01       		.byte	0x1
+ 1038 02e4 9E       		.byte	0x9e
+ 1039 02e5 01       		.byte	0x1
+ 1040 02e6 00000000 		.4byte	.LFB38
+ 1041 02ea 6A000000 		.4byte	.LFE38
+ 1042 02ee 18010000 		.4byte	.LLST5
+ 1043 02f2 01       		.byte	0x1
+ 1044 02f3 14030000 		.4byte	0x314
+ 1045 02f7 0F       		.uleb128 0xf
+ 1046 02f8 75020000 		.4byte	.LASF41
+ 1047 02fc 01       		.byte	0x1
+ 1048 02fd 9E       		.byte	0x9e
+ 1049 02fe 6F000000 		.4byte	0x6f
+ 1050 0302 02       		.byte	0x2
+ 1051 0303 91       		.byte	0x91
+ 1052 0304 6F       		.sleb128 -17
+ 1053 0305 0D       		.uleb128 0xd
+ 1054 0306 B6000000 		.4byte	.LASF32
+ 1055 030a 01       		.byte	0x1
+ 1056 030b 9F       		.byte	0x9f
+ 1057 030c CD020000 		.4byte	0x2cd
+ 1058 0310 02       		.byte	0x2
+ 1059 0311 91       		.byte	0x91
+ 1060 0312 70       		.sleb128 -16
+ 1061 0313 00       		.byte	0
+ 1062 0314 11       		.uleb128 0x11
+ 1063 0315 F2000000 		.4byte	.LASF45
+ 1064 0319 01       		.byte	0x1
+ 1065 031a 23       		.byte	0x23
+ 1066 031b 4D010000 		.4byte	0x14d
+ 1067 031f 01       		.byte	0x1
+ 1068 0320 05       		.byte	0x5
+ 1069 0321 03       		.byte	0x3
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 23
+
+
+ 1070 0322 00000000 		.4byte	SpiReg
+ 1071 0326 00       		.byte	0
+ 1072              		.section	.debug_abbrev,"",%progbits
+ 1073              	.Ldebug_abbrev0:
+ 1074 0000 01       		.uleb128 0x1
+ 1075 0001 11       		.uleb128 0x11
+ 1076 0002 01       		.byte	0x1
+ 1077 0003 25       		.uleb128 0x25
+ 1078 0004 0E       		.uleb128 0xe
+ 1079 0005 13       		.uleb128 0x13
+ 1080 0006 0B       		.uleb128 0xb
+ 1081 0007 03       		.uleb128 0x3
+ 1082 0008 0E       		.uleb128 0xe
+ 1083 0009 1B       		.uleb128 0x1b
+ 1084 000a 0E       		.uleb128 0xe
+ 1085 000b 55       		.uleb128 0x55
+ 1086 000c 06       		.uleb128 0x6
+ 1087 000d 11       		.uleb128 0x11
+ 1088 000e 01       		.uleb128 0x1
+ 1089 000f 52       		.uleb128 0x52
+ 1090 0010 01       		.uleb128 0x1
+ 1091 0011 10       		.uleb128 0x10
+ 1092 0012 06       		.uleb128 0x6
+ 1093 0013 00       		.byte	0
+ 1094 0014 00       		.byte	0
+ 1095 0015 02       		.uleb128 0x2
+ 1096 0016 24       		.uleb128 0x24
+ 1097 0017 00       		.byte	0
+ 1098 0018 0B       		.uleb128 0xb
+ 1099 0019 0B       		.uleb128 0xb
+ 1100 001a 3E       		.uleb128 0x3e
+ 1101 001b 0B       		.uleb128 0xb
+ 1102 001c 03       		.uleb128 0x3
+ 1103 001d 0E       		.uleb128 0xe
+ 1104 001e 00       		.byte	0
+ 1105 001f 00       		.byte	0
+ 1106 0020 03       		.uleb128 0x3
+ 1107 0021 24       		.uleb128 0x24
+ 1108 0022 00       		.byte	0
+ 1109 0023 0B       		.uleb128 0xb
+ 1110 0024 0B       		.uleb128 0xb
+ 1111 0025 3E       		.uleb128 0x3e
+ 1112 0026 0B       		.uleb128 0xb
+ 1113 0027 03       		.uleb128 0x3
+ 1114 0028 08       		.uleb128 0x8
+ 1115 0029 00       		.byte	0
+ 1116 002a 00       		.byte	0
+ 1117 002b 04       		.uleb128 0x4
+ 1118 002c 16       		.uleb128 0x16
+ 1119 002d 00       		.byte	0
+ 1120 002e 03       		.uleb128 0x3
+ 1121 002f 0E       		.uleb128 0xe
+ 1122 0030 3A       		.uleb128 0x3a
+ 1123 0031 0B       		.uleb128 0xb
+ 1124 0032 3B       		.uleb128 0x3b
+ 1125 0033 0B       		.uleb128 0xb
+ 1126 0034 49       		.uleb128 0x49
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 24
+
+
+ 1127 0035 13       		.uleb128 0x13
+ 1128 0036 00       		.byte	0
+ 1129 0037 00       		.byte	0
+ 1130 0038 05       		.uleb128 0x5
+ 1131 0039 13       		.uleb128 0x13
+ 1132 003a 01       		.byte	0x1
+ 1133 003b 0B       		.uleb128 0xb
+ 1134 003c 0B       		.uleb128 0xb
+ 1135 003d 3A       		.uleb128 0x3a
+ 1136 003e 0B       		.uleb128 0xb
+ 1137 003f 3B       		.uleb128 0x3b
+ 1138 0040 0B       		.uleb128 0xb
+ 1139 0041 01       		.uleb128 0x1
+ 1140 0042 13       		.uleb128 0x13
+ 1141 0043 00       		.byte	0
+ 1142 0044 00       		.byte	0
+ 1143 0045 06       		.uleb128 0x6
+ 1144 0046 0D       		.uleb128 0xd
+ 1145 0047 00       		.byte	0
+ 1146 0048 03       		.uleb128 0x3
+ 1147 0049 0E       		.uleb128 0xe
+ 1148 004a 3A       		.uleb128 0x3a
+ 1149 004b 0B       		.uleb128 0xb
+ 1150 004c 3B       		.uleb128 0x3b
+ 1151 004d 0B       		.uleb128 0xb
+ 1152 004e 49       		.uleb128 0x49
+ 1153 004f 13       		.uleb128 0x13
+ 1154 0050 38       		.uleb128 0x38
+ 1155 0051 0A       		.uleb128 0xa
+ 1156 0052 00       		.byte	0
+ 1157 0053 00       		.byte	0
+ 1158 0054 07       		.uleb128 0x7
+ 1159 0055 17       		.uleb128 0x17
+ 1160 0056 01       		.byte	0x1
+ 1161 0057 03       		.uleb128 0x3
+ 1162 0058 0E       		.uleb128 0xe
+ 1163 0059 0B       		.uleb128 0xb
+ 1164 005a 0B       		.uleb128 0xb
+ 1165 005b 3A       		.uleb128 0x3a
+ 1166 005c 0B       		.uleb128 0xb
+ 1167 005d 3B       		.uleb128 0x3b
+ 1168 005e 0B       		.uleb128 0xb
+ 1169 005f 01       		.uleb128 0x1
+ 1170 0060 13       		.uleb128 0x13
+ 1171 0061 00       		.byte	0
+ 1172 0062 00       		.byte	0
+ 1173 0063 08       		.uleb128 0x8
+ 1174 0064 0D       		.uleb128 0xd
+ 1175 0065 00       		.byte	0
+ 1176 0066 03       		.uleb128 0x3
+ 1177 0067 0E       		.uleb128 0xe
+ 1178 0068 3A       		.uleb128 0x3a
+ 1179 0069 0B       		.uleb128 0xb
+ 1180 006a 3B       		.uleb128 0x3b
+ 1181 006b 0B       		.uleb128 0xb
+ 1182 006c 49       		.uleb128 0x49
+ 1183 006d 13       		.uleb128 0x13
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 25
+
+
+ 1184 006e 00       		.byte	0
+ 1185 006f 00       		.byte	0
+ 1186 0070 09       		.uleb128 0x9
+ 1187 0071 01       		.uleb128 0x1
+ 1188 0072 01       		.byte	0x1
+ 1189 0073 49       		.uleb128 0x49
+ 1190 0074 13       		.uleb128 0x13
+ 1191 0075 01       		.uleb128 0x1
+ 1192 0076 13       		.uleb128 0x13
+ 1193 0077 00       		.byte	0
+ 1194 0078 00       		.byte	0
+ 1195 0079 0A       		.uleb128 0xa
+ 1196 007a 21       		.uleb128 0x21
+ 1197 007b 00       		.byte	0
+ 1198 007c 49       		.uleb128 0x49
+ 1199 007d 13       		.uleb128 0x13
+ 1200 007e 2F       		.uleb128 0x2f
+ 1201 007f 0B       		.uleb128 0xb
+ 1202 0080 00       		.byte	0
+ 1203 0081 00       		.byte	0
+ 1204 0082 0B       		.uleb128 0xb
+ 1205 0083 2E       		.uleb128 0x2e
+ 1206 0084 01       		.byte	0x1
+ 1207 0085 3F       		.uleb128 0x3f
+ 1208 0086 0C       		.uleb128 0xc
+ 1209 0087 03       		.uleb128 0x3
+ 1210 0088 0E       		.uleb128 0xe
+ 1211 0089 3A       		.uleb128 0x3a
+ 1212 008a 0B       		.uleb128 0xb
+ 1213 008b 3B       		.uleb128 0x3b
+ 1214 008c 0B       		.uleb128 0xb
+ 1215 008d 49       		.uleb128 0x49
+ 1216 008e 13       		.uleb128 0x13
+ 1217 008f 11       		.uleb128 0x11
+ 1218 0090 01       		.uleb128 0x1
+ 1219 0091 12       		.uleb128 0x12
+ 1220 0092 01       		.uleb128 0x1
+ 1221 0093 40       		.uleb128 0x40
+ 1222 0094 06       		.uleb128 0x6
+ 1223 0095 9642     		.uleb128 0x2116
+ 1224 0097 0C       		.uleb128 0xc
+ 1225 0098 01       		.uleb128 0x1
+ 1226 0099 13       		.uleb128 0x13
+ 1227 009a 00       		.byte	0
+ 1228 009b 00       		.byte	0
+ 1229 009c 0C       		.uleb128 0xc
+ 1230 009d 0B       		.uleb128 0xb
+ 1231 009e 01       		.byte	0x1
+ 1232 009f 11       		.uleb128 0x11
+ 1233 00a0 01       		.uleb128 0x1
+ 1234 00a1 12       		.uleb128 0x12
+ 1235 00a2 01       		.uleb128 0x1
+ 1236 00a3 00       		.byte	0
+ 1237 00a4 00       		.byte	0
+ 1238 00a5 0D       		.uleb128 0xd
+ 1239 00a6 34       		.uleb128 0x34
+ 1240 00a7 00       		.byte	0
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 26
+
+
+ 1241 00a8 03       		.uleb128 0x3
+ 1242 00a9 0E       		.uleb128 0xe
+ 1243 00aa 3A       		.uleb128 0x3a
+ 1244 00ab 0B       		.uleb128 0xb
+ 1245 00ac 3B       		.uleb128 0x3b
+ 1246 00ad 0B       		.uleb128 0xb
+ 1247 00ae 49       		.uleb128 0x49
+ 1248 00af 13       		.uleb128 0x13
+ 1249 00b0 02       		.uleb128 0x2
+ 1250 00b1 0A       		.uleb128 0xa
+ 1251 00b2 00       		.byte	0
+ 1252 00b3 00       		.byte	0
+ 1253 00b4 0E       		.uleb128 0xe
+ 1254 00b5 2E       		.uleb128 0x2e
+ 1255 00b6 01       		.byte	0x1
+ 1256 00b7 3F       		.uleb128 0x3f
+ 1257 00b8 0C       		.uleb128 0xc
+ 1258 00b9 03       		.uleb128 0x3
+ 1259 00ba 0E       		.uleb128 0xe
+ 1260 00bb 3A       		.uleb128 0x3a
+ 1261 00bc 0B       		.uleb128 0xb
+ 1262 00bd 3B       		.uleb128 0x3b
+ 1263 00be 0B       		.uleb128 0xb
+ 1264 00bf 27       		.uleb128 0x27
+ 1265 00c0 0C       		.uleb128 0xc
+ 1266 00c1 11       		.uleb128 0x11
+ 1267 00c2 01       		.uleb128 0x1
+ 1268 00c3 12       		.uleb128 0x12
+ 1269 00c4 01       		.uleb128 0x1
+ 1270 00c5 40       		.uleb128 0x40
+ 1271 00c6 06       		.uleb128 0x6
+ 1272 00c7 9642     		.uleb128 0x2116
+ 1273 00c9 0C       		.uleb128 0xc
+ 1274 00ca 01       		.uleb128 0x1
+ 1275 00cb 13       		.uleb128 0x13
+ 1276 00cc 00       		.byte	0
+ 1277 00cd 00       		.byte	0
+ 1278 00ce 0F       		.uleb128 0xf
+ 1279 00cf 05       		.uleb128 0x5
+ 1280 00d0 00       		.byte	0
+ 1281 00d1 03       		.uleb128 0x3
+ 1282 00d2 0E       		.uleb128 0xe
+ 1283 00d3 3A       		.uleb128 0x3a
+ 1284 00d4 0B       		.uleb128 0xb
+ 1285 00d5 3B       		.uleb128 0x3b
+ 1286 00d6 0B       		.uleb128 0xb
+ 1287 00d7 49       		.uleb128 0x49
+ 1288 00d8 13       		.uleb128 0x13
+ 1289 00d9 02       		.uleb128 0x2
+ 1290 00da 0A       		.uleb128 0xa
+ 1291 00db 00       		.byte	0
+ 1292 00dc 00       		.byte	0
+ 1293 00dd 10       		.uleb128 0x10
+ 1294 00de 05       		.uleb128 0x5
+ 1295 00df 00       		.byte	0
+ 1296 00e0 03       		.uleb128 0x3
+ 1297 00e1 08       		.uleb128 0x8
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 27
+
+
+ 1298 00e2 3A       		.uleb128 0x3a
+ 1299 00e3 0B       		.uleb128 0xb
+ 1300 00e4 3B       		.uleb128 0x3b
+ 1301 00e5 0B       		.uleb128 0xb
+ 1302 00e6 49       		.uleb128 0x49
+ 1303 00e7 13       		.uleb128 0x13
+ 1304 00e8 02       		.uleb128 0x2
+ 1305 00e9 0A       		.uleb128 0xa
+ 1306 00ea 00       		.byte	0
+ 1307 00eb 00       		.byte	0
+ 1308 00ec 11       		.uleb128 0x11
+ 1309 00ed 34       		.uleb128 0x34
+ 1310 00ee 00       		.byte	0
+ 1311 00ef 03       		.uleb128 0x3
+ 1312 00f0 0E       		.uleb128 0xe
+ 1313 00f1 3A       		.uleb128 0x3a
+ 1314 00f2 0B       		.uleb128 0xb
+ 1315 00f3 3B       		.uleb128 0x3b
+ 1316 00f4 0B       		.uleb128 0xb
+ 1317 00f5 49       		.uleb128 0x49
+ 1318 00f6 13       		.uleb128 0x13
+ 1319 00f7 3F       		.uleb128 0x3f
+ 1320 00f8 0C       		.uleb128 0xc
+ 1321 00f9 02       		.uleb128 0x2
+ 1322 00fa 0A       		.uleb128 0xa
+ 1323 00fb 00       		.byte	0
+ 1324 00fc 00       		.byte	0
+ 1325 00fd 00       		.byte	0
+ 1326              		.section	.debug_loc,"",%progbits
+ 1327              	.Ldebug_loc0:
+ 1328              	.LLST0:
+ 1329 0000 00000000 		.4byte	.LFB33
+ 1330 0004 02000000 		.4byte	.LCFI0
+ 1331 0008 0200     		.2byte	0x2
+ 1332 000a 7D       		.byte	0x7d
+ 1333 000b 00       		.sleb128 0
+ 1334 000c 02000000 		.4byte	.LCFI0
+ 1335 0010 04000000 		.4byte	.LCFI1
+ 1336 0014 0200     		.2byte	0x2
+ 1337 0016 7D       		.byte	0x7d
+ 1338 0017 08       		.sleb128 8
+ 1339 0018 04000000 		.4byte	.LCFI1
+ 1340 001c 06000000 		.4byte	.LCFI2
+ 1341 0020 0200     		.2byte	0x2
+ 1342 0022 7D       		.byte	0x7d
+ 1343 0023 10       		.sleb128 16
+ 1344 0024 06000000 		.4byte	.LCFI2
+ 1345 0028 B0000000 		.4byte	.LFE33
+ 1346 002c 0200     		.2byte	0x2
+ 1347 002e 77       		.byte	0x77
+ 1348 002f 10       		.sleb128 16
+ 1349 0030 00000000 		.4byte	0
+ 1350 0034 00000000 		.4byte	0
+ 1351              	.LLST1:
+ 1352 0038 00000000 		.4byte	.LFB34
+ 1353 003c 02000000 		.4byte	.LCFI3
+ 1354 0040 0200     		.2byte	0x2
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 28
+
+
+ 1355 0042 7D       		.byte	0x7d
+ 1356 0043 00       		.sleb128 0
+ 1357 0044 02000000 		.4byte	.LCFI3
+ 1358 0048 04000000 		.4byte	.LCFI4
+ 1359 004c 0200     		.2byte	0x2
+ 1360 004e 7D       		.byte	0x7d
+ 1361 004f 08       		.sleb128 8
+ 1362 0050 04000000 		.4byte	.LCFI4
+ 1363 0054 06000000 		.4byte	.LCFI5
+ 1364 0058 0200     		.2byte	0x2
+ 1365 005a 7D       		.byte	0x7d
+ 1366 005b 20       		.sleb128 32
+ 1367 005c 06000000 		.4byte	.LCFI5
+ 1368 0060 98000000 		.4byte	.LFE34
+ 1369 0064 0200     		.2byte	0x2
+ 1370 0066 77       		.byte	0x77
+ 1371 0067 20       		.sleb128 32
+ 1372 0068 00000000 		.4byte	0
+ 1373 006c 00000000 		.4byte	0
+ 1374              	.LLST2:
+ 1375 0070 00000000 		.4byte	.LFB35
+ 1376 0074 02000000 		.4byte	.LCFI6
+ 1377 0078 0200     		.2byte	0x2
+ 1378 007a 7D       		.byte	0x7d
+ 1379 007b 00       		.sleb128 0
+ 1380 007c 02000000 		.4byte	.LCFI6
+ 1381 0080 04000000 		.4byte	.LCFI7
+ 1382 0084 0200     		.2byte	0x2
+ 1383 0086 7D       		.byte	0x7d
+ 1384 0087 08       		.sleb128 8
+ 1385 0088 04000000 		.4byte	.LCFI7
+ 1386 008c 06000000 		.4byte	.LCFI8
+ 1387 0090 0200     		.2byte	0x2
+ 1388 0092 7D       		.byte	0x7d
+ 1389 0093 20       		.sleb128 32
+ 1390 0094 06000000 		.4byte	.LCFI8
+ 1391 0098 98000000 		.4byte	.LFE35
+ 1392 009c 0200     		.2byte	0x2
+ 1393 009e 77       		.byte	0x77
+ 1394 009f 20       		.sleb128 32
+ 1395 00a0 00000000 		.4byte	0
+ 1396 00a4 00000000 		.4byte	0
+ 1397              	.LLST3:
+ 1398 00a8 00000000 		.4byte	.LFB36
+ 1399 00ac 02000000 		.4byte	.LCFI9
+ 1400 00b0 0200     		.2byte	0x2
+ 1401 00b2 7D       		.byte	0x7d
+ 1402 00b3 00       		.sleb128 0
+ 1403 00b4 02000000 		.4byte	.LCFI9
+ 1404 00b8 04000000 		.4byte	.LCFI10
+ 1405 00bc 0200     		.2byte	0x2
+ 1406 00be 7D       		.byte	0x7d
+ 1407 00bf 08       		.sleb128 8
+ 1408 00c0 04000000 		.4byte	.LCFI10
+ 1409 00c4 06000000 		.4byte	.LCFI11
+ 1410 00c8 0200     		.2byte	0x2
+ 1411 00ca 7D       		.byte	0x7d
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 29
+
+
+ 1412 00cb 20       		.sleb128 32
+ 1413 00cc 06000000 		.4byte	.LCFI11
+ 1414 00d0 98000000 		.4byte	.LFE36
+ 1415 00d4 0200     		.2byte	0x2
+ 1416 00d6 77       		.byte	0x77
+ 1417 00d7 20       		.sleb128 32
+ 1418 00d8 00000000 		.4byte	0
+ 1419 00dc 00000000 		.4byte	0
+ 1420              	.LLST4:
+ 1421 00e0 00000000 		.4byte	.LFB37
+ 1422 00e4 02000000 		.4byte	.LCFI12
+ 1423 00e8 0200     		.2byte	0x2
+ 1424 00ea 7D       		.byte	0x7d
+ 1425 00eb 00       		.sleb128 0
+ 1426 00ec 02000000 		.4byte	.LCFI12
+ 1427 00f0 04000000 		.4byte	.LCFI13
+ 1428 00f4 0200     		.2byte	0x2
+ 1429 00f6 7D       		.byte	0x7d
+ 1430 00f7 08       		.sleb128 8
+ 1431 00f8 04000000 		.4byte	.LCFI13
+ 1432 00fc 06000000 		.4byte	.LCFI14
+ 1433 0100 0200     		.2byte	0x2
+ 1434 0102 7D       		.byte	0x7d
+ 1435 0103 18       		.sleb128 24
+ 1436 0104 06000000 		.4byte	.LCFI14
+ 1437 0108 88000000 		.4byte	.LFE37
+ 1438 010c 0200     		.2byte	0x2
+ 1439 010e 77       		.byte	0x77
+ 1440 010f 18       		.sleb128 24
+ 1441 0110 00000000 		.4byte	0
+ 1442 0114 00000000 		.4byte	0
+ 1443              	.LLST5:
+ 1444 0118 00000000 		.4byte	.LFB38
+ 1445 011c 02000000 		.4byte	.LCFI15
+ 1446 0120 0200     		.2byte	0x2
+ 1447 0122 7D       		.byte	0x7d
+ 1448 0123 00       		.sleb128 0
+ 1449 0124 02000000 		.4byte	.LCFI15
+ 1450 0128 04000000 		.4byte	.LCFI16
+ 1451 012c 0200     		.2byte	0x2
+ 1452 012e 7D       		.byte	0x7d
+ 1453 012f 08       		.sleb128 8
+ 1454 0130 04000000 		.4byte	.LCFI16
+ 1455 0134 06000000 		.4byte	.LCFI17
+ 1456 0138 0200     		.2byte	0x2
+ 1457 013a 7D       		.byte	0x7d
+ 1458 013b 18       		.sleb128 24
+ 1459 013c 06000000 		.4byte	.LCFI17
+ 1460 0140 6A000000 		.4byte	.LFE38
+ 1461 0144 0200     		.2byte	0x2
+ 1462 0146 77       		.byte	0x77
+ 1463 0147 18       		.sleb128 24
+ 1464 0148 00000000 		.4byte	0
+ 1465 014c 00000000 		.4byte	0
+ 1466              		.section	.debug_aranges,"",%progbits
+ 1467 0000 44000000 		.4byte	0x44
+ 1468 0004 0200     		.2byte	0x2
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 30
+
+
+ 1469 0006 00000000 		.4byte	.Ldebug_info0
+ 1470 000a 04       		.byte	0x4
+ 1471 000b 00       		.byte	0
+ 1472 000c 0000     		.2byte	0
+ 1473 000e 0000     		.2byte	0
+ 1474 0010 00000000 		.4byte	.LFB33
+ 1475 0014 B0000000 		.4byte	.LFE33-.LFB33
+ 1476 0018 00000000 		.4byte	.LFB34
+ 1477 001c 98000000 		.4byte	.LFE34-.LFB34
+ 1478 0020 00000000 		.4byte	.LFB35
+ 1479 0024 98000000 		.4byte	.LFE35-.LFB35
+ 1480 0028 00000000 		.4byte	.LFB36
+ 1481 002c 98000000 		.4byte	.LFE36-.LFB36
+ 1482 0030 00000000 		.4byte	.LFB37
+ 1483 0034 88000000 		.4byte	.LFE37-.LFB37
+ 1484 0038 00000000 		.4byte	.LFB38
+ 1485 003c 6A000000 		.4byte	.LFE38-.LFB38
+ 1486 0040 00000000 		.4byte	0
+ 1487 0044 00000000 		.4byte	0
+ 1488              		.section	.debug_ranges,"",%progbits
+ 1489              	.Ldebug_ranges0:
+ 1490 0000 00000000 		.4byte	.LFB33
+ 1491 0004 B0000000 		.4byte	.LFE33
+ 1492 0008 00000000 		.4byte	.LFB34
+ 1493 000c 98000000 		.4byte	.LFE34
+ 1494 0010 00000000 		.4byte	.LFB35
+ 1495 0014 98000000 		.4byte	.LFE35
+ 1496 0018 00000000 		.4byte	.LFB36
+ 1497 001c 98000000 		.4byte	.LFE36
+ 1498 0020 00000000 		.4byte	.LFB37
+ 1499 0024 88000000 		.4byte	.LFE37
+ 1500 0028 00000000 		.4byte	.LFB38
+ 1501 002c 6A000000 		.4byte	.LFE38
+ 1502 0030 00000000 		.4byte	0
+ 1503 0034 00000000 		.4byte	0
+ 1504              		.section	.debug_line,"",%progbits
+ 1505              	.Ldebug_line0:
+ 1506 0000 09010000 		.section	.debug_str,"MS",%progbits,1
+ 1506      02004500 
+ 1506      00000201 
+ 1506      FB0E0D00 
+ 1506      01010101 
+ 1507              	.LASF35:
+ 1508 0000 53657276 		.ascii	"ServoSpeed\000"
+ 1508      6F537065 
+ 1508      656400
+ 1509              	.LASF20:
+ 1510 000b 636C6177 		.ascii	"claw_dir\000"
+ 1510      5F646972 
+ 1510      00
+ 1511              	.LASF26:
+ 1512 0014 74696D65 		.ascii	"timer1\000"
+ 1512      723100
+ 1513              	.LASF27:
+ 1514 001b 74696D65 		.ascii	"timer2\000"
+ 1514      723200
+ 1515              	.LASF3:
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 31
+
+
+ 1516 0022 73686F72 		.ascii	"short unsigned int\000"
+ 1516      7420756E 
+ 1516      7369676E 
+ 1516      65642069 
+ 1516      6E7400
+ 1517              	.LASF23:
+ 1518 0035 52656741 		.ascii	"RegArray\000"
+ 1518      72726179 
+ 1518      00
+ 1519              	.LASF2:
+ 1520 003e 73686F72 		.ascii	"short int\000"
+ 1520      7420696E 
+ 1520      7400
+ 1521              	.LASF19:
+ 1522 0048 77726973 		.ascii	"wrist_flap_pos\000"
+ 1522      745F666C 
+ 1522      61705F70 
+ 1522      6F7300
+ 1523              	.LASF30:
+ 1524 0057 73657276 		.ascii	"servoID\000"
+ 1524      6F494400 
+ 1525              	.LASF11:
+ 1526 005f 666C6F61 		.ascii	"float\000"
+ 1526      7400
+ 1527              	.LASF22:
+ 1528 0065 63686563 		.ascii	"checksum\000"
+ 1528      6B73756D 
+ 1528      00
+ 1529              	.LASF1:
+ 1530 006e 756E7369 		.ascii	"unsigned char\000"
+ 1530      676E6564 
+ 1530      20636861 
+ 1530      7200
+ 1531              	.LASF18:
+ 1532 007c 77726973 		.ascii	"wrist_rotate_pos\000"
+ 1532      745F726F 
+ 1532      74617465 
+ 1532      5F706F73 
+ 1532      00
+ 1533              	.LASF15:
+ 1534 008d 62617365 		.ascii	"base_rotate_pos1\000"
+ 1534      5F726F74 
+ 1534      6174655F 
+ 1534      706F7331 
+ 1534      00
+ 1535              	.LASF5:
+ 1536 009e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1536      20756E73 
+ 1536      69676E65 
+ 1536      6420696E 
+ 1536      7400
+ 1537              	.LASF9:
+ 1538 00b0 75696E74 		.ascii	"uint8\000"
+ 1538      3800
+ 1539              	.LASF32:
+ 1540 00b6 61727261 		.ascii	"array\000"
+ 1540      7900
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 32
+
+
+ 1541              	.LASF12:
+ 1542 00bc 646F7562 		.ascii	"double\000"
+ 1542      6C6500
+ 1543              	.LASF40:
+ 1544 00c3 55617274 		.ascii	"UartWriteLED\000"
+ 1544      57726974 
+ 1544      654C4544 
+ 1544      00
+ 1545              	.LASF43:
+ 1546 00d0 2E5C6D61 		.ascii	".\\main.c\000"
+ 1546      696E2E63 
+ 1546      00
+ 1547              	.LASF10:
+ 1548 00d9 75696E74 		.ascii	"uint16\000"
+ 1548      313600
+ 1549              	.LASF29:
+ 1550 00e0 53657276 		.ascii	"ServoGoalPosition\000"
+ 1550      6F476F61 
+ 1550      6C506F73 
+ 1550      6974696F 
+ 1550      6E00
+ 1551              	.LASF45:
+ 1552 00f2 53706952 		.ascii	"SpiReg\000"
+ 1552      656700
+ 1553              	.LASF28:
+ 1554 00f9 6D61696E 		.ascii	"main\000"
+ 1554      00
+ 1555              	.LASF21:
+ 1556 00fe 636C6177 		.ascii	"claw_wheels\000"
+ 1556      5F776865 
+ 1556      656C7300 
+ 1557              	.LASF8:
+ 1558 010a 756E7369 		.ascii	"unsigned int\000"
+ 1558      676E6564 
+ 1558      20696E74 
+ 1558      00
+ 1559              	.LASF38:
+ 1560 0117 61646472 		.ascii	"address\000"
+ 1560      65737300 
+ 1561              	.LASF7:
+ 1562 011f 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1562      206C6F6E 
+ 1562      6720756E 
+ 1562      7369676E 
+ 1562      65642069 
+ 1563              	.LASF16:
+ 1564 0136 73686F75 		.ascii	"shoulder_pos\000"
+ 1564      6C646572 
+ 1564      5F706F73 
+ 1564      00
+ 1565              	.LASF36:
+ 1566 0143 73706565 		.ascii	"speed\000"
+ 1566      6400
+ 1567              	.LASF14:
+ 1568 0149 73697A65 		.ascii	"sizetype\000"
+ 1568      74797065 
+ 1568      00
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 33
+
+
+ 1569              	.LASF6:
+ 1570 0152 6C6F6E67 		.ascii	"long long int\000"
+ 1570      206C6F6E 
+ 1570      6720696E 
+ 1570      7400
+ 1571              	.LASF17:
+ 1572 0160 656C626F 		.ascii	"elbow_pos\000"
+ 1572      775F706F 
+ 1572      7300
+ 1573              	.LASF37:
+ 1574 016a 52656164 		.ascii	"ReadRequest\000"
+ 1574      52657175 
+ 1574      65737400 
+ 1575              	.LASF34:
+ 1576 0176 746F7271 		.ascii	"torque\000"
+ 1576      756500
+ 1577              	.LASF31:
+ 1578 017d 706F7369 		.ascii	"position\000"
+ 1578      74696F6E 
+ 1578      00
+ 1579              	.LASF33:
+ 1580 0186 53657453 		.ascii	"SetServoTorque\000"
+ 1580      6572766F 
+ 1580      546F7271 
+ 1580      756500
+ 1581              	.LASF4:
+ 1582 0195 6C6F6E67 		.ascii	"long int\000"
+ 1582      20696E74 
+ 1582      00
+ 1583              	.LASF13:
+ 1584 019e 63686172 		.ascii	"char\000"
+ 1584      00
+ 1585              	.LASF0:
+ 1586 01a3 7369676E 		.ascii	"signed char\000"
+ 1586      65642063 
+ 1586      68617200 
+ 1587              	.LASF25:
+ 1588 01af 53504952 		.ascii	"SPIReg\000"
+ 1588      656700
+ 1589              	.LASF24:
+ 1590 01b6 53504952 		.ascii	"SPIReg_struct\000"
+ 1590      65675F73 
+ 1590      74727563 
+ 1590      7400
+ 1591              	.LASF42:
+ 1592 01c4 474E5520 		.ascii	"GNU C 4.7.3 20130312 (release) [ARM/embedded-4_7-br"
+ 1592      4320342E 
+ 1592      372E3320 
+ 1592      32303133 
+ 1592      30333132 
+ 1593 01f7 616E6368 		.ascii	"anch revision 196615]\000"
+ 1593      20726576 
+ 1593      6973696F 
+ 1593      6E203139 
+ 1593      36363135 
+ 1594              	.LASF39:
+ 1595 020d 6C656E67 		.ascii	"length\000"
+ARM GAS  C:\Users\JOHNSO~1\AppData\Local\Temp\cc95L8fq.s 			page 34
+
+
+ 1595      746800
+ 1596              	.LASF44:
+ 1597 0214 433A5C55 		.ascii	"C:\\Users\\johnsonjacob\\Documents\\PSoC Creator\\D"
+ 1597      73657273 
+ 1597      5C6A6F68 
+ 1597      6E736F6E 
+ 1597      6A61636F 
+ 1598 0242 796E616D 		.ascii	"ynamixel_Servo_Driver\\Dynamixel_Servo_Driver.cydsn"
+ 1598      6978656C 
+ 1598      5F536572 
+ 1598      766F5F44 
+ 1598      72697665 
+ 1599 0274 00       		.ascii	"\000"
+ 1600              	.LASF41:
+ 1601 0275 6C656476 		.ascii	"ledvalue\000"
+ 1601      616C7565 
+ 1601      00
+ 1602              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.7.3 20130312 (release) [ARM/embedded-4_7-br

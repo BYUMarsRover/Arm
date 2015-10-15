@@ -1,0 +1,21 @@
+(DELAYFILE
+ (SDFVERSION "IEEE 1497 4.0")
+ (DATE "2015-03-28T21:10:48Z")
+ (DESIGN "Drive")
+ (VENDOR "Cypress Semiconductor")
+ (PROGRAM "PSoC Creator")
+ (VERSION " 3.1 Component Pack 1")
+ (DIVIDER .)
+ (TIMESCALE 1 ns)
+ (CELL
+  (CELLTYPE "Drive")
+  (INSTANCE *)
+  (DELAY
+   (ABSOLUTE
+    (INTERCONNECT ClockBlock.hfclk timer_isr.clock (0.000:0.000:0.000))
+    (INTERCONNECT ClockBlock.ff_div_7 \\Timer_1\:cy_m0s8_tcpwm_1\\.clock (0.000:0.000:0.000))
+    (INTERCONNECT \\Timer_1\:cy_m0s8_tcpwm_1\\.interrupt timer_isr.interrupt (1.000:1.000:1.000))
+   )
+  )
+ )
+)

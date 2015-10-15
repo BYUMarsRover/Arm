@@ -1,0 +1,18 @@
+--------------- Build Started: 02/18/2015 23:02:01 Project: arm_controller_v2, Configuration: ARM GCC 4.8.4 Debug ---------------
+The code generation step is up to date.
+arm-none-eabi-gcc.exe -mcpu=cortex-m0 -mthumb -Wno-main -I. -I.\Generated_Source\PSoC4 -Wa,-alh=.\CortexM0\ARM_GCC_484\Debug/main.lst -g -D DEBUG -Wall -ffunction-sections -O0 -std=gnu99 -c .\main.c -o .\CortexM0\ARM_GCC_484\Debug\main.o
+.\main.c: In function 'main':
+.\main.c:575:13: warning: statement with no effect [-Wunused-value]
+             for(int i = 0; i < 10; (i+2))
+             ^
+.\main.c:540:9: warning: unused variable 'counter_five' [-Wunused-variable]
+     int counter_five = 0;
+         ^
+arm-none-eabi-ar.exe -rs .\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.a .\CortexM0\ARM_GCC_484\Debug\cyfitter_cfg.o .\CortexM0\ARM_GCC_484\Debug\Clock_counter.o .\CortexM0\ARM_GCC_484\Debug\Clock_pwm.o .\CortexM0\ARM_GCC_484\Debug\Bootloadable_1.o .\CortexM0\ARM_GCC_484\Debug\isr_1.o .\CortexM0\ARM_GCC_484\Debug\servo.o .\CortexM0\ARM_GCC_484\Debug\led.o .\CortexM0\ARM_GCC_484\Debug\PWM_1.o .\CortexM0\ARM_GCC_484\Debug\PWM_1_PM.o .\CortexM0\ARM_GCC_484\Debug\Timer_1.o .\CortexM0\ARM_GCC_484\Debug\Timer_1_PM.o .\CortexM0\ARM_GCC_484\Debug\CyBootAsmGnu.o .\CortexM0\ARM_GCC_484\Debug\CyFlash.o .\CortexM0\ARM_GCC_484\Debug\CyLib.o .\CortexM0\ARM_GCC_484\Debug\cyPm.o .\CortexM0\ARM_GCC_484\Debug\cyutils.o .\CortexM0\ARM_GCC_484\Debug\MISO.o .\CortexM0\ARM_GCC_484\Debug\MOSI.o .\CortexM0\ARM_GCC_484\Debug\SCLK.o .\CortexM0\ARM_GCC_484\Debug\SPIM.o .\CortexM0\ARM_GCC_484\Debug\SPIM_PM.o .\CortexM0\ARM_GCC_484\Debug\SPIM_INT.o .\CortexM0\ARM_GCC_484\Debug\WIZ_RDY.o .\CortexM0\ARM_GCC_484\Debug\WIZ_INT.o .\CortexM0\ARM_GCC_484\Debug\WIZ_RST.o .\CortexM0\ARM_GCC_484\Debug\WIZ_SS.o .\CortexM0\ARM_GCC_484\Debug\SPIM_IntClock.o
+arm-none-eabi-ar.exe: creating .\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.a
+arm-none-eabi-gcc.exe -Wl,--start-group -o .\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.elf .\CortexM0\ARM_GCC_484\Debug\main.o .\CortexM0\ARM_GCC_484\Debug\cybootloader.o .\CortexM0\ARM_GCC_484\Debug\cymetadata.o .\CortexM0\ARM_GCC_484\Debug\Cm0Start.o .\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.a "C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CortexM0\ARM_GCC_484\Debug\CyComponentLibrary.a" -mthumb -march=armv6-m -Wl,-Map,.\CortexM0\ARM_GCC_484\Debug/arm_controller_v2.map -T .\Generated_Source\PSoC4\cm0gcc.ld -g -specs=nano.specs "-u _printf_float" "" -Wl,--gc-sections -Wl,--end-group
+cyelftool.exe -B C:\Users\Samuel\Documents\GitHub\BYU-MarsRover\Arm\arm_controller_v2\arm_controller_v2.cydsn\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.elf --flash_row_size 128 --flash_size 32768 --flash_array_size 32768
+cyelftool.exe -S C:\Users\Samuel\Documents\GitHub\BYU-MarsRover\Arm\arm_controller_v2\arm_controller_v2.cydsn\CortexM0\ARM_GCC_484\Debug\arm_controller_v2.elf
+Flash used: 9536 of 32768 bytes (29.1 %). Bootloader: 3840 bytes. Application: 5696 bytes
+SRAM used: 1632 of 4096 bytes (39.8 %). Stack: 1024 bytes. Heap: 128 bytes.
+--------------- Build Succeeded: 02/18/2015 23:02:06 ---------------

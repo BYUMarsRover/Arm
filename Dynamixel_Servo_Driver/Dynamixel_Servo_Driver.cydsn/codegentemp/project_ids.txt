@@ -1,0 +1,5 @@
+C:\Users\Samuel\Documents\GitHub\Arm\Dynamixel_Servo_Driver\Dynamixel_Servo_Driver.cydsn\Dynamixel_Servo_Driver.cyprj|43126562-2a86-43f4-a600-dbe47e1f1610
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|e558a38e-8e35-44af-81c1-10f2a3d4ebda
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|7e7b4a10-ebb0-4829-9db2-fe6d3e4e8f2a
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|52379ee8-76e3-410b-8f20-715b567ce286
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|400b2ad2-d653-497b-9b6e-c93317ef0e21

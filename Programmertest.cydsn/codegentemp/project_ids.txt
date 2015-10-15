@@ -1,0 +1,6 @@
+C:\Users\Samuel\Documents\GitHub\BYU-MarsRover\Arm\Programmertest.cydsn\Programmertest.cyprj|3b9e11a4-d35b-4af8-a5cb-85107772d410
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|6a632240-9182-47a7-b338-bd4ea6cccc20
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|e0ce3259-8a70-4a22-a429-74ad1843f383
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|b4dfa282-c3f5-4e47-862c-1ef252141c91
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|5ffd7a10-db7b-4a8d-b795-efde271f430a
+C:\Users\Samuel\Documents\GitHub\BYU-MarsRover\Arm\arm_controller_v2\arm_controller_v2.1.cydsn\arm_controller_v2.1.cyprj|9836ece5-8fa5-40bb-8645-e9c162e4e3f1

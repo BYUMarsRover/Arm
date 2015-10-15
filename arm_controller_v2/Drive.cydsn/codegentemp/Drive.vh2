@@ -1,0 +1,62 @@
+--
+--	Conversion of Drive.v to vh2:
+--
+--	Cypress Semiconductor - WARP Version 6.3 IR 41
+--	Sat Mar 28 15:10:44 2015
+--
+
+USE cypress.cypress.all;
+USE cypress.rtlpkg.all;
+ENTITY top_RTL IS
+ATTRIBUTE part_name of top_RTL:TYPE IS "cpsoc3";
+END top_RTL;
+--------------------------------------------------------
+ARCHITECTURE R_T_L OF top_RTL IS
+SIGNAL \Timer_1:Net_81\ : bit;
+SIGNAL \Timer_1:Net_75\ : bit;
+SIGNAL \Timer_1:Net_69\ : bit;
+SIGNAL \Timer_1:Net_66\ : bit;
+SIGNAL \Timer_1:Net_82\ : bit;
+SIGNAL \Timer_1:Net_72\ : bit;
+SIGNAL Net_8 : bit;
+SIGNAL Net_7 : bit;
+SIGNAL Net_9 : bit;
+SIGNAL Net_10 : bit;
+SIGNAL Net_11 : bit;
+SIGNAL Net_6 : bit;
+SIGNAL Net_12 : bit;
+BEGIN
+
+\Timer_1:Net_69\ <=  ('1') ;
+
+\Timer_1:Net_75\ <=  ('0') ;
+
+\Timer_1:cy_m0s8_tcpwm_1\:cy_m0s8_tcpwm_v1_0
+	GENERIC MAP(cy_registers=>"")
+	PORT MAP(clock=>Net_12,
+		capture=>\Timer_1:Net_75\,
+		count=>\Timer_1:Net_69\,
+		reload=>\Timer_1:Net_75\,
+		stop=>\Timer_1:Net_75\,
+		start=>\Timer_1:Net_75\,
+		underflow=>Net_8,
+		overflow=>Net_7,
+		compare_match=>Net_9,
+		line_out=>Net_10,
+		line_out_compl=>Net_11,
+		interrupt=>Net_6);
+timer_isr:cy_isr_v1_0
+	GENERIC MAP(int_type=>"10")
+	PORT MAP(int_signal=>Net_6);
+Clock_1:cy_clock_v1_0
+	GENERIC MAP(cy_registers=>"",
+		id=>"3da54bce-15ff-4c26-94f0-fc6af93490a2",
+		source_clock_id=>"",
+		divisor=>0,
+		period=>"1000000000",
+		is_direct=>'0',
+		is_digital=>'0')
+	PORT MAP(clock_out=>Net_12,
+		dig_domain_out=>open);
+
+END R_T_L;

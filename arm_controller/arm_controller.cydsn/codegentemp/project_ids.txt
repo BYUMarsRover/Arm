@@ -1,0 +1,2 @@
+C:\Users\Matt\repos\BYU_Mars_Rover\arm_controller\arm_controller.cydsn\arm_controller.cyprj|0027f65e-7f08-4ab7-8899-1cbb49bdc015
+C:\Program Files (x86)\Cypress\PSoC Creator\3.1\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|926580b9-b3c3-44d9-9980-f4a1c36ca43f

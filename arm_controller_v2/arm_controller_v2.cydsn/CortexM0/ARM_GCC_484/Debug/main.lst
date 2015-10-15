@@ -1,0 +1,3598 @@
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.comm	data_array,28,4
+  18              		.comm	wiznet,1,1
+  19              		.comm	new_pack,1,1
+  20              		.comm	test_array,20,4
+  21              		.comm	serv_arr_cspot,1,1
+  22              		.comm	servo_array,40,4
+  23              		.global	serv_avg_count
+  24              		.bss
+  25              		.type	serv_avg_count, %object
+  26              		.size	serv_avg_count, 1
+  27              	serv_avg_count:
+  28 0000 00       		.space	1
+  29              		.comm	feedback_count,2,2
+  30              		.comm	timerFlag,1,1
+  31              		.section	.text.timer_isr,"ax",%progbits
+  32              		.align	2
+  33              		.global	timer_isr
+  34              		.code	16
+  35              		.thumb_func
+  36              		.type	timer_isr, %function
+  37              	timer_isr:
+  38              	.LFB33:
+  39              		.file 1 ".\\main.c"
+   1:.\main.c      **** /* ========================================
+   2:.\main.c      ****  *created by Samuel Bury Jan. 31, 2015
+   3:.\main.c      ****  *last modified date: Jan. 31, 2015
+   4:.\main.c      **** */
+   5:.\main.c      **** #include <project.h>
+   6:.\main.c      **** #include <time.h>
+   7:.\main.c      **** #include <stdlib.h>
+   8:.\main.c      **** 
+   9:.\main.c      **** //Initializations of global variables
+  10:.\main.c      **** //TODO should this be global or should we declare it in main and pass a
+  11:.\main.c      **** //////pointer to each function?
+  12:.\main.c      **** uint16 data_array[14]; //stores the parsed instructions from the wiznet
+  13:.\main.c      **** uint8 wiznet;
+  14:.\main.c      **** uint8 new_pack;
+  15:.\main.c      **** 
+  16:.\main.c      **** #define TEST_ARRAY_SIZE 10
+  17:.\main.c      **** 
+  18:.\main.c      **** int16 test_array[TEST_ARRAY_SIZE];
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 2
+
+
+  19:.\main.c      **** 
+  20:.\main.c      **** #define SERV_ARR_SIZE 20
+  21:.\main.c      **** uint8 serv_arr_cspot;
+  22:.\main.c      **** uint16 servo_array[SERV_ARR_SIZE];
+  23:.\main.c      **** uint8 serv_avg_count = 0;
+  24:.\main.c      **** 
+  25:.\main.c      **** uint16 feedback_count;
+  26:.\main.c      **** uint8 timerFlag; //used in the timer_isr
+  27:.\main.c      **** 
+  28:.\main.c      **** //this ISR will be used to set our timeFlag according to our timer component
+  29:.\main.c      **** ///set to the time of the longest path for our code
+  30:.\main.c      **** //TODO test how long it takes code to run before really implementing this
+  31:.\main.c      **** CY_ISR(timer_isr)
+  32:.\main.c      **** {
+  40              		.loc 1 32 0
+  41              		.cfi_startproc
+  42 0000 80B5     		push	{r7, lr}
+  43              		.cfi_def_cfa_offset 8
+  44              		.cfi_offset 7, -8
+  45              		.cfi_offset 14, -4
+  46 0002 82B0     		sub	sp, sp, #8
+  47              		.cfi_def_cfa_offset 16
+  48 0004 00AF     		add	r7, sp, #0
+  49              		.cfi_def_cfa_register 7
+  33:.\main.c      ****     uint32 isr_var = Timer_1_GetInterruptSourceMasked();
+  50              		.loc 1 33 0
+  51 0006 FFF7FEFF 		bl	Timer_1_GetInterruptSourceMasked
+  52 000a 031C     		mov	r3, r0
+  53 000c 7B60     		str	r3, [r7, #4]
+  34:.\main.c      ****     timerFlag = 1;
+  54              		.loc 1 34 0
+  55 000e 054B     		ldr	r3, .L2
+  56 0010 0122     		mov	r2, #1
+  57 0012 1A70     		strb	r2, [r3]
+  35:.\main.c      ****     Timer_1_ClearInterrupt(isr_var);
+  58              		.loc 1 35 0
+  59 0014 7B68     		ldr	r3, [r7, #4]
+  60 0016 181C     		mov	r0, r3
+  61 0018 FFF7FEFF 		bl	Timer_1_ClearInterrupt
+  36:.\main.c      **** }
+  62              		.loc 1 36 0
+  63 001c BD46     		mov	sp, r7
+  64 001e 02B0     		add	sp, sp, #8
+  65              		@ sp needed
+  66 0020 80BD     		pop	{r7, pc}
+  67              	.L3:
+  68 0022 C046     		.align	2
+  69              	.L2:
+  70 0024 00000000 		.word	timerFlag
+  71              		.cfi_endproc
+  72              	.LFE33:
+  73              		.size	timer_isr, .-timer_isr
+  74              		.section	.text.fill_data_array,"ax",%progbits
+  75              		.align	2
+  76              		.global	fill_data_array
+  77              		.code	16
+  78              		.thumb_func
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 3
+
+
+  79              		.type	fill_data_array, %function
+  80              	fill_data_array:
+  81              	.LFB34:
+  37:.\main.c      **** 
+  38:.\main.c      **** 
+  39:.\main.c      **** //Funtion declarations/definitions
+  40:.\main.c      **** //TODO do we need to make a header for good practice?
+  41:.\main.c      **** 
+  42:.\main.c      **** //---------------------------------------------------
+  43:.\main.c      **** //    Function stubs for the header
+  44:.\main.c      **** //---------------------------------------------------
+  45:.\main.c      **** void fill_data_array();
+  46:.\main.c      **** void baseAzimuth();
+  47:.\main.c      **** void shoulder();
+  48:.\main.c      **** void elbow();
+  49:.\main.c      **** void wristTilt();
+  50:.\main.c      **** void wristRotate();
+  51:.\main.c      **** void send_feedback();
+  52:.\main.c      **** 
+  53:.\main.c      **** void servo();
+  54:.\main.c      **** void led();
+  55:.\main.c      **** void fill_data_array1();
+  56:.\main.c      **** 
+  57:.\main.c      **** //--------------------------------------------------- END Function Stubs
+  58:.\main.c      **** 
+  59:.\main.c      **** 
+  60:.\main.c      **** //to be used for parsing reading/parsing the data from the wiznet
+  61:.\main.c      **** void fill_data_array() //maybe take param: uint8* array
+  62:.\main.c      **** {
+  82              		.loc 1 62 0
+  83              		.cfi_startproc
+  84 0000 80B5     		push	{r7, lr}
+  85              		.cfi_def_cfa_offset 8
+  86              		.cfi_offset 7, -8
+  87              		.cfi_offset 14, -4
+  88 0002 82B0     		sub	sp, sp, #8
+  89              		.cfi_def_cfa_offset 16
+  90 0004 00AF     		add	r7, sp, #0
+  91              		.cfi_def_cfa_register 7
+  63:.\main.c      ****     
+  64:.\main.c      ****     //read one byte at a time
+  65:.\main.c      ****     uint8 c = 0; //UART_1_UartGetChar();
+  92              		.loc 1 65 0
+  93 0006 FB1D     		add	r3, r7, #7
+  94 0008 0022     		mov	r2, #0
+  95 000a 1A70     		strb	r2, [r3]
+  66:.\main.c      ****     
+  67:.\main.c      **** 
+  68:.\main.c      ****     if(c == 'q'){
+  96              		.loc 1 68 0
+  97 000c FB1D     		add	r3, r7, #7
+  98 000e 1B78     		ldrb	r3, [r3]
+  99 0010 712B     		cmp	r3, #113
+ 100 0012 04D1     		bne	.L5
+  69:.\main.c      ****         data_array[1] = 2000;
+ 101              		.loc 1 69 0
+ 102 0014 354B     		ldr	r3, .L18
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 4
+
+
+ 103 0016 FA22     		mov	r2, #250
+ 104 0018 D200     		lsl	r2, r2, #3
+ 105 001a 5A80     		strh	r2, [r3, #2]
+ 106 001c 62E0     		b	.L4
+ 107              	.L5:
+  70:.\main.c      ****     }
+  71:.\main.c      ****     else if(c == 'w'){
+ 108              		.loc 1 71 0
+ 109 001e FB1D     		add	r3, r7, #7
+ 110 0020 1B78     		ldrb	r3, [r3]
+ 111 0022 772B     		cmp	r3, #119
+ 112 0024 03D1     		bne	.L7
+  72:.\main.c      ****         data_array[1] = 1750;
+ 113              		.loc 1 72 0
+ 114 0026 314B     		ldr	r3, .L18
+ 115 0028 314A     		ldr	r2, .L18+4
+ 116 002a 5A80     		strh	r2, [r3, #2]
+ 117 002c 5AE0     		b	.L4
+ 118              	.L7:
+  73:.\main.c      ****     }
+  74:.\main.c      ****     else if(c == 'e'){
+ 119              		.loc 1 74 0
+ 120 002e FB1D     		add	r3, r7, #7
+ 121 0030 1B78     		ldrb	r3, [r3]
+ 122 0032 652B     		cmp	r3, #101
+ 123 0034 03D1     		bne	.L8
+  75:.\main.c      ****         data_array[1] = 1500;
+ 124              		.loc 1 75 0
+ 125 0036 2D4B     		ldr	r3, .L18
+ 126 0038 2E4A     		ldr	r2, .L18+8
+ 127 003a 5A80     		strh	r2, [r3, #2]
+ 128 003c 52E0     		b	.L4
+ 129              	.L8:
+  76:.\main.c      ****     }
+  77:.\main.c      ****     else if(c == 'r'){
+ 130              		.loc 1 77 0
+ 131 003e FB1D     		add	r3, r7, #7
+ 132 0040 1B78     		ldrb	r3, [r3]
+ 133 0042 722B     		cmp	r3, #114
+ 134 0044 03D1     		bne	.L9
+  78:.\main.c      ****         data_array[1] = 1250;
+ 135              		.loc 1 78 0
+ 136 0046 294B     		ldr	r3, .L18
+ 137 0048 2B4A     		ldr	r2, .L18+12
+ 138 004a 5A80     		strh	r2, [r3, #2]
+ 139 004c 4AE0     		b	.L4
+ 140              	.L9:
+  79:.\main.c      ****     }
+  80:.\main.c      ****     else if(c == 't'){
+ 141              		.loc 1 80 0
+ 142 004e FB1D     		add	r3, r7, #7
+ 143 0050 1B78     		ldrb	r3, [r3]
+ 144 0052 742B     		cmp	r3, #116
+ 145 0054 04D1     		bne	.L10
+  81:.\main.c      ****         data_array[1] = 1000;
+ 146              		.loc 1 81 0
+ 147 0056 254B     		ldr	r3, .L18
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 5
+
+
+ 148 0058 FA22     		mov	r2, #250
+ 149 005a 9200     		lsl	r2, r2, #2
+ 150 005c 5A80     		strh	r2, [r3, #2]
+ 151 005e 41E0     		b	.L4
+ 152              	.L10:
+  82:.\main.c      ****     }    
+  83:.\main.c      ****     else if(c == '1'){
+ 153              		.loc 1 83 0
+ 154 0060 FB1D     		add	r3, r7, #7
+ 155 0062 1B78     		ldrb	r3, [r3]
+ 156 0064 312B     		cmp	r3, #49
+ 157 0066 04D1     		bne	.L11
+  84:.\main.c      ****         data_array[2] = 1000;
+ 158              		.loc 1 84 0
+ 159 0068 204B     		ldr	r3, .L18
+ 160 006a FA22     		mov	r2, #250
+ 161 006c 9200     		lsl	r2, r2, #2
+ 162 006e 9A80     		strh	r2, [r3, #4]
+ 163 0070 38E0     		b	.L4
+ 164              	.L11:
+  85:.\main.c      ****     }
+  86:.\main.c      ****     else if(c == '2'){
+ 165              		.loc 1 86 0
+ 166 0072 FB1D     		add	r3, r7, #7
+ 167 0074 1B78     		ldrb	r3, [r3]
+ 168 0076 322B     		cmp	r3, #50
+ 169 0078 03D1     		bne	.L12
+  87:.\main.c      ****         data_array[2] = 5000;
+ 170              		.loc 1 87 0
+ 171 007a 1C4B     		ldr	r3, .L18
+ 172 007c 1F4A     		ldr	r2, .L18+16
+ 173 007e 9A80     		strh	r2, [r3, #4]
+ 174 0080 30E0     		b	.L4
+ 175              	.L12:
+  88:.\main.c      ****     }
+  89:.\main.c      ****     else if(c == '3'){
+ 176              		.loc 1 89 0
+ 177 0082 FB1D     		add	r3, r7, #7
+ 178 0084 1B78     		ldrb	r3, [r3]
+ 179 0086 332B     		cmp	r3, #51
+ 180 0088 03D1     		bne	.L13
+  90:.\main.c      ****         data_array[2] = 10000;
+ 181              		.loc 1 90 0
+ 182 008a 184B     		ldr	r3, .L18
+ 183 008c 1C4A     		ldr	r2, .L18+20
+ 184 008e 9A80     		strh	r2, [r3, #4]
+ 185 0090 28E0     		b	.L4
+ 186              	.L13:
+  91:.\main.c      ****     }
+  92:.\main.c      ****     else if(c == '4'){
+ 187              		.loc 1 92 0
+ 188 0092 FB1D     		add	r3, r7, #7
+ 189 0094 1B78     		ldrb	r3, [r3]
+ 190 0096 342B     		cmp	r3, #52
+ 191 0098 03D1     		bne	.L14
+  93:.\main.c      ****         data_array[2] = 15000;
+ 192              		.loc 1 93 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 6
+
+
+ 193 009a 144B     		ldr	r3, .L18
+ 194 009c 194A     		ldr	r2, .L18+24
+ 195 009e 9A80     		strh	r2, [r3, #4]
+ 196 00a0 20E0     		b	.L4
+ 197              	.L14:
+  94:.\main.c      ****     }
+  95:.\main.c      ****     else if(c == '5'){
+ 198              		.loc 1 95 0
+ 199 00a2 FB1D     		add	r3, r7, #7
+ 200 00a4 1B78     		ldrb	r3, [r3]
+ 201 00a6 352B     		cmp	r3, #53
+ 202 00a8 03D1     		bne	.L15
+  96:.\main.c      ****         data_array[2] =19000;
+ 203              		.loc 1 96 0
+ 204 00aa 104B     		ldr	r3, .L18
+ 205 00ac 164A     		ldr	r2, .L18+28
+ 206 00ae 9A80     		strh	r2, [r3, #4]
+ 207 00b0 18E0     		b	.L4
+ 208              	.L15:
+  97:.\main.c      ****     }    
+  98:.\main.c      ****     else if(c == 'j'){
+ 209              		.loc 1 98 0
+ 210 00b2 FB1D     		add	r3, r7, #7
+ 211 00b4 1B78     		ldrb	r3, [r3]
+ 212 00b6 6A2B     		cmp	r3, #106
+ 213 00b8 04D1     		bne	.L16
+  99:.\main.c      ****         data_array[3] = 1000;
+ 214              		.loc 1 99 0
+ 215 00ba 0C4B     		ldr	r3, .L18
+ 216 00bc FA22     		mov	r2, #250
+ 217 00be 9200     		lsl	r2, r2, #2
+ 218 00c0 DA80     		strh	r2, [r3, #6]
+ 219 00c2 0FE0     		b	.L4
+ 220              	.L16:
+ 100:.\main.c      ****     }
+ 101:.\main.c      ****     else if(c == 'k'){
+ 221              		.loc 1 101 0
+ 222 00c4 FB1D     		add	r3, r7, #7
+ 223 00c6 1B78     		ldrb	r3, [r3]
+ 224 00c8 6B2B     		cmp	r3, #107
+ 225 00ca 03D1     		bne	.L17
+ 102:.\main.c      ****         data_array[3] = 1500;
+ 226              		.loc 1 102 0
+ 227 00cc 074B     		ldr	r3, .L18
+ 228 00ce 094A     		ldr	r2, .L18+8
+ 229 00d0 DA80     		strh	r2, [r3, #6]
+ 230 00d2 07E0     		b	.L4
+ 231              	.L17:
+ 103:.\main.c      ****     }
+ 104:.\main.c      ****     else if(c == 'l'){
+ 232              		.loc 1 104 0
+ 233 00d4 FB1D     		add	r3, r7, #7
+ 234 00d6 1B78     		ldrb	r3, [r3]
+ 235 00d8 6C2B     		cmp	r3, #108
+ 236 00da 03D1     		bne	.L4
+ 105:.\main.c      ****         data_array[3] =2000;
+ 237              		.loc 1 105 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 7
+
+
+ 238 00dc 034B     		ldr	r3, .L18
+ 239 00de FA22     		mov	r2, #250
+ 240 00e0 D200     		lsl	r2, r2, #3
+ 241 00e2 DA80     		strh	r2, [r3, #6]
+ 242              	.L4:
+ 106:.\main.c      ****     }    
+ 107:.\main.c      **** 
+ 108:.\main.c      **** }
+ 243              		.loc 1 108 0
+ 244 00e4 BD46     		mov	sp, r7
+ 245 00e6 02B0     		add	sp, sp, #8
+ 246              		@ sp needed
+ 247 00e8 80BD     		pop	{r7, pc}
+ 248              	.L19:
+ 249 00ea C046     		.align	2
+ 250              	.L18:
+ 251 00ec 00000000 		.word	data_array
+ 252 00f0 D6060000 		.word	1750
+ 253 00f4 DC050000 		.word	1500
+ 254 00f8 E2040000 		.word	1250
+ 255 00fc 88130000 		.word	5000
+ 256 0100 10270000 		.word	10000
+ 257 0104 983A0000 		.word	15000
+ 258 0108 384A0000 		.word	19000
+ 259              		.cfi_endproc
+ 260              	.LFE34:
+ 261              		.size	fill_data_array, .-fill_data_array
+ 262              		.section	.text.fill_data_array1,"ax",%progbits
+ 263              		.align	2
+ 264              		.global	fill_data_array1
+ 265              		.code	16
+ 266              		.thumb_func
+ 267              		.type	fill_data_array1, %function
+ 268              	fill_data_array1:
+ 269              	.LFB35:
+ 109:.\main.c      **** 
+ 110:.\main.c      **** void fill_data_array1()
+ 111:.\main.c      **** {
+ 270              		.loc 1 111 0
+ 271              		.cfi_startproc
+ 272 0000 80B5     		push	{r7, lr}
+ 273              		.cfi_def_cfa_offset 8
+ 274              		.cfi_offset 7, -8
+ 275              		.cfi_offset 14, -4
+ 276 0002 82B0     		sub	sp, sp, #8
+ 277              		.cfi_def_cfa_offset 16
+ 278 0004 00AF     		add	r7, sp, #0
+ 279              		.cfi_def_cfa_register 7
+ 112:.\main.c      ****     uint8 i = 0;
+ 280              		.loc 1 112 0
+ 281 0006 FB1D     		add	r3, r7, #7
+ 282 0008 0022     		mov	r2, #0
+ 283 000a 1A70     		strb	r2, [r3]
+ 113:.\main.c      ****     for(i = 0; i < TEST_ARRAY_SIZE; i++)
+ 284              		.loc 1 113 0
+ 285 000c FB1D     		add	r3, r7, #7
+ 286 000e 0022     		mov	r2, #0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 8
+
+
+ 287 0010 1A70     		strb	r2, [r3]
+ 288 0012 0FE0     		b	.L21
+ 289              	.L22:
+ 114:.\main.c      ****     {
+ 115:.\main.c      ****         data_array[i] = test_array[i];
+ 290              		.loc 1 115 0 discriminator 2
+ 291 0014 FB1D     		add	r3, r7, #7
+ 292 0016 1A78     		ldrb	r2, [r3]
+ 293 0018 FB1D     		add	r3, r7, #7
+ 294 001a 1978     		ldrb	r1, [r3]
+ 295 001c 094B     		ldr	r3, .L23
+ 296 001e 4900     		lsl	r1, r1, #1
+ 297 0020 CB5A     		ldrh	r3, [r1, r3]
+ 298 0022 99B2     		uxth	r1, r3
+ 299 0024 084B     		ldr	r3, .L23+4
+ 300 0026 5200     		lsl	r2, r2, #1
+ 301 0028 D152     		strh	r1, [r2, r3]
+ 113:.\main.c      ****     for(i = 0; i < TEST_ARRAY_SIZE; i++)
+ 302              		.loc 1 113 0 discriminator 2
+ 303 002a FB1D     		add	r3, r7, #7
+ 304 002c 1A78     		ldrb	r2, [r3]
+ 305 002e FB1D     		add	r3, r7, #7
+ 306 0030 0132     		add	r2, r2, #1
+ 307 0032 1A70     		strb	r2, [r3]
+ 308              	.L21:
+ 113:.\main.c      ****     for(i = 0; i < TEST_ARRAY_SIZE; i++)
+ 309              		.loc 1 113 0 is_stmt 0 discriminator 1
+ 310 0034 FB1D     		add	r3, r7, #7
+ 311 0036 1B78     		ldrb	r3, [r3]
+ 312 0038 092B     		cmp	r3, #9
+ 313 003a EBD9     		bls	.L22
+ 116:.\main.c      ****     }
+ 117:.\main.c      **** }
+ 314              		.loc 1 117 0 is_stmt 1
+ 315 003c BD46     		mov	sp, r7
+ 316 003e 02B0     		add	sp, sp, #8
+ 317              		@ sp needed
+ 318 0040 80BD     		pop	{r7, pc}
+ 319              	.L24:
+ 320 0042 C046     		.align	2
+ 321              	.L23:
+ 322 0044 00000000 		.word	test_array
+ 323 0048 00000000 		.word	data_array
+ 324              		.cfi_endproc
+ 325              	.LFE35:
+ 326              		.size	fill_data_array1, .-fill_data_array1
+ 327              		.section	.text.baseAzimuth,"ax",%progbits
+ 328              		.align	2
+ 329              		.global	baseAzimuth
+ 330              		.code	16
+ 331              		.thumb_func
+ 332              		.type	baseAzimuth, %function
+ 333              	baseAzimuth:
+ 334              	.LFB36:
+ 118:.\main.c      **** 
+ 119:.\main.c      **** //control the turret
+ 120:.\main.c      **** void baseAzimuth()
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 9
+
+
+ 121:.\main.c      **** {
+ 335              		.loc 1 121 0
+ 336              		.cfi_startproc
+ 337 0000 80B5     		push	{r7, lr}
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 7, -8
+ 340              		.cfi_offset 14, -4
+ 341 0002 00AF     		add	r7, sp, #0
+ 342              		.cfi_def_cfa_register 7
+ 122:.\main.c      ****     //take instruction from data_array
+ 123:.\main.c      ****     //smooth input
+ 124:.\main.c      ****     //actuate the turret using PWM
+ 125:.\main.c      **** }
+ 343              		.loc 1 125 0
+ 344 0004 BD46     		mov	sp, r7
+ 345              		@ sp needed
+ 346 0006 80BD     		pop	{r7, pc}
+ 347              		.cfi_endproc
+ 348              	.LFE36:
+ 349              		.size	baseAzimuth, .-baseAzimuth
+ 350              		.comm	shldr_state,1,1
+ 351              		.section	.text.shoulder,"ax",%progbits
+ 352              		.align	2
+ 353              		.global	shoulder
+ 354              		.code	16
+ 355              		.thumb_func
+ 356              		.type	shoulder, %function
+ 357              	shoulder:
+ 358              	.LFB37:
+ 126:.\main.c      **** 
+ 127:.\main.c      **** enum shldr_states {shldr_start, shldr_init, shldr_fdbk, shldr_exe} shldr_state;
+ 128:.\main.c      **** //control the shoulder
+ 129:.\main.c      **** void shoulder()
+ 130:.\main.c      **** {
+ 359              		.loc 1 130 0
+ 360              		.cfi_startproc
+ 361 0000 80B5     		push	{r7, lr}
+ 362              		.cfi_def_cfa_offset 8
+ 363              		.cfi_offset 7, -8
+ 364              		.cfi_offset 14, -4
+ 365 0002 00AF     		add	r7, sp, #0
+ 366              		.cfi_def_cfa_register 7
+ 131:.\main.c      ****     //take instruction from data_array
+ 132:.\main.c      ****     //smooth input
+ 133:.\main.c      ****     //actuate the shoulder using PWM
+ 134:.\main.c      ****     //get feedback
+ 135:.\main.c      ****     
+ 136:.\main.c      ****     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+ 137:.\main.c      ****     //switch statement for state actions
+ 138:.\main.c      **** 		//start
+ 139:.\main.c      **** 			//break
+ 140:.\main.c      **** 		//initialize
+ 141:.\main.c      **** 			//create smoothing array
+ 142:.\main.c      **** 		//feedback
+ 143:.\main.c      **** 			//read feedback
+ 144:.\main.c      **** 		//execute
+ 145:.\main.c      **** 			//add the shifted value from main to back of smoothing array
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 10
+
+
+ 146:.\main.c      **** 			//calculate average of value in array
+ 147:.\main.c      ****     
+ 148:.\main.c      ****     switch(shldr_state)
+ 367              		.loc 1 148 0
+ 368 0004 0E4B     		ldr	r3, .L34
+ 369 0006 1B78     		ldrb	r3, [r3]
+ 370 0008 012B     		cmp	r3, #1
+ 371 000a 0CD0     		beq	.L28
+ 372 000c 02DC     		bgt	.L29
+ 373 000e 002B     		cmp	r3, #0
+ 374 0010 05D0     		beq	.L30
+ 375 0012 12E0     		b	.L26
+ 376              	.L29:
+ 377 0014 022B     		cmp	r3, #2
+ 378 0016 0FD0     		beq	.L33
+ 379 0018 032B     		cmp	r3, #3
+ 380 001a 08D0     		beq	.L32
+ 381 001c 0DE0     		b	.L26
+ 382              	.L30:
+ 149:.\main.c      ****     {//switch staatement for state transitions
+ 150:.\main.c      **** 		case shldr_start: //start
+ 151:.\main.c      **** 			//next state will be init
+ 152:.\main.c      ****             shldr_state = shldr_init;
+ 383              		.loc 1 152 0
+ 384 001e 084B     		ldr	r3, .L34
+ 385 0020 0122     		mov	r2, #1
+ 386 0022 1A70     		strb	r2, [r3]
+ 153:.\main.c      ****             break;
+ 387              		.loc 1 153 0
+ 388 0024 09E0     		b	.L26
+ 389              	.L28:
+ 154:.\main.c      ****         
+ 155:.\main.c      **** 		case shldr_init: //initialize
+ 156:.\main.c      **** 			//next state will be feedback
+ 157:.\main.c      ****             shldr_state = shldr_fdbk;
+ 390              		.loc 1 157 0
+ 391 0026 064B     		ldr	r3, .L34
+ 392 0028 0222     		mov	r2, #2
+ 393 002a 1A70     		strb	r2, [r3]
+ 158:.\main.c      ****             break;
+ 394              		.loc 1 158 0
+ 395 002c 05E0     		b	.L26
+ 396              	.L32:
+ 159:.\main.c      ****         
+ 160:.\main.c      **** 		case shldr_fdbk://feedback
+ 161:.\main.c      **** 			//if position ok relative to average
+ 162:.\main.c      **** 				//execute
+ 163:.\main.c      **** 			//else if not ok
+ 164:.\main.c      **** 				//report problem
+ 165:.\main.c      ****             break;
+ 166:.\main.c      **** 		case shldr_exe://execute
+ 167:.\main.c      **** 			//next state will be report
+ 168:.\main.c      ****             shldr_state = shldr_fdbk;
+ 397              		.loc 1 168 0
+ 398 002e 044B     		ldr	r3, .L34
+ 399 0030 0222     		mov	r2, #2
+ 400 0032 1A70     		strb	r2, [r3]
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 11
+
+
+ 169:.\main.c      ****             break;
+ 401              		.loc 1 169 0
+ 402 0034 C046     		mov	r8, r8
+ 403 0036 00E0     		b	.L26
+ 404              	.L33:
+ 165:.\main.c      ****             break;
+ 405              		.loc 1 165 0
+ 406 0038 C046     		mov	r8, r8
+ 407              	.L26:
+ 170:.\main.c      ****     }
+ 171:.\main.c      ****     /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+ 172:.\main.c      **** }
+ 408              		.loc 1 172 0
+ 409 003a BD46     		mov	sp, r7
+ 410              		@ sp needed
+ 411 003c 80BD     		pop	{r7, pc}
+ 412              	.L35:
+ 413 003e C046     		.align	2
+ 414              	.L34:
+ 415 0040 00000000 		.word	shldr_state
+ 416              		.cfi_endproc
+ 417              	.LFE37:
+ 418              		.size	shoulder, .-shoulder
+ 419              		.section	.text.elbow,"ax",%progbits
+ 420              		.align	2
+ 421              		.global	elbow
+ 422              		.code	16
+ 423              		.thumb_func
+ 424              		.type	elbow, %function
+ 425              	elbow:
+ 426              	.LFB38:
+ 173:.\main.c      **** 
+ 174:.\main.c      **** //control the elbow
+ 175:.\main.c      **** void elbow()
+ 176:.\main.c      **** {
+ 427              		.loc 1 176 0
+ 428              		.cfi_startproc
+ 429 0000 80B5     		push	{r7, lr}
+ 430              		.cfi_def_cfa_offset 8
+ 431              		.cfi_offset 7, -8
+ 432              		.cfi_offset 14, -4
+ 433 0002 00AF     		add	r7, sp, #0
+ 434              		.cfi_def_cfa_register 7
+ 177:.\main.c      ****     //take instruction from data_array
+ 178:.\main.c      ****     //smooth input
+ 179:.\main.c      ****     //actuate the elbow using PWM
+ 180:.\main.c      ****     //get feedback
+ 181:.\main.c      **** }
+ 435              		.loc 1 181 0
+ 436 0004 BD46     		mov	sp, r7
+ 437              		@ sp needed
+ 438 0006 80BD     		pop	{r7, pc}
+ 439              		.cfi_endproc
+ 440              	.LFE38:
+ 441              		.size	elbow, .-elbow
+ 442              		.comm	wristTilt_state,1,1
+ 443              		.section	.text.wristTilt,"ax",%progbits
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 12
+
+
+ 444              		.align	2
+ 445              		.global	wristTilt
+ 446              		.code	16
+ 447              		.thumb_func
+ 448              		.type	wristTilt, %function
+ 449              	wristTilt:
+ 450              	.LFB39:
+ 182:.\main.c      **** 
+ 183:.\main.c      **** enum wristTilt_states {tilt_init = 0, tilt_start, tilt_control, tilt_feedback} wristTilt_state;
+ 184:.\main.c      **** //control the tilting motion of the wrist
+ 185:.\main.c      **** void wristTilt()
+ 186:.\main.c      **** {
+ 451              		.loc 1 186 0
+ 452              		.cfi_startproc
+ 453 0000 80B5     		push	{r7, lr}
+ 454              		.cfi_def_cfa_offset 8
+ 455              		.cfi_offset 7, -8
+ 456              		.cfi_offset 14, -4
+ 457 0002 00AF     		add	r7, sp, #0
+ 458              		.cfi_def_cfa_register 7
+ 187:.\main.c      ****     // Overview
+ 188:.\main.c      ****     //take instruction from data_array
+ 189:.\main.c      ****     //smooth input
+ 190:.\main.c      ****     //actuate the tilting using UART
+ 191:.\main.c      ****     //get feedback
+ 192:.\main.c      **** 
+ 193:.\main.c      ****     //-------------------------- 
+ 194:.\main.c      ****     // Dynamixel Servo specific
+ 195:.\main.c      ****     // TODO: Set the torque - Requires building an array with bit representation
+ 196:.\main.c      ****     // TODO: Set the desired position
+ 197:.\main.c      **** 
+ 198:.\main.c      ****     //--------------------------
+ 199:.\main.c      ****     // State machine
+ 200:.\main.c      ****     
+ 201:.\main.c      ****         // Action
+ 202:.\main.c      ****     switch(wristTilt_state)
+ 459              		.loc 1 202 0
+ 460 0004 0F4B     		ldr	r3, .L53
+ 461 0006 1B78     		ldrb	r3, [r3]
+ 462 0008 012B     		cmp	r3, #1
+ 463 000a 06D0     		beq	.L50
+ 464 000c 07DC     		bgt	.L51
+ 465 000e 002B     		cmp	r3, #0
+ 466 0010 06D1     		bne	.L38
+ 203:.\main.c      ****     {
+ 204:.\main.c      ****         case tilt_init:
+ 205:.\main.c      ****             wristTilt_state = tilt_start;
+ 467              		.loc 1 205 0
+ 468 0012 0C4B     		ldr	r3, .L53
+ 469 0014 0122     		mov	r2, #1
+ 470 0016 1A70     		strb	r2, [r3]
+ 206:.\main.c      ****             break;
+ 471              		.loc 1 206 0
+ 472 0018 02E0     		b	.L38
+ 473              	.L50:
+ 207:.\main.c      ****         case tilt_start:
+ 208:.\main.c      ****             // Set the torque - this is a one time thing
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 13
+
+
+ 209:.\main.c      ****             // Set the speed - I think this is a one time thing
+ 210:.\main.c      ****             break;
+ 474              		.loc 1 210 0
+ 475 001a C046     		mov	r8, r8
+ 476 001c 00E0     		b	.L38
+ 477              	.L51:
+ 211:.\main.c      ****         case tilt_control:
+ 212:.\main.c      ****             break;
+ 478              		.loc 1 212 0
+ 479 001e C046     		mov	r8, r8
+ 480              	.L38:
+ 213:.\main.c      ****         case tilt_feedback:
+ 214:.\main.c      ****             break;
+ 215:.\main.c      ****     }
+ 216:.\main.c      ****         // Transistion
+ 217:.\main.c      ****     switch(wristTilt_state)
+ 481              		.loc 1 217 0
+ 482 0020 084B     		ldr	r3, .L53
+ 483 0022 1B78     		ldrb	r3, [r3]
+ 484 0024 012B     		cmp	r3, #1
+ 485 0026 06D0     		beq	.L45
+ 486 0028 09DC     		bgt	.L52
+ 487 002a 002B     		cmp	r3, #0
+ 488 002c 08D1     		bne	.L37
+ 218:.\main.c      ****     {
+ 219:.\main.c      ****         case tilt_init:
+ 220:.\main.c      ****             wristTilt_state = tilt_start;
+ 489              		.loc 1 220 0
+ 490 002e 054B     		ldr	r3, .L53
+ 491 0030 0122     		mov	r2, #1
+ 492 0032 1A70     		strb	r2, [r3]
+ 221:.\main.c      ****             break;
+ 493              		.loc 1 221 0
+ 494 0034 04E0     		b	.L37
+ 495              	.L45:
+ 222:.\main.c      ****         case tilt_start:
+ 223:.\main.c      ****             wristTilt_state = tilt_control;
+ 496              		.loc 1 223 0
+ 497 0036 034B     		ldr	r3, .L53
+ 498 0038 0222     		mov	r2, #2
+ 499 003a 1A70     		strb	r2, [r3]
+ 224:.\main.c      ****             break;
+ 500              		.loc 1 224 0
+ 501 003c 00E0     		b	.L37
+ 502              	.L52:
+ 225:.\main.c      ****         case tilt_control:
+ 226:.\main.c      ****             break;
+ 503              		.loc 1 226 0
+ 504 003e C046     		mov	r8, r8
+ 505              	.L37:
+ 227:.\main.c      ****         case tilt_feedback:
+ 228:.\main.c      ****             break;
+ 229:.\main.c      ****     }
+ 230:.\main.c      **** }
+ 506              		.loc 1 230 0
+ 507 0040 BD46     		mov	sp, r7
+ 508              		@ sp needed
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 14
+
+
+ 509 0042 80BD     		pop	{r7, pc}
+ 510              	.L54:
+ 511              		.align	2
+ 512              	.L53:
+ 513 0044 00000000 		.word	wristTilt_state
+ 514              		.cfi_endproc
+ 515              	.LFE39:
+ 516              		.size	wristTilt, .-wristTilt
+ 517              		.comm	wristRotate_state,1,1
+ 518              		.section	.text.wristRotate,"ax",%progbits
+ 519              		.align	2
+ 520              		.global	wristRotate
+ 521              		.code	16
+ 522              		.thumb_func
+ 523              		.type	wristRotate, %function
+ 524              	wristRotate:
+ 525              	.LFB40:
+ 231:.\main.c      **** 
+ 232:.\main.c      **** enum wristRotate_states {rotate_init = 0, rotate_start, rotate_control, rotate_feedback} wristRotat
+ 233:.\main.c      **** //control the rotating motion of the wrist
+ 234:.\main.c      **** void wristRotate()
+ 235:.\main.c      **** {
+ 526              		.loc 1 235 0
+ 527              		.cfi_startproc
+ 528 0000 80B5     		push	{r7, lr}
+ 529              		.cfi_def_cfa_offset 8
+ 530              		.cfi_offset 7, -8
+ 531              		.cfi_offset 14, -4
+ 532 0002 00AF     		add	r7, sp, #0
+ 533              		.cfi_def_cfa_register 7
+ 236:.\main.c      ****     //Overview
+ 237:.\main.c      ****     //take instruction from data_array
+ 238:.\main.c      ****     //smooth input
+ 239:.\main.c      ****     //actuate the tilting using UART
+ 240:.\main.c      ****     //get feedback
+ 241:.\main.c      **** 
+ 242:.\main.c      ****     //-------------------------- 
+ 243:.\main.c      ****     // Dynamixel Servo specific
+ 244:.\main.c      ****     // TODO: Set the torque - Requires building an array with bit representation
+ 245:.\main.c      ****     // TODO: Set the desired position
+ 246:.\main.c      **** 
+ 247:.\main.c      ****     //--------------------------
+ 248:.\main.c      ****     // State machine
+ 249:.\main.c      ****     
+ 250:.\main.c      ****         // Action
+ 251:.\main.c      ****     switch(wristRotate_state)
+ 534              		.loc 1 251 0
+ 535 0004 0F4B     		ldr	r3, .L71
+ 536 0006 1B78     		ldrb	r3, [r3]
+ 537 0008 012B     		cmp	r3, #1
+ 538 000a 06D0     		beq	.L68
+ 539 000c 07DC     		bgt	.L69
+ 540 000e 002B     		cmp	r3, #0
+ 541 0010 06D1     		bne	.L56
+ 252:.\main.c      ****     {
+ 253:.\main.c      ****         case rotate_init:
+ 254:.\main.c      ****             wristRotate_state = rotate_start;
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 15
+
+
+ 542              		.loc 1 254 0
+ 543 0012 0C4B     		ldr	r3, .L71
+ 544 0014 0122     		mov	r2, #1
+ 545 0016 1A70     		strb	r2, [r3]
+ 255:.\main.c      ****             break;
+ 546              		.loc 1 255 0
+ 547 0018 02E0     		b	.L56
+ 548              	.L68:
+ 256:.\main.c      ****         case rotate_start:
+ 257:.\main.c      ****             // Set the torque - this is a one time thing
+ 258:.\main.c      ****             // Set the speed - I think this is a one time thing
+ 259:.\main.c      ****             break;
+ 549              		.loc 1 259 0
+ 550 001a C046     		mov	r8, r8
+ 551 001c 00E0     		b	.L56
+ 552              	.L69:
+ 260:.\main.c      ****         case rotate_control:
+ 261:.\main.c      ****             break;
+ 553              		.loc 1 261 0
+ 554 001e C046     		mov	r8, r8
+ 555              	.L56:
+ 262:.\main.c      ****         case rotate_feedback:
+ 263:.\main.c      ****             break;
+ 264:.\main.c      ****     }
+ 265:.\main.c      ****         // Transistion
+ 266:.\main.c      ****     switch(wristRotate_state)
+ 556              		.loc 1 266 0
+ 557 0020 084B     		ldr	r3, .L71
+ 558 0022 1B78     		ldrb	r3, [r3]
+ 559 0024 012B     		cmp	r3, #1
+ 560 0026 06D0     		beq	.L63
+ 561 0028 09DC     		bgt	.L70
+ 562 002a 002B     		cmp	r3, #0
+ 563 002c 08D1     		bne	.L55
+ 267:.\main.c      ****     {
+ 268:.\main.c      ****         case rotate_init:
+ 269:.\main.c      ****             wristRotate_state = rotate_start;
+ 564              		.loc 1 269 0
+ 565 002e 054B     		ldr	r3, .L71
+ 566 0030 0122     		mov	r2, #1
+ 567 0032 1A70     		strb	r2, [r3]
+ 270:.\main.c      ****             break;
+ 568              		.loc 1 270 0
+ 569 0034 04E0     		b	.L55
+ 570              	.L63:
+ 271:.\main.c      ****         case rotate_start:
+ 272:.\main.c      ****             wristRotate_state = rotate_control;
+ 571              		.loc 1 272 0
+ 572 0036 034B     		ldr	r3, .L71
+ 573 0038 0222     		mov	r2, #2
+ 574 003a 1A70     		strb	r2, [r3]
+ 273:.\main.c      ****             break;
+ 575              		.loc 1 273 0
+ 576 003c 00E0     		b	.L55
+ 577              	.L70:
+ 274:.\main.c      ****         case rotate_control:
+ 275:.\main.c      ****             break;
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 16
+
+
+ 578              		.loc 1 275 0
+ 579 003e C046     		mov	r8, r8
+ 580              	.L55:
+ 276:.\main.c      ****         case rotate_feedback:
+ 277:.\main.c      ****             break;
+ 278:.\main.c      ****     }
+ 279:.\main.c      **** }
+ 581              		.loc 1 279 0
+ 582 0040 BD46     		mov	sp, r7
+ 583              		@ sp needed
+ 584 0042 80BD     		pop	{r7, pc}
+ 585              	.L72:
+ 586              		.align	2
+ 587              	.L71:
+ 588 0044 00000000 		.word	wristRotate_state
+ 589              		.cfi_endproc
+ 590              	.LFE40:
+ 591              		.size	wristRotate, .-wristRotate
+ 592              		.section	.text.send_feedback,"ax",%progbits
+ 593              		.align	2
+ 594              		.global	send_feedback
+ 595              		.code	16
+ 596              		.thumb_func
+ 597              		.type	send_feedback, %function
+ 598              	send_feedback:
+ 599              	.LFB41:
+ 280:.\main.c      **** 
+ 281:.\main.c      **** void send_feedback()
+ 282:.\main.c      **** {
+ 600              		.loc 1 282 0
+ 601              		.cfi_startproc
+ 602 0000 80B5     		push	{r7, lr}
+ 603              		.cfi_def_cfa_offset 8
+ 604              		.cfi_offset 7, -8
+ 605              		.cfi_offset 14, -4
+ 606 0002 00AF     		add	r7, sp, #0
+ 607              		.cfi_def_cfa_register 7
+ 283:.\main.c      ****     //compile all of the most recent feedback variables into a packet
+ 284:.\main.c      ****     //necessary feedback variables: system state, dynamixel read write errors, PID errors
+ 285:.\main.c      ****     //TODO define system state
+ 286:.\main.c      ****     //send packet via serial to wiznet
+ 287:.\main.c      **** }
+ 608              		.loc 1 287 0
+ 609 0004 BD46     		mov	sp, r7
+ 610              		@ sp needed
+ 611 0006 80BD     		pop	{r7, pc}
+ 612              		.cfi_endproc
+ 613              	.LFE41:
+ 614              		.size	send_feedback, .-send_feedback
+ 615              		.comm	led_state,1,1
+ 616              		.section	.text.led,"ax",%progbits
+ 617              		.align	2
+ 618              		.global	led
+ 619              		.code	16
+ 620              		.thumb_func
+ 621              		.type	led, %function
+ 622              	led:
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 17
+
+
+ 623              	.LFB42:
+ 288:.\main.c      **** 
+ 289:.\main.c      **** enum led_states {l_start,l_different,l_wait} led_state;
+ 290:.\main.c      **** void led()
+ 291:.\main.c      **** {
+ 624              		.loc 1 291 0
+ 625              		.cfi_startproc
+ 626 0000 80B5     		push	{r7, lr}
+ 627              		.cfi_def_cfa_offset 8
+ 628              		.cfi_offset 7, -8
+ 629              		.cfi_offset 14, -4
+ 630 0002 82B0     		sub	sp, sp, #8
+ 631              		.cfi_def_cfa_offset 16
+ 632 0004 00AF     		add	r7, sp, #0
+ 633              		.cfi_def_cfa_register 7
+ 292:.\main.c      ****     uint16 old = 0;
+ 634              		.loc 1 292 0
+ 635 0006 BB1D     		add	r3, r7, #6
+ 636 0008 0022     		mov	r2, #0
+ 637 000a 1A80     		strh	r2, [r3]
+ 293:.\main.c      ****     switch(led_state)
+ 638              		.loc 1 293 0
+ 639 000c 1C4B     		ldr	r3, .L88
+ 640 000e 1B78     		ldrb	r3, [r3]
+ 641 0010 012B     		cmp	r3, #1
+ 642 0012 09D1     		bne	.L87
+ 294:.\main.c      ****     {
+ 295:.\main.c      ****         case l_start:
+ 296:.\main.c      ****             break;
+ 297:.\main.c      ****         
+ 298:.\main.c      ****         case l_different:
+ 299:.\main.c      ****             PWM_1_WriteCompare1(data_array[1]);
+ 643              		.loc 1 299 0
+ 644 0014 1B4B     		ldr	r3, .L88+4
+ 645 0016 5B88     		ldrh	r3, [r3, #2]
+ 646 0018 181C     		mov	r0, r3
+ 647 001a FFF7FEFF 		bl	PWM_1_WriteCompare1
+ 300:.\main.c      ****             old = data_array[1];
+ 648              		.loc 1 300 0
+ 649 001e BB1D     		add	r3, r7, #6
+ 650 0020 184A     		ldr	r2, .L88+4
+ 651 0022 5288     		ldrh	r2, [r2, #2]
+ 652 0024 1A80     		strh	r2, [r3]
+ 301:.\main.c      ****             break;
+ 653              		.loc 1 301 0
+ 654 0026 00E0     		b	.L75
+ 655              	.L87:
+ 302:.\main.c      ****             
+ 303:.\main.c      ****         case l_wait:
+ 304:.\main.c      ****             break;
+ 656              		.loc 1 304 0
+ 657 0028 C046     		mov	r8, r8
+ 658              	.L75:
+ 305:.\main.c      ****     }
+ 306:.\main.c      ****     
+ 307:.\main.c      ****     switch(led_state)
+ 659              		.loc 1 307 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 18
+
+
+ 660 002a 154B     		ldr	r3, .L88
+ 661 002c 1B78     		ldrb	r3, [r3]
+ 662 002e 012B     		cmp	r3, #1
+ 663 0030 07D0     		beq	.L80
+ 664 0032 022B     		cmp	r3, #2
+ 665 0034 13D0     		beq	.L81
+ 666 0036 002B     		cmp	r3, #0
+ 667 0038 1FD1     		bne	.L74
+ 308:.\main.c      ****     {
+ 309:.\main.c      ****         case l_start:
+ 310:.\main.c      ****             led_state = l_wait;
+ 668              		.loc 1 310 0
+ 669 003a 114B     		ldr	r3, .L88
+ 670 003c 0222     		mov	r2, #2
+ 671 003e 1A70     		strb	r2, [r3]
+ 311:.\main.c      ****             break;
+ 672              		.loc 1 311 0
+ 673 0040 1BE0     		b	.L74
+ 674              	.L80:
+ 312:.\main.c      ****         
+ 313:.\main.c      ****         case l_different:
+ 314:.\main.c      ****             if(data_array[1] != old)
+ 675              		.loc 1 314 0
+ 676 0042 104B     		ldr	r3, .L88+4
+ 677 0044 5B88     		ldrh	r3, [r3, #2]
+ 678 0046 BA1D     		add	r2, r7, #6
+ 679 0048 1288     		ldrh	r2, [r2]
+ 680 004a 9A42     		cmp	r2, r3
+ 681 004c 03D0     		beq	.L83
+ 315:.\main.c      ****             {
+ 316:.\main.c      ****                 led_state = l_different;
+ 682              		.loc 1 316 0
+ 683 004e 0C4B     		ldr	r3, .L88
+ 684 0050 0122     		mov	r2, #1
+ 685 0052 1A70     		strb	r2, [r3]
+ 317:.\main.c      ****             }
+ 318:.\main.c      ****             else
+ 319:.\main.c      ****             {
+ 320:.\main.c      ****                 led_state = l_wait;
+ 321:.\main.c      ****             }
+ 322:.\main.c      ****             break;
+ 686              		.loc 1 322 0
+ 687 0054 11E0     		b	.L74
+ 688              	.L83:
+ 320:.\main.c      ****                 led_state = l_wait;
+ 689              		.loc 1 320 0
+ 690 0056 0A4B     		ldr	r3, .L88
+ 691 0058 0222     		mov	r2, #2
+ 692 005a 1A70     		strb	r2, [r3]
+ 693              		.loc 1 322 0
+ 694 005c 0DE0     		b	.L74
+ 695              	.L81:
+ 323:.\main.c      ****             
+ 324:.\main.c      ****         case l_wait:
+ 325:.\main.c      ****             if(data_array[1] != old)
+ 696              		.loc 1 325 0
+ 697 005e 094B     		ldr	r3, .L88+4
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 19
+
+
+ 698 0060 5B88     		ldrh	r3, [r3, #2]
+ 699 0062 BA1D     		add	r2, r7, #6
+ 700 0064 1288     		ldrh	r2, [r2]
+ 701 0066 9A42     		cmp	r2, r3
+ 702 0068 03D0     		beq	.L85
+ 326:.\main.c      ****             {
+ 327:.\main.c      ****                 led_state = l_different;
+ 703              		.loc 1 327 0
+ 704 006a 054B     		ldr	r3, .L88
+ 705 006c 0122     		mov	r2, #1
+ 706 006e 1A70     		strb	r2, [r3]
+ 707 0070 02E0     		b	.L86
+ 708              	.L85:
+ 328:.\main.c      ****             }
+ 329:.\main.c      ****             else
+ 330:.\main.c      ****             {
+ 331:.\main.c      ****                 led_state = l_wait;
+ 709              		.loc 1 331 0
+ 710 0072 034B     		ldr	r3, .L88
+ 711 0074 0222     		mov	r2, #2
+ 712 0076 1A70     		strb	r2, [r3]
+ 713              	.L86:
+ 332:.\main.c      ****             }
+ 333:.\main.c      ****             break;
+ 714              		.loc 1 333 0
+ 715 0078 C046     		mov	r8, r8
+ 716              	.L74:
+ 334:.\main.c      ****     }
+ 335:.\main.c      **** }
+ 717              		.loc 1 335 0
+ 718 007a BD46     		mov	sp, r7
+ 719 007c 02B0     		add	sp, sp, #8
+ 720              		@ sp needed
+ 721 007e 80BD     		pop	{r7, pc}
+ 722              	.L89:
+ 723              		.align	2
+ 724              	.L88:
+ 725 0080 00000000 		.word	led_state
+ 726 0084 00000000 		.word	data_array
+ 727              		.cfi_endproc
+ 728              	.LFE42:
+ 729              		.size	led, .-led
+ 730              		.global	__aeabi_uidiv
+ 731              		.section	.text.average,"ax",%progbits
+ 732              		.align	2
+ 733              		.global	average
+ 734              		.code	16
+ 735              		.thumb_func
+ 736              		.type	average, %function
+ 737              	average:
+ 738              	.LFB43:
+ 336:.\main.c      **** 
+ 337:.\main.c      **** //Average function to be used in smoothing our input
+ 338:.\main.c      **** uint16 average(uint16* array, uint8 num_items)
+ 339:.\main.c      **** {
+ 739              		.loc 1 339 0
+ 740              		.cfi_startproc
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 20
+
+
+ 741 0000 80B5     		push	{r7, lr}
+ 742              		.cfi_def_cfa_offset 8
+ 743              		.cfi_offset 7, -8
+ 744              		.cfi_offset 14, -4
+ 745 0002 86B0     		sub	sp, sp, #24
+ 746              		.cfi_def_cfa_offset 32
+ 747 0004 00AF     		add	r7, sp, #0
+ 748              		.cfi_def_cfa_register 7
+ 749 0006 7860     		str	r0, [r7, #4]
+ 750 0008 0A1C     		mov	r2, r1
+ 751 000a FB1C     		add	r3, r7, #3
+ 752 000c 1A70     		strb	r2, [r3]
+ 340:.\main.c      ****     uint8 i;
+ 341:.\main.c      ****     uint32 sum = 0;
+ 753              		.loc 1 341 0
+ 754 000e 0023     		mov	r3, #0
+ 755 0010 3B61     		str	r3, [r7, #16]
+ 342:.\main.c      ****     uint16 avg = 0;
+ 756              		.loc 1 342 0
+ 757 0012 3B1C     		mov	r3, r7
+ 758 0014 0E33     		add	r3, r3, #14
+ 759 0016 0022     		mov	r2, #0
+ 760 0018 1A80     		strh	r2, [r3]
+ 343:.\main.c      ****     
+ 344:.\main.c      ****     for(i = 0; i < num_items; i++)
+ 761              		.loc 1 344 0
+ 762 001a 3B1C     		mov	r3, r7
+ 763 001c 1733     		add	r3, r3, #23
+ 764 001e 0022     		mov	r2, #0
+ 765 0020 1A70     		strb	r2, [r3]
+ 766 0022 10E0     		b	.L91
+ 767              	.L92:
+ 345:.\main.c      ****     {
+ 346:.\main.c      ****         sum += array[i];
+ 768              		.loc 1 346 0 discriminator 2
+ 769 0024 3B1C     		mov	r3, r7
+ 770 0026 1733     		add	r3, r3, #23
+ 771 0028 1B78     		ldrb	r3, [r3]
+ 772 002a 5B00     		lsl	r3, r3, #1
+ 773 002c 7A68     		ldr	r2, [r7, #4]
+ 774 002e D318     		add	r3, r2, r3
+ 775 0030 1B88     		ldrh	r3, [r3]
+ 776 0032 3A69     		ldr	r2, [r7, #16]
+ 777 0034 D318     		add	r3, r2, r3
+ 778 0036 3B61     		str	r3, [r7, #16]
+ 344:.\main.c      ****     for(i = 0; i < num_items; i++)
+ 779              		.loc 1 344 0 discriminator 2
+ 780 0038 3B1C     		mov	r3, r7
+ 781 003a 1733     		add	r3, r3, #23
+ 782 003c 1A78     		ldrb	r2, [r3]
+ 783 003e 3B1C     		mov	r3, r7
+ 784 0040 1733     		add	r3, r3, #23
+ 785 0042 0132     		add	r2, r2, #1
+ 786 0044 1A70     		strb	r2, [r3]
+ 787              	.L91:
+ 344:.\main.c      ****     for(i = 0; i < num_items; i++)
+ 788              		.loc 1 344 0 is_stmt 0 discriminator 1
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 21
+
+
+ 789 0046 3A1C     		mov	r2, r7
+ 790 0048 1732     		add	r2, r2, #23
+ 791 004a FB1C     		add	r3, r7, #3
+ 792 004c 1278     		ldrb	r2, [r2]
+ 793 004e 1B78     		ldrb	r3, [r3]
+ 794 0050 9A42     		cmp	r2, r3
+ 795 0052 E7D3     		bcc	.L92
+ 347:.\main.c      ****     }
+ 348:.\main.c      ****     
+ 349:.\main.c      ****     avg = sum/num_items;
+ 796              		.loc 1 349 0 is_stmt 1
+ 797 0054 FB1C     		add	r3, r7, #3
+ 798 0056 1B78     		ldrb	r3, [r3]
+ 799 0058 3869     		ldr	r0, [r7, #16]
+ 800 005a 191C     		mov	r1, r3
+ 801 005c FFF7FEFF 		bl	__aeabi_uidiv
+ 802 0060 031C     		mov	r3, r0
+ 803 0062 1A1C     		mov	r2, r3
+ 804 0064 3B1C     		mov	r3, r7
+ 805 0066 0E33     		add	r3, r3, #14
+ 806 0068 1A80     		strh	r2, [r3]
+ 350:.\main.c      ****     
+ 351:.\main.c      ****     return avg;
+ 807              		.loc 1 351 0
+ 808 006a 3B1C     		mov	r3, r7
+ 809 006c 0E33     		add	r3, r3, #14
+ 810 006e 1B88     		ldrh	r3, [r3]
+ 352:.\main.c      **** }
+ 811              		.loc 1 352 0
+ 812 0070 181C     		mov	r0, r3
+ 813 0072 BD46     		mov	sp, r7
+ 814 0074 06B0     		add	sp, sp, #24
+ 815              		@ sp needed
+ 816 0076 80BD     		pop	{r7, pc}
+ 817              		.cfi_endproc
+ 818              	.LFE43:
+ 819              		.size	average, .-average
+ 820              		.comm	servo_state,1,1
+ 821              		.section	.text.servo,"ax",%progbits
+ 822              		.align	2
+ 823              		.global	servo
+ 824              		.code	16
+ 825              		.thumb_func
+ 826              		.type	servo, %function
+ 827              	servo:
+ 828              	.LFB44:
+ 353:.\main.c      **** 
+ 354:.\main.c      **** enum servo_states {s_start,s_different,s_wait} servo_state;
+ 355:.\main.c      **** void servo()
+ 356:.\main.c      **** {
+ 829              		.loc 1 356 0
+ 830              		.cfi_startproc
+ 831 0000 80B5     		push	{r7, lr}
+ 832              		.cfi_def_cfa_offset 8
+ 833              		.cfi_offset 7, -8
+ 834              		.cfi_offset 14, -4
+ 835 0002 82B0     		sub	sp, sp, #8
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 22
+
+
+ 836              		.cfi_def_cfa_offset 16
+ 837 0004 00AF     		add	r7, sp, #0
+ 838              		.cfi_def_cfa_register 7
+ 357:.\main.c      ****     uint16 old = 0;
+ 839              		.loc 1 357 0
+ 840 0006 BB1D     		add	r3, r7, #6
+ 841 0008 0022     		mov	r2, #0
+ 842 000a 1A80     		strh	r2, [r3]
+ 358:.\main.c      ****     switch(servo_state){
+ 843              		.loc 1 358 0
+ 844 000c 1C4B     		ldr	r3, .L108
+ 845 000e 1B78     		ldrb	r3, [r3]
+ 846 0010 012B     		cmp	r3, #1
+ 847 0012 09D1     		bne	.L107
+ 359:.\main.c      ****         case s_start:
+ 360:.\main.c      ****             break;
+ 361:.\main.c      ****         
+ 362:.\main.c      ****         case s_different:
+ 363:.\main.c      ****             PWM_1_WriteCompare2(data_array[2]);
+ 848              		.loc 1 363 0
+ 849 0014 1B4B     		ldr	r3, .L108+4
+ 850 0016 9B88     		ldrh	r3, [r3, #4]
+ 851 0018 181C     		mov	r0, r3
+ 852 001a FFF7FEFF 		bl	PWM_1_WriteCompare2
+ 364:.\main.c      ****             old = data_array[2];
+ 853              		.loc 1 364 0
+ 854 001e BB1D     		add	r3, r7, #6
+ 855 0020 184A     		ldr	r2, .L108+4
+ 856 0022 9288     		ldrh	r2, [r2, #4]
+ 857 0024 1A80     		strh	r2, [r3]
+ 365:.\main.c      ****             break;
+ 858              		.loc 1 365 0
+ 859 0026 00E0     		b	.L95
+ 860              	.L107:
+ 366:.\main.c      ****             
+ 367:.\main.c      ****         case s_wait:
+ 368:.\main.c      ****             break;
+ 861              		.loc 1 368 0
+ 862 0028 C046     		mov	r8, r8
+ 863              	.L95:
+ 369:.\main.c      ****     }
+ 370:.\main.c      ****     
+ 371:.\main.c      ****     switch(servo_state){
+ 864              		.loc 1 371 0
+ 865 002a 154B     		ldr	r3, .L108
+ 866 002c 1B78     		ldrb	r3, [r3]
+ 867 002e 012B     		cmp	r3, #1
+ 868 0030 07D0     		beq	.L100
+ 869 0032 022B     		cmp	r3, #2
+ 870 0034 13D0     		beq	.L101
+ 871 0036 002B     		cmp	r3, #0
+ 872 0038 1FD1     		bne	.L94
+ 372:.\main.c      ****         case s_start:
+ 373:.\main.c      ****             servo_state = s_wait;
+ 873              		.loc 1 373 0
+ 874 003a 114B     		ldr	r3, .L108
+ 875 003c 0222     		mov	r2, #2
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 23
+
+
+ 876 003e 1A70     		strb	r2, [r3]
+ 374:.\main.c      ****             break;
+ 877              		.loc 1 374 0
+ 878 0040 1BE0     		b	.L94
+ 879              	.L100:
+ 375:.\main.c      ****         
+ 376:.\main.c      ****         case s_different:
+ 377:.\main.c      ****             if(data_array[2] != old)
+ 880              		.loc 1 377 0
+ 881 0042 104B     		ldr	r3, .L108+4
+ 882 0044 9B88     		ldrh	r3, [r3, #4]
+ 883 0046 BA1D     		add	r2, r7, #6
+ 884 0048 1288     		ldrh	r2, [r2]
+ 885 004a 9A42     		cmp	r2, r3
+ 886 004c 03D0     		beq	.L103
+ 378:.\main.c      ****             {
+ 379:.\main.c      ****                 servo_state = s_different;
+ 887              		.loc 1 379 0
+ 888 004e 0C4B     		ldr	r3, .L108
+ 889 0050 0122     		mov	r2, #1
+ 890 0052 1A70     		strb	r2, [r3]
+ 380:.\main.c      ****             }
+ 381:.\main.c      ****             else
+ 382:.\main.c      ****             {
+ 383:.\main.c      ****                 servo_state = s_wait;
+ 384:.\main.c      ****             }
+ 385:.\main.c      ****             break;
+ 891              		.loc 1 385 0
+ 892 0054 11E0     		b	.L94
+ 893              	.L103:
+ 383:.\main.c      ****                 servo_state = s_wait;
+ 894              		.loc 1 383 0
+ 895 0056 0A4B     		ldr	r3, .L108
+ 896 0058 0222     		mov	r2, #2
+ 897 005a 1A70     		strb	r2, [r3]
+ 898              		.loc 1 385 0
+ 899 005c 0DE0     		b	.L94
+ 900              	.L101:
+ 386:.\main.c      ****             
+ 387:.\main.c      ****         case s_wait:
+ 388:.\main.c      ****             if(data_array[2] != old)
+ 901              		.loc 1 388 0
+ 902 005e 094B     		ldr	r3, .L108+4
+ 903 0060 9B88     		ldrh	r3, [r3, #4]
+ 904 0062 BA1D     		add	r2, r7, #6
+ 905 0064 1288     		ldrh	r2, [r2]
+ 906 0066 9A42     		cmp	r2, r3
+ 907 0068 03D0     		beq	.L105
+ 389:.\main.c      ****             {
+ 390:.\main.c      ****                 servo_state = s_different;
+ 908              		.loc 1 390 0
+ 909 006a 054B     		ldr	r3, .L108
+ 910 006c 0122     		mov	r2, #1
+ 911 006e 1A70     		strb	r2, [r3]
+ 912 0070 02E0     		b	.L106
+ 913              	.L105:
+ 391:.\main.c      ****             }
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 24
+
+
+ 392:.\main.c      ****             else
+ 393:.\main.c      ****             {
+ 394:.\main.c      ****                 servo_state = s_wait;
+ 914              		.loc 1 394 0
+ 915 0072 034B     		ldr	r3, .L108
+ 916 0074 0222     		mov	r2, #2
+ 917 0076 1A70     		strb	r2, [r3]
+ 918              	.L106:
+ 395:.\main.c      ****             }
+ 396:.\main.c      ****             break;
+ 919              		.loc 1 396 0
+ 920 0078 C046     		mov	r8, r8
+ 921              	.L94:
+ 397:.\main.c      ****     }    
+ 398:.\main.c      **** }
+ 922              		.loc 1 398 0
+ 923 007a BD46     		mov	sp, r7
+ 924 007c 02B0     		add	sp, sp, #8
+ 925              		@ sp needed
+ 926 007e 80BD     		pop	{r7, pc}
+ 927              	.L109:
+ 928              		.align	2
+ 929              	.L108:
+ 930 0080 00000000 		.word	servo_state
+ 931 0084 00000000 		.word	data_array
+ 932              		.cfi_endproc
+ 933              	.LFE44:
+ 934              		.size	servo, .-servo
+ 935              		.comm	servo1_state,1,1
+ 936              		.section	.text.servo1,"ax",%progbits
+ 937              		.align	2
+ 938              		.global	servo1
+ 939              		.code	16
+ 940              		.thumb_func
+ 941              		.type	servo1, %function
+ 942              	servo1:
+ 943              	.LFB45:
+ 399:.\main.c      **** 
+ 400:.\main.c      **** //New servo design
+ 401:.\main.c      **** //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 402:.\main.c      **** enum servo1_states {s1_start,s1_init,s1_execute,s1_wait} servo1_state;
+ 403:.\main.c      **** void servo1()
+ 404:.\main.c      **** { 
+ 944              		.loc 1 404 0
+ 945              		.cfi_startproc
+ 946 0000 90B5     		push	{r4, r7, lr}
+ 947              		.cfi_def_cfa_offset 12
+ 948              		.cfi_offset 4, -12
+ 949              		.cfi_offset 7, -8
+ 950              		.cfi_offset 14, -4
+ 951 0002 83B0     		sub	sp, sp, #12
+ 952              		.cfi_def_cfa_offset 24
+ 953 0004 00AF     		add	r7, sp, #0
+ 954              		.cfi_def_cfa_register 7
+ 405:.\main.c      ****     uint8 i;
+ 406:.\main.c      ****     uint16 avg;
+ 407:.\main.c      ****     uint16 command;
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 25
+
+
+ 408:.\main.c      ****     
+ 409:.\main.c      ****     switch(servo1_state){ //actions
+ 955              		.loc 1 409 0
+ 956 0006 424B     		ldr	r3, .L133
+ 957 0008 1B78     		ldrb	r3, [r3]
+ 958 000a 012B     		cmp	r3, #1
+ 959 000c 03D0     		beq	.L112
+ 960 000e 4EDD     		ble	.L132
+ 961 0010 022B     		cmp	r3, #2
+ 962 0012 17D0     		beq	.L115
+ 410:.\main.c      ****         case s_start:
+ 411:.\main.c      ****             break;
+ 412:.\main.c      **** 
+ 413:.\main.c      ****         case s1_init:
+ 414:.\main.c      ****             for(i = 0; i < SERV_ARR_SIZE; i++)
+ 415:.\main.c      ****             {
+ 416:.\main.c      ****                 servo_array[i] = 1500;
+ 417:.\main.c      ****             }
+ 418:.\main.c      ****             serv_arr_cspot = 0;
+ 419:.\main.c      ****             break;
+ 420:.\main.c      **** 
+ 421:.\main.c      ****         case s1_execute:
+ 422:.\main.c      ****             command = (((data_array[2] << 8) | data_array[3])/2) + 1500;
+ 423:.\main.c      ****             servo_array[serv_arr_cspot] = command;
+ 424:.\main.c      ****             if(serv_arr_cspot < (SERV_ARR_SIZE - 1))
+ 425:.\main.c      ****             {
+ 426:.\main.c      ****                 serv_arr_cspot++;
+ 427:.\main.c      ****             }
+ 428:.\main.c      ****             else
+ 429:.\main.c      ****             {
+ 430:.\main.c      ****                 serv_arr_cspot = 0;
+ 431:.\main.c      ****             }
+ 432:.\main.c      ****             avg = average(servo_array, 20);
+ 433:.\main.c      ****             //servo_array[serv_avg_count] = data_array[2];
+ 434:.\main.c      ****             PWM_1_WriteCompare2(avg);
+ 435:.\main.c      ****             new_pack = 0;
+ 436:.\main.c      ****             break;
+ 437:.\main.c      ****             
+ 438:.\main.c      ****         case s1_wait:
+ 439:.\main.c      ****             break;
+ 963              		.loc 1 439 0
+ 964 0014 4CE0     		b	.L111
+ 965              	.L112:
+ 414:.\main.c      ****             for(i = 0; i < SERV_ARR_SIZE; i++)
+ 966              		.loc 1 414 0
+ 967 0016 FB1D     		add	r3, r7, #7
+ 968 0018 0022     		mov	r2, #0
+ 969 001a 1A70     		strb	r2, [r3]
+ 970 001c 0AE0     		b	.L117
+ 971              	.L118:
+ 416:.\main.c      ****                 servo_array[i] = 1500;
+ 972              		.loc 1 416 0 discriminator 2
+ 973 001e FB1D     		add	r3, r7, #7
+ 974 0020 1A78     		ldrb	r2, [r3]
+ 975 0022 3C4B     		ldr	r3, .L133+4
+ 976 0024 5200     		lsl	r2, r2, #1
+ 977 0026 3C49     		ldr	r1, .L133+8
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 26
+
+
+ 978 0028 D152     		strh	r1, [r2, r3]
+ 414:.\main.c      ****             for(i = 0; i < SERV_ARR_SIZE; i++)
+ 979              		.loc 1 414 0 discriminator 2
+ 980 002a FB1D     		add	r3, r7, #7
+ 981 002c 1A78     		ldrb	r2, [r3]
+ 982 002e FB1D     		add	r3, r7, #7
+ 983 0030 0132     		add	r2, r2, #1
+ 984 0032 1A70     		strb	r2, [r3]
+ 985              	.L117:
+ 414:.\main.c      ****             for(i = 0; i < SERV_ARR_SIZE; i++)
+ 986              		.loc 1 414 0 is_stmt 0 discriminator 1
+ 987 0034 FB1D     		add	r3, r7, #7
+ 988 0036 1B78     		ldrb	r3, [r3]
+ 989 0038 132B     		cmp	r3, #19
+ 990 003a F0D9     		bls	.L118
+ 418:.\main.c      ****             serv_arr_cspot = 0;
+ 991              		.loc 1 418 0 is_stmt 1
+ 992 003c 374B     		ldr	r3, .L133+12
+ 993 003e 0022     		mov	r2, #0
+ 994 0040 1A70     		strb	r2, [r3]
+ 419:.\main.c      ****             break;
+ 995              		.loc 1 419 0
+ 996 0042 35E0     		b	.L111
+ 997              	.L115:
+ 422:.\main.c      ****             command = (((data_array[2] << 8) | data_array[3])/2) + 1500;
+ 998              		.loc 1 422 0
+ 999 0044 364B     		ldr	r3, .L133+16
+ 1000 0046 9B88     		ldrh	r3, [r3, #4]
+ 1001 0048 1A02     		lsl	r2, r3, #8
+ 1002 004a 354B     		ldr	r3, .L133+16
+ 1003 004c DB88     		ldrh	r3, [r3, #6]
+ 1004 004e 1343     		orr	r3, r2
+ 1005 0050 00D5     		bpl	.L119
+ 1006 0052 0133     		add	r3, r3, #1
+ 1007              	.L119:
+ 1008 0054 5B10     		asr	r3, r3, #1
+ 1009 0056 9AB2     		uxth	r2, r3
+ 1010 0058 3B1D     		add	r3, r7, #4
+ 1011 005a 2F49     		ldr	r1, .L133+8
+ 1012 005c 5218     		add	r2, r2, r1
+ 1013 005e 1A80     		strh	r2, [r3]
+ 423:.\main.c      ****             servo_array[serv_arr_cspot] = command;
+ 1014              		.loc 1 423 0
+ 1015 0060 2E4B     		ldr	r3, .L133+12
+ 1016 0062 1B78     		ldrb	r3, [r3]
+ 1017 0064 1A1C     		mov	r2, r3
+ 1018 0066 2B4B     		ldr	r3, .L133+4
+ 1019 0068 5200     		lsl	r2, r2, #1
+ 1020 006a 391D     		add	r1, r7, #4
+ 1021 006c 0988     		ldrh	r1, [r1]
+ 1022 006e D152     		strh	r1, [r2, r3]
+ 424:.\main.c      ****             if(serv_arr_cspot < (SERV_ARR_SIZE - 1))
+ 1023              		.loc 1 424 0
+ 1024 0070 2A4B     		ldr	r3, .L133+12
+ 1025 0072 1B78     		ldrb	r3, [r3]
+ 1026 0074 122B     		cmp	r3, #18
+ 1027 0076 06D8     		bhi	.L120
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 27
+
+
+ 426:.\main.c      ****                 serv_arr_cspot++;
+ 1028              		.loc 1 426 0
+ 1029 0078 284B     		ldr	r3, .L133+12
+ 1030 007a 1B78     		ldrb	r3, [r3]
+ 1031 007c 0133     		add	r3, r3, #1
+ 1032 007e DAB2     		uxtb	r2, r3
+ 1033 0080 264B     		ldr	r3, .L133+12
+ 1034 0082 1A70     		strb	r2, [r3]
+ 1035 0084 02E0     		b	.L121
+ 1036              	.L120:
+ 430:.\main.c      ****                 serv_arr_cspot = 0;
+ 1037              		.loc 1 430 0
+ 1038 0086 254B     		ldr	r3, .L133+12
+ 1039 0088 0022     		mov	r2, #0
+ 1040 008a 1A70     		strb	r2, [r3]
+ 1041              	.L121:
+ 432:.\main.c      ****             avg = average(servo_array, 20);
+ 1042              		.loc 1 432 0
+ 1043 008c BC1C     		add	r4, r7, #2
+ 1044 008e 214B     		ldr	r3, .L133+4
+ 1045 0090 181C     		mov	r0, r3
+ 1046 0092 1421     		mov	r1, #20
+ 1047 0094 FFF7FEFF 		bl	average
+ 1048 0098 031C     		mov	r3, r0
+ 1049 009a 2380     		strh	r3, [r4]
+ 434:.\main.c      ****             PWM_1_WriteCompare2(avg);
+ 1050              		.loc 1 434 0
+ 1051 009c BB1C     		add	r3, r7, #2
+ 1052 009e 1B88     		ldrh	r3, [r3]
+ 1053 00a0 181C     		mov	r0, r3
+ 1054 00a2 FFF7FEFF 		bl	PWM_1_WriteCompare2
+ 435:.\main.c      ****             new_pack = 0;
+ 1055              		.loc 1 435 0
+ 1056 00a6 1F4B     		ldr	r3, .L133+20
+ 1057 00a8 0022     		mov	r2, #0
+ 1058 00aa 1A70     		strb	r2, [r3]
+ 436:.\main.c      ****             break;
+ 1059              		.loc 1 436 0
+ 1060 00ac 00E0     		b	.L111
+ 1061              	.L132:
+ 411:.\main.c      ****             break;
+ 1062              		.loc 1 411 0
+ 1063 00ae C046     		mov	r8, r8
+ 1064              	.L111:
+ 440:.\main.c      ****     }
+ 441:.\main.c      ****     
+ 442:.\main.c      ****     switch(servo1_state){ //transitions
+ 1065              		.loc 1 442 0
+ 1066 00b0 174B     		ldr	r3, .L133
+ 1067 00b2 1B78     		ldrb	r3, [r3]
+ 1068 00b4 012B     		cmp	r3, #1
+ 1069 00b6 0CD0     		beq	.L123
+ 1070 00b8 02DC     		bgt	.L124
+ 1071 00ba 002B     		cmp	r3, #0
+ 1072 00bc 05D0     		beq	.L125
+ 1073 00be 24E0     		b	.L110
+ 1074              	.L124:
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 28
+
+
+ 1075 00c0 022B     		cmp	r3, #2
+ 1076 00c2 0AD0     		beq	.L126
+ 1077 00c4 032B     		cmp	r3, #3
+ 1078 00c6 14D0     		beq	.L127
+ 1079 00c8 1FE0     		b	.L110
+ 1080              	.L125:
+ 443:.\main.c      ****         case s1_start:
+ 444:.\main.c      ****             servo1_state = s1_init;
+ 1081              		.loc 1 444 0
+ 1082 00ca 114B     		ldr	r3, .L133
+ 1083 00cc 0122     		mov	r2, #1
+ 1084 00ce 1A70     		strb	r2, [r3]
+ 445:.\main.c      ****             break;
+ 1085              		.loc 1 445 0
+ 1086 00d0 1BE0     		b	.L110
+ 1087              	.L123:
+ 446:.\main.c      ****         
+ 447:.\main.c      ****         case s1_init:
+ 448:.\main.c      ****             servo1_state = s1_wait;
+ 1088              		.loc 1 448 0
+ 1089 00d2 0F4B     		ldr	r3, .L133
+ 1090 00d4 0322     		mov	r2, #3
+ 1091 00d6 1A70     		strb	r2, [r3]
+ 449:.\main.c      ****             break;
+ 1092              		.loc 1 449 0
+ 1093 00d8 17E0     		b	.L110
+ 1094              	.L126:
+ 450:.\main.c      ****         
+ 451:.\main.c      ****         case s1_execute:
+ 452:.\main.c      ****             if(new_pack)
+ 1095              		.loc 1 452 0
+ 1096 00da 124B     		ldr	r3, .L133+20
+ 1097 00dc 1B78     		ldrb	r3, [r3]
+ 1098 00de 002B     		cmp	r3, #0
+ 1099 00e0 03D0     		beq	.L128
+ 453:.\main.c      ****             {
+ 454:.\main.c      ****                 servo1_state = s1_execute;
+ 1100              		.loc 1 454 0
+ 1101 00e2 0B4B     		ldr	r3, .L133
+ 1102 00e4 0222     		mov	r2, #2
+ 1103 00e6 1A70     		strb	r2, [r3]
+ 455:.\main.c      ****             }
+ 456:.\main.c      ****             else
+ 457:.\main.c      ****             {
+ 458:.\main.c      ****                 servo1_state = s1_wait;
+ 459:.\main.c      ****             }
+ 460:.\main.c      ****             break;
+ 1104              		.loc 1 460 0
+ 1105 00e8 0FE0     		b	.L110
+ 1106              	.L128:
+ 458:.\main.c      ****                 servo1_state = s1_wait;
+ 1107              		.loc 1 458 0
+ 1108 00ea 094B     		ldr	r3, .L133
+ 1109 00ec 0322     		mov	r2, #3
+ 1110 00ee 1A70     		strb	r2, [r3]
+ 1111              		.loc 1 460 0
+ 1112 00f0 0BE0     		b	.L110
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 29
+
+
+ 1113              	.L127:
+ 461:.\main.c      ****         
+ 462:.\main.c      ****         case s1_wait:
+ 463:.\main.c      ****             if(new_pack)
+ 1114              		.loc 1 463 0
+ 1115 00f2 0C4B     		ldr	r3, .L133+20
+ 1116 00f4 1B78     		ldrb	r3, [r3]
+ 1117 00f6 002B     		cmp	r3, #0
+ 1118 00f8 03D0     		beq	.L130
+ 464:.\main.c      ****             {
+ 465:.\main.c      ****                 servo1_state = s1_execute;
+ 1119              		.loc 1 465 0
+ 1120 00fa 054B     		ldr	r3, .L133
+ 1121 00fc 0222     		mov	r2, #2
+ 1122 00fe 1A70     		strb	r2, [r3]
+ 1123 0100 02E0     		b	.L131
+ 1124              	.L130:
+ 466:.\main.c      ****             }
+ 467:.\main.c      ****             else
+ 468:.\main.c      ****             {
+ 469:.\main.c      ****                 servo1_state = s1_wait; 
+ 1125              		.loc 1 469 0
+ 1126 0102 034B     		ldr	r3, .L133
+ 1127 0104 0322     		mov	r2, #3
+ 1128 0106 1A70     		strb	r2, [r3]
+ 1129              	.L131:
+ 470:.\main.c      ****             }
+ 471:.\main.c      ****             break;
+ 1130              		.loc 1 471 0
+ 1131 0108 C046     		mov	r8, r8
+ 1132              	.L110:
+ 472:.\main.c      ****     }    
+ 473:.\main.c      **** }
+ 1133              		.loc 1 473 0
+ 1134 010a BD46     		mov	sp, r7
+ 1135 010c 03B0     		add	sp, sp, #12
+ 1136              		@ sp needed
+ 1137 010e 90BD     		pop	{r4, r7, pc}
+ 1138              	.L134:
+ 1139              		.align	2
+ 1140              	.L133:
+ 1141 0110 00000000 		.word	servo1_state
+ 1142 0114 00000000 		.word	servo_array
+ 1143 0118 DC050000 		.word	1500
+ 1144 011c 00000000 		.word	serv_arr_cspot
+ 1145 0120 00000000 		.word	data_array
+ 1146 0124 00000000 		.word	new_pack
+ 1147              		.cfi_endproc
+ 1148              	.LFE45:
+ 1149              		.size	servo1, .-servo1
+ 1150              		.global	__aeabi_idivmod
+ 1151              		.section	.text.main,"ax",%progbits
+ 1152              		.align	2
+ 1153              		.global	main
+ 1154              		.code	16
+ 1155              		.thumb_func
+ 1156              		.type	main, %function
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 30
+
+
+ 1157              	main:
+ 1158              	.LFB46:
+ 474:.\main.c      **** //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 475:.\main.c      **** 
+ 476:.\main.c      **** //enum motor_states {m_start,m_different,m_wait} motor_state;
+ 477:.\main.c      **** //void motor(){
+ 478:.\main.c      **** //    uint16 old = 0;
+ 479:.\main.c      **** //    switch(motor_state){ //state actions
+ 480:.\main.c      **** //        case m_start:
+ 481:.\main.c      **** //            break;
+ 482:.\main.c      **** //        
+ 483:.\main.c      **** //        case m_different:
+ 484:.\main.c      **** //            PWM_2_WriteCompare1(data_array[1]);
+ 485:.\main.c      **** //            old = data_array[3];
+ 486:.\main.c      **** //            break;
+ 487:.\main.c      **** //            
+ 488:.\main.c      **** //        case m_wait:
+ 489:.\main.c      **** //            break;
+ 490:.\main.c      **** //    }
+ 491:.\main.c      **** //    
+ 492:.\main.c      **** //    switch(motor_state){ //state transitions
+ 493:.\main.c      **** //        case m_start:
+ 494:.\main.c      **** //            motor_state = m_wait;
+ 495:.\main.c      **** //            break;
+ 496:.\main.c      **** //        
+ 497:.\main.c      **** //        case m_different:
+ 498:.\main.c      **** //            if(data_array[3] != old)
+ 499:.\main.c      **** //            {
+ 500:.\main.c      **** //                motor_state = m_different;
+ 501:.\main.c      **** //            }
+ 502:.\main.c      **** //            else
+ 503:.\main.c      **** //            {
+ 504:.\main.c      **** //                motor_state = m_wait;
+ 505:.\main.c      **** //            }
+ 506:.\main.c      **** //            break;
+ 507:.\main.c      **** //            
+ 508:.\main.c      **** //        case m_wait:
+ 509:.\main.c      **** //            if(data_array[3] != old)
+ 510:.\main.c      **** //            {
+ 511:.\main.c      **** //                motor_state = m_different;
+ 512:.\main.c      **** //            }
+ 513:.\main.c      **** //            else
+ 514:.\main.c      **** //            {
+ 515:.\main.c      **** //                motor_state = m_wait;
+ 516:.\main.c      **** //            }
+ 517:.\main.c      **** //            break;
+ 518:.\main.c      **** //    }
+ 519:.\main.c      **** //}
+ 520:.\main.c      **** 
+ 521:.\main.c      **** int main()
+ 522:.\main.c      **** {
+ 1159              		.loc 1 522 0
+ 1160              		.cfi_startproc
+ 1161 0000 80B5     		push	{r7, lr}
+ 1162              		.cfi_def_cfa_offset 8
+ 1163              		.cfi_offset 7, -8
+ 1164              		.cfi_offset 14, -4
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 31
+
+
+ 1165 0002 86B0     		sub	sp, sp, #24
+ 1166              		.cfi_def_cfa_offset 32
+ 1167 0004 00AF     		add	r7, sp, #0
+ 1168              		.cfi_def_cfa_register 7
+ 523:.\main.c      ****     CyGlobalIntEnable;
+ 1169              		.loc 1 523 0
+ 1170              	@ 523 ".\main.c" 1
+ 1171 0006 62B6     		CPSIE   i
+ 1172              	@ 0 "" 2
+ 524:.\main.c      ****     
+ 525:.\main.c      ****     time_t t;
+ 526:.\main.c      ****     uint8 counter;
+ 527:.\main.c      ****     //start all of our components
+ 528:.\main.c      ****     Clock_pwm_Start();
+ 1173              		.loc 1 528 0
+ 1174              		.code	16
+ 1175 0008 FFF7FEFF 		bl	Clock_pwm_Start
+ 529:.\main.c      ****     Clock_counter_Start();
+ 1176              		.loc 1 529 0
+ 1177 000c FFF7FEFF 		bl	Clock_counter_Start
+ 530:.\main.c      ****     
+ 531:.\main.c      ****     PWM_1_Start();
+ 1178              		.loc 1 531 0
+ 1179 0010 FFF7FEFF 		bl	PWM_1_Start
+ 532:.\main.c      ****     //PWM_2_Start();
+ 533:.\main.c      ****     
+ 534:.\main.c      ****     Timer_1_Start();
+ 1180              		.loc 1 534 0
+ 1181 0014 FFF7FEFF 		bl	Timer_1_Start
+ 535:.\main.c      ****     //UART_1_Start();
+ 536:.\main.c      ****     
+ 537:.\main.c      ****     isr_1_StartEx(timer_isr);
+ 1182              		.loc 1 537 0
+ 1183 0018 2C4B     		ldr	r3, .L141
+ 1184 001a 181C     		mov	r0, r3
+ 1185 001c FFF7FEFF 		bl	isr_1_StartEx
+ 538:.\main.c      ****     
+ 539:.\main.c      ****     srand((unsigned) time(&t));
+ 1186              		.loc 1 539 0
+ 1187 0020 3B1D     		add	r3, r7, #4
+ 1188 0022 181C     		mov	r0, r3
+ 1189 0024 FFF7FEFF 		bl	time
+ 1190 0028 031C     		mov	r3, r0
+ 1191 002a 181C     		mov	r0, r3
+ 1192 002c FFF7FEFF 		bl	srand
+ 540:.\main.c      ****     int counter_five = 0;
+ 1193              		.loc 1 540 0
+ 1194 0030 0023     		mov	r3, #0
+ 1195 0032 3B61     		str	r3, [r7, #16]
+ 1196              	.L140:
+ 541:.\main.c      ****     for(;;)
+ 542:.\main.c      ****     {
+ 543:.\main.c      ****         //check addresses
+ 544:.\main.c      ****         //TODO get the address bytes from Steve
+ 545:.\main.c      ****         
+ 546:.\main.c      ****         if(1) //WIZ_INT_Read()
+ 547:.\main.c      ****         {
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 32
+
+
+ 548:.\main.c      ****             fill_data_array1(); //potentially take input &data_array
+ 1197              		.loc 1 548 0
+ 1198 0034 FFF7FEFF 		bl	fill_data_array1
+ 549:.\main.c      ****             new_pack = 1;
+ 1199              		.loc 1 549 0
+ 1200 0038 254B     		ldr	r3, .L141+4
+ 1201 003a 0122     		mov	r2, #1
+ 1202 003c 1A70     		strb	r2, [r3]
+ 550:.\main.c      ****         }
+ 551:.\main.c      ****         
+ 552:.\main.c      **** //        baseAzimuth();
+ 553:.\main.c      **** //        shoulder();
+ 554:.\main.c      **** //        elbow();
+ 555:.\main.c      **** //        wristTilt();
+ 556:.\main.c      **** //        wristRotate();
+ 557:.\main.c      **** 
+ 558:.\main.c      ****         led();
+ 1203              		.loc 1 558 0
+ 1204 003e FFF7FEFF 		bl	led
+ 559:.\main.c      ****         servo1();
+ 1205              		.loc 1 559 0
+ 1206 0042 FFF7FEFF 		bl	servo1
+ 560:.\main.c      **** //        servo();
+ 561:.\main.c      ****         
+ 562:.\main.c      ****         
+ 563:.\main.c      ****         while(!timerFlag) //this while loop will periodize our code to the time of longest path
+ 1207              		.loc 1 563 0
+ 1208 0046 C046     		mov	r8, r8
+ 1209              	.L136:
+ 1210              		.loc 1 563 0 is_stmt 0 discriminator 1
+ 1211 0048 224B     		ldr	r3, .L141+8
+ 1212 004a 1B78     		ldrb	r3, [r3]
+ 1213 004c 002B     		cmp	r3, #0
+ 1214 004e FBD0     		beq	.L136
+ 564:.\main.c      ****         {
+ 565:.\main.c      **** //            //Potential solution to how we will want to send feedback
+ 566:.\main.c      **** //            feedback_count++;
+ 567:.\main.c      **** //            if(feedback_count == feedback_interval) //sends feeback to base station every 50th
+ 568:.\main.c      **** //            {                                        //time through the full set of instructions
+ 569:.\main.c      **** //                send_feedback();
+ 570:.\main.c      **** //            }
+ 571:.\main.c      ****         }
+ 572:.\main.c      ****         counter++;
+ 1215              		.loc 1 572 0 is_stmt 1
+ 1216 0050 3B1C     		mov	r3, r7
+ 1217 0052 1733     		add	r3, r3, #23
+ 1218 0054 1A78     		ldrb	r2, [r3]
+ 1219 0056 3B1C     		mov	r3, r7
+ 1220 0058 1733     		add	r3, r3, #23
+ 1221 005a 0132     		add	r2, r2, #1
+ 1222 005c 1A70     		strb	r2, [r3]
+ 573:.\main.c      ****         if(counter == 100)
+ 1223              		.loc 1 573 0
+ 1224 005e 3B1C     		mov	r3, r7
+ 1225 0060 1733     		add	r3, r3, #23
+ 1226 0062 1B78     		ldrb	r3, [r3]
+ 1227 0064 642B     		cmp	r3, #100
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 33
+
+
+ 1228 0066 2DD1     		bne	.L137
+ 1229              	.LBB2:
+ 574:.\main.c      ****         {
+ 575:.\main.c      ****             for(int i = 0; i < 10; (i+2))
+ 1230              		.loc 1 575 0
+ 1231 0068 0023     		mov	r3, #0
+ 1232 006a FB60     		str	r3, [r7, #12]
+ 1233 006c 23E0     		b	.L138
+ 1234              	.L139:
+ 1235              	.LBB3:
+ 576:.\main.c      ****             {
+ 577:.\main.c      ****                 int16 random_number = rand()%2001 - 1000;
+ 1236              		.loc 1 577 0
+ 1237 006e FFF7FEFF 		bl	rand
+ 1238 0072 031C     		mov	r3, r0
+ 1239 0074 181C     		mov	r0, r3
+ 1240 0076 1849     		ldr	r1, .L141+12
+ 1241 0078 FFF7FEFF 		bl	__aeabi_idivmod
+ 1242 007c 0B1C     		mov	r3, r1
+ 1243 007e 9BB2     		uxth	r3, r3
+ 1244 0080 164A     		ldr	r2, .L141+16
+ 1245 0082 9B18     		add	r3, r3, r2
+ 1246 0084 9AB2     		uxth	r2, r3
+ 1247 0086 3B1C     		mov	r3, r7
+ 1248 0088 0A33     		add	r3, r3, #10
+ 1249 008a 1A80     		strh	r2, [r3]
+ 578:.\main.c      ****                 test_array[i] = random_number >> 8;
+ 1250              		.loc 1 578 0
+ 1251 008c 3B1C     		mov	r3, r7
+ 1252 008e 0A33     		add	r3, r3, #10
+ 1253 0090 0022     		mov	r2, #0
+ 1254 0092 9B5E     		ldrsh	r3, [r3, r2]
+ 1255 0094 1B12     		asr	r3, r3, #8
+ 1256 0096 99B2     		uxth	r1, r3
+ 1257 0098 114B     		ldr	r3, .L141+20
+ 1258 009a FA68     		ldr	r2, [r7, #12]
+ 1259 009c 5200     		lsl	r2, r2, #1
+ 1260 009e D152     		strh	r1, [r2, r3]
+ 579:.\main.c      ****                 test_array[i+1] = random_number & 0x00FF;
+ 1261              		.loc 1 579 0
+ 1262 00a0 FB68     		ldr	r3, [r7, #12]
+ 1263 00a2 5A1C     		add	r2, r3, #1
+ 1264 00a4 3B1C     		mov	r3, r7
+ 1265 00a6 0A33     		add	r3, r3, #10
+ 1266 00a8 1988     		ldrh	r1, [r3]
+ 1267 00aa FF23     		mov	r3, #255
+ 1268 00ac 0B40     		and	r3, r1
+ 1269 00ae 99B2     		uxth	r1, r3
+ 1270 00b0 0B4B     		ldr	r3, .L141+20
+ 1271 00b2 5200     		lsl	r2, r2, #1
+ 1272 00b4 D152     		strh	r1, [r2, r3]
+ 1273              	.L138:
+ 1274              	.LBE3:
+ 575:.\main.c      ****             for(int i = 0; i < 10; (i+2))
+ 1275              		.loc 1 575 0 discriminator 1
+ 1276 00b6 FB68     		ldr	r3, [r7, #12]
+ 1277 00b8 092B     		cmp	r3, #9
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 34
+
+
+ 1278 00ba D8DD     		ble	.L139
+ 1279              	.LBE2:
+ 580:.\main.c      ****             }
+ 581:.\main.c      ****             counter = 0;
+ 1280              		.loc 1 581 0
+ 1281 00bc 3B1C     		mov	r3, r7
+ 1282 00be 1733     		add	r3, r3, #23
+ 1283 00c0 0022     		mov	r2, #0
+ 1284 00c2 1A70     		strb	r2, [r3]
+ 1285              	.L137:
+ 582:.\main.c      ****         }
+ 583:.\main.c      ****         timerFlag = 0;
+ 1286              		.loc 1 583 0
+ 1287 00c4 034B     		ldr	r3, .L141+8
+ 1288 00c6 0022     		mov	r2, #0
+ 1289 00c8 1A70     		strb	r2, [r3]
+ 584:.\main.c      ****     }
+ 1290              		.loc 1 584 0
+ 1291 00ca B3E7     		b	.L140
+ 1292              	.L142:
+ 1293              		.align	2
+ 1294              	.L141:
+ 1295 00cc 00000000 		.word	timer_isr
+ 1296 00d0 00000000 		.word	new_pack
+ 1297 00d4 00000000 		.word	timerFlag
+ 1298 00d8 D1070000 		.word	2001
+ 1299 00dc 18FCFFFF 		.word	-1000
+ 1300 00e0 00000000 		.word	test_array
+ 1301              		.cfi_endproc
+ 1302              	.LFE46:
+ 1303              		.size	main, .-main
+ 1304              		.text
+ 1305              	.Letext0:
+ 1306              		.file 2 ".\\Generated_Source\\PSoC4/cytypes.h"
+ 1307              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.1\\psoc creator\\import\\gnu_cs\\arm\\4
+ 1308              		.section	.debug_info,"",%progbits
+ 1309              	.Ldebug_info0:
+ 1310 0000 FF040000 		.4byte	0x4ff
+ 1311 0004 0400     		.2byte	0x4
+ 1312 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 1313 000a 04       		.byte	0x4
+ 1314 000b 01       		.uleb128 0x1
+ 1315 000c A6030000 		.4byte	.LASF80
+ 1316 0010 01       		.byte	0x1
+ 1317 0011 D4010000 		.4byte	.LASF81
+ 1318 0015 EE000000 		.4byte	.LASF82
+ 1319 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 1320 001d 00000000 		.4byte	0
+ 1321 0021 00000000 		.4byte	.Ldebug_line0
+ 1322 0025 02       		.uleb128 0x2
+ 1323 0026 01       		.byte	0x1
+ 1324 0027 06       		.byte	0x6
+ 1325 0028 4B010000 		.4byte	.LASF0
+ 1326 002c 02       		.uleb128 0x2
+ 1327 002d 01       		.byte	0x1
+ 1328 002e 08       		.byte	0x8
+ 1329 002f EB010000 		.4byte	.LASF1
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 35
+
+
+ 1330 0033 02       		.uleb128 0x2
+ 1331 0034 02       		.byte	0x2
+ 1332 0035 05       		.byte	0x5
+ 1333 0036 97000000 		.4byte	.LASF2
+ 1334 003a 02       		.uleb128 0x2
+ 1335 003b 02       		.byte	0x2
+ 1336 003c 07       		.byte	0x7
+ 1337 003d 94020000 		.4byte	.LASF3
+ 1338 0041 02       		.uleb128 0x2
+ 1339 0042 04       		.byte	0x4
+ 1340 0043 05       		.byte	0x5
+ 1341 0044 8D010000 		.4byte	.LASF4
+ 1342 0048 02       		.uleb128 0x2
+ 1343 0049 04       		.byte	0x4
+ 1344 004a 07       		.byte	0x7
+ 1345 004b 82020000 		.4byte	.LASF5
+ 1346 004f 02       		.uleb128 0x2
+ 1347 0050 08       		.byte	0x8
+ 1348 0051 05       		.byte	0x5
+ 1349 0052 89000000 		.4byte	.LASF6
+ 1350 0056 02       		.uleb128 0x2
+ 1351 0057 08       		.byte	0x8
+ 1352 0058 07       		.byte	0x7
+ 1353 0059 50020000 		.4byte	.LASF7
+ 1354 005d 03       		.uleb128 0x3
+ 1355 005e 04       		.byte	0x4
+ 1356 005f 05       		.byte	0x5
+ 1357 0060 696E7400 		.ascii	"int\000"
+ 1358 0064 02       		.uleb128 0x2
+ 1359 0065 04       		.byte	0x4
+ 1360 0066 07       		.byte	0x7
+ 1361 0067 75020000 		.4byte	.LASF8
+ 1362 006b 04       		.uleb128 0x4
+ 1363 006c E4020000 		.4byte	.LASF9
+ 1364 0070 02       		.byte	0x2
+ 1365 0071 A1       		.byte	0xa1
+ 1366 0072 2C000000 		.4byte	0x2c
+ 1367 0076 04       		.uleb128 0x4
+ 1368 0077 BF000000 		.4byte	.LASF10
+ 1369 007b 02       		.byte	0x2
+ 1370 007c A2       		.byte	0xa2
+ 1371 007d 3A000000 		.4byte	0x3a
+ 1372 0081 04       		.uleb128 0x4
+ 1373 0082 FC020000 		.4byte	.LASF11
+ 1374 0086 02       		.byte	0x2
+ 1375 0087 A3       		.byte	0xa3
+ 1376 0088 48000000 		.4byte	0x48
+ 1377 008c 04       		.uleb128 0x4
+ 1378 008d D2000000 		.4byte	.LASF12
+ 1379 0091 02       		.byte	0x2
+ 1380 0092 A5       		.byte	0xa5
+ 1381 0093 33000000 		.4byte	0x33
+ 1382 0097 02       		.uleb128 0x2
+ 1383 0098 04       		.byte	0x4
+ 1384 0099 04       		.byte	0x4
+ 1385 009a 62010000 		.4byte	.LASF13
+ 1386 009e 02       		.uleb128 0x2
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 36
+
+
+ 1387 009f 08       		.byte	0x8
+ 1388 00a0 04       		.byte	0x4
+ 1389 00a1 1A030000 		.4byte	.LASF14
+ 1390 00a5 02       		.uleb128 0x2
+ 1391 00a6 01       		.byte	0x1
+ 1392 00a7 08       		.byte	0x8
+ 1393 00a8 B8020000 		.4byte	.LASF15
+ 1394 00ac 02       		.uleb128 0x2
+ 1395 00ad 04       		.byte	0x4
+ 1396 00ae 07       		.byte	0x7
+ 1397 00af 66000000 		.4byte	.LASF16
+ 1398 00b3 04       		.uleb128 0x4
+ 1399 00b4 2E030000 		.4byte	.LASF17
+ 1400 00b8 03       		.byte	0x3
+ 1401 00b9 7A       		.byte	0x7a
+ 1402 00ba 41000000 		.4byte	0x41
+ 1403 00be 05       		.uleb128 0x5
+ 1404 00bf 96010000 		.4byte	.LASF22
+ 1405 00c3 01       		.byte	0x1
+ 1406 00c4 01       		.byte	0x1
+ 1407 00c5 7F       		.byte	0x7f
+ 1408 00c6 E3000000 		.4byte	0xe3
+ 1409 00ca 06       		.uleb128 0x6
+ 1410 00cb C8010000 		.4byte	.LASF18
+ 1411 00cf 00       		.sleb128 0
+ 1412 00d0 06       		.uleb128 0x6
+ 1413 00d1 1A000000 		.4byte	.LASF19
+ 1414 00d5 01       		.sleb128 1
+ 1415 00d6 06       		.uleb128 0x6
+ 1416 00d7 2C020000 		.4byte	.LASF20
+ 1417 00db 02       		.sleb128 2
+ 1418 00dc 06       		.uleb128 0x6
+ 1419 00dd 03030000 		.4byte	.LASF21
+ 1420 00e1 03       		.sleb128 3
+ 1421 00e2 00       		.byte	0
+ 1422 00e3 05       		.uleb128 0x5
+ 1423 00e4 A7020000 		.4byte	.LASF23
+ 1424 00e8 01       		.byte	0x1
+ 1425 00e9 01       		.byte	0x1
+ 1426 00ea B7       		.byte	0xb7
+ 1427 00eb 08010000 		.4byte	0x108
+ 1428 00ef 06       		.uleb128 0x6
+ 1429 00f0 AF010000 		.4byte	.LASF24
+ 1430 00f4 00       		.sleb128 0
+ 1431 00f5 06       		.uleb128 0x6
+ 1432 00f6 25000000 		.4byte	.LASF25
+ 1433 00fa 01       		.sleb128 1
+ 1434 00fb 06       		.uleb128 0x6
+ 1435 00fc 0D030000 		.4byte	.LASF26
+ 1436 0100 02       		.sleb128 2
+ 1437 0101 06       		.uleb128 0x6
+ 1438 0102 1E020000 		.4byte	.LASF27
+ 1439 0106 03       		.sleb128 3
+ 1440 0107 00       		.byte	0
+ 1441 0108 05       		.uleb128 0x5
+ 1442 0109 6F000000 		.4byte	.LASF28
+ 1443 010d 01       		.byte	0x1
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 37
+
+
+ 1444 010e 01       		.byte	0x1
+ 1445 010f E8       		.byte	0xe8
+ 1446 0110 2D010000 		.4byte	0x12d
+ 1447 0114 06       		.uleb128 0x6
+ 1448 0115 D8000000 		.4byte	.LASF29
+ 1449 0119 00       		.sleb128 0
+ 1450 011a 06       		.uleb128 0x6
+ 1451 011b 59000000 		.4byte	.LASF30
+ 1452 011f 01       		.sleb128 1
+ 1453 0120 06       		.uleb128 0x6
+ 1454 0121 7E010000 		.4byte	.LASF31
+ 1455 0125 02       		.sleb128 2
+ 1456 0126 06       		.uleb128 0x6
+ 1457 0127 54040000 		.4byte	.LASF32
+ 1458 012b 03       		.sleb128 3
+ 1459 012c 00       		.byte	0
+ 1460 012d 07       		.uleb128 0x7
+ 1461 012e D9020000 		.4byte	.LASF33
+ 1462 0132 01       		.byte	0x1
+ 1463 0133 01       		.byte	0x1
+ 1464 0134 2101     		.2byte	0x121
+ 1465 0136 4D010000 		.4byte	0x14d
+ 1466 013a 06       		.uleb128 0x6
+ 1467 013b 00000000 		.4byte	.LASF34
+ 1468 013f 00       		.sleb128 0
+ 1469 0140 06       		.uleb128 0x6
+ 1470 0141 40040000 		.4byte	.LASF35
+ 1471 0145 01       		.sleb128 1
+ 1472 0146 06       		.uleb128 0x6
+ 1473 0147 09020000 		.4byte	.LASF36
+ 1474 014b 02       		.sleb128 2
+ 1475 014c 00       		.byte	0
+ 1476 014d 07       		.uleb128 0x7
+ 1477 014e A1000000 		.4byte	.LASF37
+ 1478 0152 01       		.byte	0x1
+ 1479 0153 01       		.byte	0x1
+ 1480 0154 6201     		.2byte	0x162
+ 1481 0156 6D010000 		.4byte	0x16d
+ 1482 015a 06       		.uleb128 0x6
+ 1483 015b 4D030000 		.4byte	.LASF38
+ 1484 015f 00       		.sleb128 0
+ 1485 0160 06       		.uleb128 0x6
+ 1486 0161 3B030000 		.4byte	.LASF39
+ 1487 0165 01       		.sleb128 1
+ 1488 0166 06       		.uleb128 0x6
+ 1489 0167 9F030000 		.4byte	.LASF40
+ 1490 016b 02       		.sleb128 2
+ 1491 016c 00       		.byte	0
+ 1492 016d 07       		.uleb128 0x7
+ 1493 016e 67020000 		.4byte	.LASF41
+ 1494 0172 01       		.byte	0x1
+ 1495 0173 01       		.byte	0x1
+ 1496 0174 9201     		.2byte	0x192
+ 1497 0176 93010000 		.4byte	0x193
+ 1498 017a 06       		.uleb128 0x6
+ 1499 017b EA020000 		.4byte	.LASF42
+ 1500 017f 00       		.sleb128 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 38
+
+
+ 1501 0180 06       		.uleb128 0x6
+ 1502 0181 5F030000 		.4byte	.LASF43
+ 1503 0185 01       		.sleb128 1
+ 1504 0186 06       		.uleb128 0x6
+ 1505 0187 B4000000 		.4byte	.LASF44
+ 1506 018b 02       		.sleb128 2
+ 1507 018c 06       		.uleb128 0x6
+ 1508 018d 4C040000 		.4byte	.LASF45
+ 1509 0191 03       		.sleb128 3
+ 1510 0192 00       		.byte	0
+ 1511 0193 08       		.uleb128 0x8
+ 1512 0194 8C030000 		.4byte	.LASF60
+ 1513 0198 01       		.byte	0x1
+ 1514 0199 1F       		.byte	0x1f
+ 1515 019a 00000000 		.4byte	.LFB33
+ 1516 019e 28000000 		.4byte	.LFE33-.LFB33
+ 1517 01a2 01       		.uleb128 0x1
+ 1518 01a3 9C       		.byte	0x9c
+ 1519 01a4 B7010000 		.4byte	0x1b7
+ 1520 01a8 09       		.uleb128 0x9
+ 1521 01a9 F9010000 		.4byte	.LASF46
+ 1522 01ad 01       		.byte	0x1
+ 1523 01ae 21       		.byte	0x21
+ 1524 01af 81000000 		.4byte	0x81
+ 1525 01b3 02       		.uleb128 0x2
+ 1526 01b4 91       		.byte	0x91
+ 1527 01b5 74       		.sleb128 -12
+ 1528 01b6 00       		.byte	0
+ 1529 01b7 0A       		.uleb128 0xa
+ 1530 01b8 30000000 		.4byte	.LASF47
+ 1531 01bc 01       		.byte	0x1
+ 1532 01bd 3D       		.byte	0x3d
+ 1533 01be 00000000 		.4byte	.LFB34
+ 1534 01c2 0C010000 		.4byte	.LFE34-.LFB34
+ 1535 01c6 01       		.uleb128 0x1
+ 1536 01c7 9C       		.byte	0x9c
+ 1537 01c8 D9010000 		.4byte	0x1d9
+ 1538 01cc 0B       		.uleb128 0xb
+ 1539 01cd 6300     		.ascii	"c\000"
+ 1540 01cf 01       		.byte	0x1
+ 1541 01d0 41       		.byte	0x41
+ 1542 01d1 6B000000 		.4byte	0x6b
+ 1543 01d5 02       		.uleb128 0x2
+ 1544 01d6 91       		.byte	0x91
+ 1545 01d7 77       		.sleb128 -9
+ 1546 01d8 00       		.byte	0
+ 1547 01d9 0A       		.uleb128 0xa
+ 1548 01da 73030000 		.4byte	.LASF48
+ 1549 01de 01       		.byte	0x1
+ 1550 01df 6E       		.byte	0x6e
+ 1551 01e0 00000000 		.4byte	.LFB35
+ 1552 01e4 4C000000 		.4byte	.LFE35-.LFB35
+ 1553 01e8 01       		.uleb128 0x1
+ 1554 01e9 9C       		.byte	0x9c
+ 1555 01ea FB010000 		.4byte	0x1fb
+ 1556 01ee 0B       		.uleb128 0xb
+ 1557 01ef 6900     		.ascii	"i\000"
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 39
+
+
+ 1558 01f1 01       		.byte	0x1
+ 1559 01f2 70       		.byte	0x70
+ 1560 01f3 6B000000 		.4byte	0x6b
+ 1561 01f7 02       		.uleb128 0x2
+ 1562 01f8 91       		.byte	0x91
+ 1563 01f9 77       		.sleb128 -9
+ 1564 01fa 00       		.byte	0
+ 1565 01fb 0C       		.uleb128 0xc
+ 1566 01fc 68010000 		.4byte	.LASF49
+ 1567 0200 01       		.byte	0x1
+ 1568 0201 78       		.byte	0x78
+ 1569 0202 00000000 		.4byte	.LFB36
+ 1570 0206 08000000 		.4byte	.LFE36-.LFB36
+ 1571 020a 01       		.uleb128 0x1
+ 1572 020b 9C       		.byte	0x9c
+ 1573 020c 0C       		.uleb128 0xc
+ 1574 020d F3020000 		.4byte	.LASF50
+ 1575 0211 01       		.byte	0x1
+ 1576 0212 81       		.byte	0x81
+ 1577 0213 00000000 		.4byte	.LFB37
+ 1578 0217 44000000 		.4byte	.LFE37-.LFB37
+ 1579 021b 01       		.uleb128 0x1
+ 1580 021c 9C       		.byte	0x9c
+ 1581 021d 0C       		.uleb128 0xc
+ 1582 021e AE000000 		.4byte	.LASF51
+ 1583 0222 01       		.byte	0x1
+ 1584 0223 AF       		.byte	0xaf
+ 1585 0224 00000000 		.4byte	.LFB38
+ 1586 0228 08000000 		.4byte	.LFE38-.LFB38
+ 1587 022c 01       		.uleb128 0x1
+ 1588 022d 9C       		.byte	0x9c
+ 1589 022e 0C       		.uleb128 0xc
+ 1590 022f 74010000 		.4byte	.LASF52
+ 1591 0233 01       		.byte	0x1
+ 1592 0234 B9       		.byte	0xb9
+ 1593 0235 00000000 		.4byte	.LFB39
+ 1594 0239 48000000 		.4byte	.LFE39-.LFB39
+ 1595 023d 01       		.uleb128 0x1
+ 1596 023e 9C       		.byte	0x9c
+ 1597 023f 0C       		.uleb128 0xc
+ 1598 0240 C6000000 		.4byte	.LASF53
+ 1599 0244 01       		.byte	0x1
+ 1600 0245 EA       		.byte	0xea
+ 1601 0246 00000000 		.4byte	.LFB40
+ 1602 024a 48000000 		.4byte	.LFE40-.LFB40
+ 1603 024e 01       		.uleb128 0x1
+ 1604 024f 9C       		.byte	0x9c
+ 1605 0250 0D       		.uleb128 0xd
+ 1606 0251 DD010000 		.4byte	.LASF54
+ 1607 0255 01       		.byte	0x1
+ 1608 0256 1901     		.2byte	0x119
+ 1609 0258 00000000 		.4byte	.LFB41
+ 1610 025c 08000000 		.4byte	.LFE41-.LFB41
+ 1611 0260 01       		.uleb128 0x1
+ 1612 0261 9C       		.byte	0x9c
+ 1613 0262 0E       		.uleb128 0xe
+ 1614 0263 6C656400 		.ascii	"led\000"
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 40
+
+
+ 1615 0267 01       		.byte	0x1
+ 1616 0268 2201     		.2byte	0x122
+ 1617 026a 00000000 		.4byte	.LFB42
+ 1618 026e 88000000 		.4byte	.LFE42-.LFB42
+ 1619 0272 01       		.uleb128 0x1
+ 1620 0273 9C       		.byte	0x9c
+ 1621 0274 88020000 		.4byte	0x288
+ 1622 0278 0F       		.uleb128 0xf
+ 1623 0279 6F6C6400 		.ascii	"old\000"
+ 1624 027d 01       		.byte	0x1
+ 1625 027e 2401     		.2byte	0x124
+ 1626 0280 76000000 		.4byte	0x76
+ 1627 0284 02       		.uleb128 0x2
+ 1628 0285 91       		.byte	0x91
+ 1629 0286 76       		.sleb128 -10
+ 1630 0287 00       		.byte	0
+ 1631 0288 10       		.uleb128 0x10
+ 1632 0289 2D040000 		.4byte	.LASF83
+ 1633 028d 01       		.byte	0x1
+ 1634 028e 5201     		.2byte	0x152
+ 1635 0290 76000000 		.4byte	0x76
+ 1636 0294 00000000 		.4byte	.LFB43
+ 1637 0298 78000000 		.4byte	.LFE43-.LFB43
+ 1638 029c 01       		.uleb128 0x1
+ 1639 029d 9C       		.byte	0x9c
+ 1640 029e EC020000 		.4byte	0x2ec
+ 1641 02a2 11       		.uleb128 0x11
+ 1642 02a3 35030000 		.4byte	.LASF55
+ 1643 02a7 01       		.byte	0x1
+ 1644 02a8 5201     		.2byte	0x152
+ 1645 02aa EC020000 		.4byte	0x2ec
+ 1646 02ae 02       		.uleb128 0x2
+ 1647 02af 91       		.byte	0x91
+ 1648 02b0 64       		.sleb128 -28
+ 1649 02b1 11       		.uleb128 0x11
+ 1650 02b2 37020000 		.4byte	.LASF56
+ 1651 02b6 01       		.byte	0x1
+ 1652 02b7 5201     		.2byte	0x152
+ 1653 02b9 6B000000 		.4byte	0x6b
+ 1654 02bd 02       		.uleb128 0x2
+ 1655 02be 91       		.byte	0x91
+ 1656 02bf 63       		.sleb128 -29
+ 1657 02c0 0F       		.uleb128 0xf
+ 1658 02c1 6900     		.ascii	"i\000"
+ 1659 02c3 01       		.byte	0x1
+ 1660 02c4 5401     		.2byte	0x154
+ 1661 02c6 6B000000 		.4byte	0x6b
+ 1662 02ca 02       		.uleb128 0x2
+ 1663 02cb 91       		.byte	0x91
+ 1664 02cc 77       		.sleb128 -9
+ 1665 02cd 0F       		.uleb128 0xf
+ 1666 02ce 73756D00 		.ascii	"sum\000"
+ 1667 02d2 01       		.byte	0x1
+ 1668 02d3 5501     		.2byte	0x155
+ 1669 02d5 81000000 		.4byte	0x81
+ 1670 02d9 02       		.uleb128 0x2
+ 1671 02da 91       		.byte	0x91
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 41
+
+
+ 1672 02db 70       		.sleb128 -16
+ 1673 02dc 0F       		.uleb128 0xf
+ 1674 02dd 61766700 		.ascii	"avg\000"
+ 1675 02e1 01       		.byte	0x1
+ 1676 02e2 5601     		.2byte	0x156
+ 1677 02e4 76000000 		.4byte	0x76
+ 1678 02e8 02       		.uleb128 0x2
+ 1679 02e9 91       		.byte	0x91
+ 1680 02ea 6E       		.sleb128 -18
+ 1681 02eb 00       		.byte	0
+ 1682 02ec 12       		.uleb128 0x12
+ 1683 02ed 04       		.byte	0x4
+ 1684 02ee 76000000 		.4byte	0x76
+ 1685 02f2 13       		.uleb128 0x13
+ 1686 02f3 47030000 		.4byte	.LASF57
+ 1687 02f7 01       		.byte	0x1
+ 1688 02f8 6301     		.2byte	0x163
+ 1689 02fa 00000000 		.4byte	.LFB44
+ 1690 02fe 88000000 		.4byte	.LFE44-.LFB44
+ 1691 0302 01       		.uleb128 0x1
+ 1692 0303 9C       		.byte	0x9c
+ 1693 0304 18030000 		.4byte	0x318
+ 1694 0308 0F       		.uleb128 0xf
+ 1695 0309 6F6C6400 		.ascii	"old\000"
+ 1696 030d 01       		.byte	0x1
+ 1697 030e 6501     		.2byte	0x165
+ 1698 0310 76000000 		.4byte	0x76
+ 1699 0314 02       		.uleb128 0x2
+ 1700 0315 91       		.byte	0x91
+ 1701 0316 76       		.sleb128 -10
+ 1702 0317 00       		.byte	0
+ 1703 0318 13       		.uleb128 0x13
+ 1704 0319 D2020000 		.4byte	.LASF58
+ 1705 031d 01       		.byte	0x1
+ 1706 031e 9301     		.2byte	0x193
+ 1707 0320 00000000 		.4byte	.LFB45
+ 1708 0324 28010000 		.4byte	.LFE45-.LFB45
+ 1709 0328 01       		.uleb128 0x1
+ 1710 0329 9C       		.byte	0x9c
+ 1711 032a 5A030000 		.4byte	0x35a
+ 1712 032e 0F       		.uleb128 0xf
+ 1713 032f 6900     		.ascii	"i\000"
+ 1714 0331 01       		.byte	0x1
+ 1715 0332 9501     		.2byte	0x195
+ 1716 0334 6B000000 		.4byte	0x6b
+ 1717 0338 02       		.uleb128 0x2
+ 1718 0339 91       		.byte	0x91
+ 1719 033a 6F       		.sleb128 -17
+ 1720 033b 0F       		.uleb128 0xf
+ 1721 033c 61766700 		.ascii	"avg\000"
+ 1722 0340 01       		.byte	0x1
+ 1723 0341 9601     		.2byte	0x196
+ 1724 0343 76000000 		.4byte	0x76
+ 1725 0347 02       		.uleb128 0x2
+ 1726 0348 91       		.byte	0x91
+ 1727 0349 6A       		.sleb128 -22
+ 1728 034a 14       		.uleb128 0x14
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 42
+
+
+ 1729 034b 84030000 		.4byte	.LASF59
+ 1730 034f 01       		.byte	0x1
+ 1731 0350 9701     		.2byte	0x197
+ 1732 0352 76000000 		.4byte	0x76
+ 1733 0356 02       		.uleb128 0x2
+ 1734 0357 91       		.byte	0x91
+ 1735 0358 6C       		.sleb128 -20
+ 1736 0359 00       		.byte	0
+ 1737 035a 15       		.uleb128 0x15
+ 1738 035b BD020000 		.4byte	.LASF61
+ 1739 035f 01       		.byte	0x1
+ 1740 0360 0902     		.2byte	0x209
+ 1741 0362 5D000000 		.4byte	0x5d
+ 1742 0366 00000000 		.4byte	.LFB46
+ 1743 036a E4000000 		.4byte	.LFE46-.LFB46
+ 1744 036e 01       		.uleb128 0x1
+ 1745 036f 9C       		.byte	0x9c
+ 1746 0370 D0030000 		.4byte	0x3d0
+ 1747 0374 0F       		.uleb128 0xf
+ 1748 0375 7400     		.ascii	"t\000"
+ 1749 0377 01       		.byte	0x1
+ 1750 0378 0D02     		.2byte	0x20d
+ 1751 037a B3000000 		.4byte	0xb3
+ 1752 037e 02       		.uleb128 0x2
+ 1753 037f 91       		.byte	0x91
+ 1754 0380 64       		.sleb128 -28
+ 1755 0381 14       		.uleb128 0x14
+ 1756 0382 01020000 		.4byte	.LASF62
+ 1757 0386 01       		.byte	0x1
+ 1758 0387 0E02     		.2byte	0x20e
+ 1759 0389 6B000000 		.4byte	0x6b
+ 1760 038d 02       		.uleb128 0x2
+ 1761 038e 91       		.byte	0x91
+ 1762 038f 77       		.sleb128 -9
+ 1763 0390 14       		.uleb128 0x14
+ 1764 0391 21030000 		.4byte	.LASF63
+ 1765 0395 01       		.byte	0x1
+ 1766 0396 1C02     		.2byte	0x21c
+ 1767 0398 5D000000 		.4byte	0x5d
+ 1768 039c 02       		.uleb128 0x2
+ 1769 039d 91       		.byte	0x91
+ 1770 039e 70       		.sleb128 -16
+ 1771 039f 16       		.uleb128 0x16
+ 1772 03a0 68000000 		.4byte	.LBB2
+ 1773 03a4 54000000 		.4byte	.LBE2-.LBB2
+ 1774 03a8 0F       		.uleb128 0xf
+ 1775 03a9 6900     		.ascii	"i\000"
+ 1776 03ab 01       		.byte	0x1
+ 1777 03ac 3F02     		.2byte	0x23f
+ 1778 03ae 5D000000 		.4byte	0x5d
+ 1779 03b2 02       		.uleb128 0x2
+ 1780 03b3 91       		.byte	0x91
+ 1781 03b4 6C       		.sleb128 -20
+ 1782 03b5 16       		.uleb128 0x16
+ 1783 03b6 6E000000 		.4byte	.LBB3
+ 1784 03ba 48000000 		.4byte	.LBE3-.LBB3
+ 1785 03be 14       		.uleb128 0x14
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 43
+
+
+ 1786 03bf 10020000 		.4byte	.LASF64
+ 1787 03c3 01       		.byte	0x1
+ 1788 03c4 4102     		.2byte	0x241
+ 1789 03c6 8C000000 		.4byte	0x8c
+ 1790 03ca 02       		.uleb128 0x2
+ 1791 03cb 91       		.byte	0x91
+ 1792 03cc 6A       		.sleb128 -22
+ 1793 03cd 00       		.byte	0
+ 1794 03ce 00       		.byte	0
+ 1795 03cf 00       		.byte	0
+ 1796 03d0 17       		.uleb128 0x17
+ 1797 03d1 76000000 		.4byte	0x76
+ 1798 03d5 E0030000 		.4byte	0x3e0
+ 1799 03d9 18       		.uleb128 0x18
+ 1800 03da AC000000 		.4byte	0xac
+ 1801 03de 0D       		.byte	0xd
+ 1802 03df 00       		.byte	0
+ 1803 03e0 19       		.uleb128 0x19
+ 1804 03e1 35040000 		.4byte	.LASF65
+ 1805 03e5 01       		.byte	0x1
+ 1806 03e6 0C       		.byte	0xc
+ 1807 03e7 D0030000 		.4byte	0x3d0
+ 1808 03eb 05       		.uleb128 0x5
+ 1809 03ec 03       		.byte	0x3
+ 1810 03ed 00000000 		.4byte	data_array
+ 1811 03f1 19       		.uleb128 0x19
+ 1812 03f2 82000000 		.4byte	.LASF66
+ 1813 03f6 01       		.byte	0x1
+ 1814 03f7 0D       		.byte	0xd
+ 1815 03f8 6B000000 		.4byte	0x6b
+ 1816 03fc 05       		.uleb128 0x5
+ 1817 03fd 03       		.byte	0x3
+ 1818 03fe 00000000 		.4byte	wiznet
+ 1819 0402 19       		.uleb128 0x19
+ 1820 0403 96030000 		.4byte	.LASF67
+ 1821 0407 01       		.byte	0x1
+ 1822 0408 0E       		.byte	0xe
+ 1823 0409 6B000000 		.4byte	0x6b
+ 1824 040d 05       		.uleb128 0x5
+ 1825 040e 03       		.byte	0x3
+ 1826 040f 00000000 		.4byte	new_pack
+ 1827 0413 17       		.uleb128 0x17
+ 1828 0414 8C000000 		.4byte	0x8c
+ 1829 0418 23040000 		.4byte	0x423
+ 1830 041c 18       		.uleb128 0x18
+ 1831 041d AC000000 		.4byte	0xac
+ 1832 0421 09       		.byte	0x9
+ 1833 0422 00       		.byte	0
+ 1834 0423 19       		.uleb128 0x19
+ 1835 0424 57010000 		.4byte	.LASF68
+ 1836 0428 01       		.byte	0x1
+ 1837 0429 12       		.byte	0x12
+ 1838 042a 13040000 		.4byte	0x413
+ 1839 042e 05       		.uleb128 0x5
+ 1840 042f 03       		.byte	0x3
+ 1841 0430 00000000 		.4byte	test_array
+ 1842 0434 19       		.uleb128 0x19
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 44
+
+
+ 1843 0435 B9010000 		.4byte	.LASF69
+ 1844 0439 01       		.byte	0x1
+ 1845 043a 15       		.byte	0x15
+ 1846 043b 6B000000 		.4byte	0x6b
+ 1847 043f 05       		.uleb128 0x5
+ 1848 0440 03       		.byte	0x3
+ 1849 0441 00000000 		.4byte	serv_arr_cspot
+ 1850 0445 17       		.uleb128 0x17
+ 1851 0446 76000000 		.4byte	0x76
+ 1852 044a 55040000 		.4byte	0x455
+ 1853 044e 18       		.uleb128 0x18
+ 1854 044f AC000000 		.4byte	0xac
+ 1855 0453 13       		.byte	0x13
+ 1856 0454 00       		.byte	0
+ 1857 0455 19       		.uleb128 0x19
+ 1858 0456 40000000 		.4byte	.LASF70
+ 1859 045a 01       		.byte	0x1
+ 1860 045b 16       		.byte	0x16
+ 1861 045c 45040000 		.4byte	0x445
+ 1862 0460 05       		.uleb128 0x5
+ 1863 0461 03       		.byte	0x3
+ 1864 0462 00000000 		.4byte	servo_array
+ 1865 0466 19       		.uleb128 0x19
+ 1866 0467 64040000 		.4byte	.LASF71
+ 1867 046b 01       		.byte	0x1
+ 1868 046c 17       		.byte	0x17
+ 1869 046d 6B000000 		.4byte	0x6b
+ 1870 0471 05       		.uleb128 0x5
+ 1871 0472 03       		.byte	0x3
+ 1872 0473 00000000 		.4byte	serv_avg_count
+ 1873 0477 19       		.uleb128 0x19
+ 1874 0478 41020000 		.4byte	.LASF72
+ 1875 047c 01       		.byte	0x1
+ 1876 047d 19       		.byte	0x19
+ 1877 047e 76000000 		.4byte	0x76
+ 1878 0482 05       		.uleb128 0x5
+ 1879 0483 03       		.byte	0x3
+ 1880 0484 00000000 		.4byte	feedback_count
+ 1881 0488 19       		.uleb128 0x19
+ 1882 0489 E4000000 		.4byte	.LASF73
+ 1883 048d 01       		.byte	0x1
+ 1884 048e 1A       		.byte	0x1a
+ 1885 048f 6B000000 		.4byte	0x6b
+ 1886 0493 05       		.uleb128 0x5
+ 1887 0494 03       		.byte	0x3
+ 1888 0495 00000000 		.4byte	timerFlag
+ 1889 0499 19       		.uleb128 0x19
+ 1890 049a A3010000 		.4byte	.LASF74
+ 1891 049e 01       		.byte	0x1
+ 1892 049f 7F       		.byte	0x7f
+ 1893 04a0 BE000000 		.4byte	0xbe
+ 1894 04a4 05       		.uleb128 0x5
+ 1895 04a5 03       		.byte	0x3
+ 1896 04a6 00000000 		.4byte	shldr_state
+ 1897 04aa 19       		.uleb128 0x19
+ 1898 04ab C2020000 		.4byte	.LASF75
+ 1899 04af 01       		.byte	0x1
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 45
+
+
+ 1900 04b0 B7       		.byte	0xb7
+ 1901 04b1 E3000000 		.4byte	0xe3
+ 1902 04b5 05       		.uleb128 0x5
+ 1903 04b6 03       		.byte	0x3
+ 1904 04b7 00000000 		.4byte	wristTilt_state
+ 1905 04bb 19       		.uleb128 0x19
+ 1906 04bc 08000000 		.4byte	.LASF76
+ 1907 04c0 01       		.byte	0x1
+ 1908 04c1 E8       		.byte	0xe8
+ 1909 04c2 08010000 		.4byte	0x108
+ 1910 04c6 05       		.uleb128 0x5
+ 1911 04c7 03       		.byte	0x3
+ 1912 04c8 00000000 		.4byte	wristRotate_state
+ 1913 04cc 1A       		.uleb128 0x1a
+ 1914 04cd 55030000 		.4byte	.LASF77
+ 1915 04d1 01       		.byte	0x1
+ 1916 04d2 2101     		.2byte	0x121
+ 1917 04d4 2D010000 		.4byte	0x12d
+ 1918 04d8 05       		.uleb128 0x5
+ 1919 04d9 03       		.byte	0x3
+ 1920 04da 00000000 		.4byte	led_state
+ 1921 04de 1A       		.uleb128 0x1a
+ 1922 04df 67030000 		.4byte	.LASF78
+ 1923 04e3 01       		.byte	0x1
+ 1924 04e4 6201     		.2byte	0x162
+ 1925 04e6 4D010000 		.4byte	0x14d
+ 1926 04ea 05       		.uleb128 0x5
+ 1927 04eb 03       		.byte	0x3
+ 1928 04ec 00000000 		.4byte	servo_state
+ 1929 04f0 1A       		.uleb128 0x1a
+ 1930 04f1 4C000000 		.4byte	.LASF79
+ 1931 04f5 01       		.byte	0x1
+ 1932 04f6 9201     		.2byte	0x192
+ 1933 04f8 6D010000 		.4byte	0x16d
+ 1934 04fc 05       		.uleb128 0x5
+ 1935 04fd 03       		.byte	0x3
+ 1936 04fe 00000000 		.4byte	servo1_state
+ 1937 0502 00       		.byte	0
+ 1938              		.section	.debug_abbrev,"",%progbits
+ 1939              	.Ldebug_abbrev0:
+ 1940 0000 01       		.uleb128 0x1
+ 1941 0001 11       		.uleb128 0x11
+ 1942 0002 01       		.byte	0x1
+ 1943 0003 25       		.uleb128 0x25
+ 1944 0004 0E       		.uleb128 0xe
+ 1945 0005 13       		.uleb128 0x13
+ 1946 0006 0B       		.uleb128 0xb
+ 1947 0007 03       		.uleb128 0x3
+ 1948 0008 0E       		.uleb128 0xe
+ 1949 0009 1B       		.uleb128 0x1b
+ 1950 000a 0E       		.uleb128 0xe
+ 1951 000b 55       		.uleb128 0x55
+ 1952 000c 17       		.uleb128 0x17
+ 1953 000d 11       		.uleb128 0x11
+ 1954 000e 01       		.uleb128 0x1
+ 1955 000f 10       		.uleb128 0x10
+ 1956 0010 17       		.uleb128 0x17
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 46
+
+
+ 1957 0011 00       		.byte	0
+ 1958 0012 00       		.byte	0
+ 1959 0013 02       		.uleb128 0x2
+ 1960 0014 24       		.uleb128 0x24
+ 1961 0015 00       		.byte	0
+ 1962 0016 0B       		.uleb128 0xb
+ 1963 0017 0B       		.uleb128 0xb
+ 1964 0018 3E       		.uleb128 0x3e
+ 1965 0019 0B       		.uleb128 0xb
+ 1966 001a 03       		.uleb128 0x3
+ 1967 001b 0E       		.uleb128 0xe
+ 1968 001c 00       		.byte	0
+ 1969 001d 00       		.byte	0
+ 1970 001e 03       		.uleb128 0x3
+ 1971 001f 24       		.uleb128 0x24
+ 1972 0020 00       		.byte	0
+ 1973 0021 0B       		.uleb128 0xb
+ 1974 0022 0B       		.uleb128 0xb
+ 1975 0023 3E       		.uleb128 0x3e
+ 1976 0024 0B       		.uleb128 0xb
+ 1977 0025 03       		.uleb128 0x3
+ 1978 0026 08       		.uleb128 0x8
+ 1979 0027 00       		.byte	0
+ 1980 0028 00       		.byte	0
+ 1981 0029 04       		.uleb128 0x4
+ 1982 002a 16       		.uleb128 0x16
+ 1983 002b 00       		.byte	0
+ 1984 002c 03       		.uleb128 0x3
+ 1985 002d 0E       		.uleb128 0xe
+ 1986 002e 3A       		.uleb128 0x3a
+ 1987 002f 0B       		.uleb128 0xb
+ 1988 0030 3B       		.uleb128 0x3b
+ 1989 0031 0B       		.uleb128 0xb
+ 1990 0032 49       		.uleb128 0x49
+ 1991 0033 13       		.uleb128 0x13
+ 1992 0034 00       		.byte	0
+ 1993 0035 00       		.byte	0
+ 1994 0036 05       		.uleb128 0x5
+ 1995 0037 04       		.uleb128 0x4
+ 1996 0038 01       		.byte	0x1
+ 1997 0039 03       		.uleb128 0x3
+ 1998 003a 0E       		.uleb128 0xe
+ 1999 003b 0B       		.uleb128 0xb
+ 2000 003c 0B       		.uleb128 0xb
+ 2001 003d 3A       		.uleb128 0x3a
+ 2002 003e 0B       		.uleb128 0xb
+ 2003 003f 3B       		.uleb128 0x3b
+ 2004 0040 0B       		.uleb128 0xb
+ 2005 0041 01       		.uleb128 0x1
+ 2006 0042 13       		.uleb128 0x13
+ 2007 0043 00       		.byte	0
+ 2008 0044 00       		.byte	0
+ 2009 0045 06       		.uleb128 0x6
+ 2010 0046 28       		.uleb128 0x28
+ 2011 0047 00       		.byte	0
+ 2012 0048 03       		.uleb128 0x3
+ 2013 0049 0E       		.uleb128 0xe
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 47
+
+
+ 2014 004a 1C       		.uleb128 0x1c
+ 2015 004b 0D       		.uleb128 0xd
+ 2016 004c 00       		.byte	0
+ 2017 004d 00       		.byte	0
+ 2018 004e 07       		.uleb128 0x7
+ 2019 004f 04       		.uleb128 0x4
+ 2020 0050 01       		.byte	0x1
+ 2021 0051 03       		.uleb128 0x3
+ 2022 0052 0E       		.uleb128 0xe
+ 2023 0053 0B       		.uleb128 0xb
+ 2024 0054 0B       		.uleb128 0xb
+ 2025 0055 3A       		.uleb128 0x3a
+ 2026 0056 0B       		.uleb128 0xb
+ 2027 0057 3B       		.uleb128 0x3b
+ 2028 0058 05       		.uleb128 0x5
+ 2029 0059 01       		.uleb128 0x1
+ 2030 005a 13       		.uleb128 0x13
+ 2031 005b 00       		.byte	0
+ 2032 005c 00       		.byte	0
+ 2033 005d 08       		.uleb128 0x8
+ 2034 005e 2E       		.uleb128 0x2e
+ 2035 005f 01       		.byte	0x1
+ 2036 0060 3F       		.uleb128 0x3f
+ 2037 0061 19       		.uleb128 0x19
+ 2038 0062 03       		.uleb128 0x3
+ 2039 0063 0E       		.uleb128 0xe
+ 2040 0064 3A       		.uleb128 0x3a
+ 2041 0065 0B       		.uleb128 0xb
+ 2042 0066 3B       		.uleb128 0x3b
+ 2043 0067 0B       		.uleb128 0xb
+ 2044 0068 27       		.uleb128 0x27
+ 2045 0069 19       		.uleb128 0x19
+ 2046 006a 11       		.uleb128 0x11
+ 2047 006b 01       		.uleb128 0x1
+ 2048 006c 12       		.uleb128 0x12
+ 2049 006d 06       		.uleb128 0x6
+ 2050 006e 40       		.uleb128 0x40
+ 2051 006f 18       		.uleb128 0x18
+ 2052 0070 9642     		.uleb128 0x2116
+ 2053 0072 19       		.uleb128 0x19
+ 2054 0073 01       		.uleb128 0x1
+ 2055 0074 13       		.uleb128 0x13
+ 2056 0075 00       		.byte	0
+ 2057 0076 00       		.byte	0
+ 2058 0077 09       		.uleb128 0x9
+ 2059 0078 34       		.uleb128 0x34
+ 2060 0079 00       		.byte	0
+ 2061 007a 03       		.uleb128 0x3
+ 2062 007b 0E       		.uleb128 0xe
+ 2063 007c 3A       		.uleb128 0x3a
+ 2064 007d 0B       		.uleb128 0xb
+ 2065 007e 3B       		.uleb128 0x3b
+ 2066 007f 0B       		.uleb128 0xb
+ 2067 0080 49       		.uleb128 0x49
+ 2068 0081 13       		.uleb128 0x13
+ 2069 0082 02       		.uleb128 0x2
+ 2070 0083 18       		.uleb128 0x18
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 48
+
+
+ 2071 0084 00       		.byte	0
+ 2072 0085 00       		.byte	0
+ 2073 0086 0A       		.uleb128 0xa
+ 2074 0087 2E       		.uleb128 0x2e
+ 2075 0088 01       		.byte	0x1
+ 2076 0089 3F       		.uleb128 0x3f
+ 2077 008a 19       		.uleb128 0x19
+ 2078 008b 03       		.uleb128 0x3
+ 2079 008c 0E       		.uleb128 0xe
+ 2080 008d 3A       		.uleb128 0x3a
+ 2081 008e 0B       		.uleb128 0xb
+ 2082 008f 3B       		.uleb128 0x3b
+ 2083 0090 0B       		.uleb128 0xb
+ 2084 0091 11       		.uleb128 0x11
+ 2085 0092 01       		.uleb128 0x1
+ 2086 0093 12       		.uleb128 0x12
+ 2087 0094 06       		.uleb128 0x6
+ 2088 0095 40       		.uleb128 0x40
+ 2089 0096 18       		.uleb128 0x18
+ 2090 0097 9742     		.uleb128 0x2117
+ 2091 0099 19       		.uleb128 0x19
+ 2092 009a 01       		.uleb128 0x1
+ 2093 009b 13       		.uleb128 0x13
+ 2094 009c 00       		.byte	0
+ 2095 009d 00       		.byte	0
+ 2096 009e 0B       		.uleb128 0xb
+ 2097 009f 34       		.uleb128 0x34
+ 2098 00a0 00       		.byte	0
+ 2099 00a1 03       		.uleb128 0x3
+ 2100 00a2 08       		.uleb128 0x8
+ 2101 00a3 3A       		.uleb128 0x3a
+ 2102 00a4 0B       		.uleb128 0xb
+ 2103 00a5 3B       		.uleb128 0x3b
+ 2104 00a6 0B       		.uleb128 0xb
+ 2105 00a7 49       		.uleb128 0x49
+ 2106 00a8 13       		.uleb128 0x13
+ 2107 00a9 02       		.uleb128 0x2
+ 2108 00aa 18       		.uleb128 0x18
+ 2109 00ab 00       		.byte	0
+ 2110 00ac 00       		.byte	0
+ 2111 00ad 0C       		.uleb128 0xc
+ 2112 00ae 2E       		.uleb128 0x2e
+ 2113 00af 00       		.byte	0
+ 2114 00b0 3F       		.uleb128 0x3f
+ 2115 00b1 19       		.uleb128 0x19
+ 2116 00b2 03       		.uleb128 0x3
+ 2117 00b3 0E       		.uleb128 0xe
+ 2118 00b4 3A       		.uleb128 0x3a
+ 2119 00b5 0B       		.uleb128 0xb
+ 2120 00b6 3B       		.uleb128 0x3b
+ 2121 00b7 0B       		.uleb128 0xb
+ 2122 00b8 11       		.uleb128 0x11
+ 2123 00b9 01       		.uleb128 0x1
+ 2124 00ba 12       		.uleb128 0x12
+ 2125 00bb 06       		.uleb128 0x6
+ 2126 00bc 40       		.uleb128 0x40
+ 2127 00bd 18       		.uleb128 0x18
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 49
+
+
+ 2128 00be 9742     		.uleb128 0x2117
+ 2129 00c0 19       		.uleb128 0x19
+ 2130 00c1 00       		.byte	0
+ 2131 00c2 00       		.byte	0
+ 2132 00c3 0D       		.uleb128 0xd
+ 2133 00c4 2E       		.uleb128 0x2e
+ 2134 00c5 00       		.byte	0
+ 2135 00c6 3F       		.uleb128 0x3f
+ 2136 00c7 19       		.uleb128 0x19
+ 2137 00c8 03       		.uleb128 0x3
+ 2138 00c9 0E       		.uleb128 0xe
+ 2139 00ca 3A       		.uleb128 0x3a
+ 2140 00cb 0B       		.uleb128 0xb
+ 2141 00cc 3B       		.uleb128 0x3b
+ 2142 00cd 05       		.uleb128 0x5
+ 2143 00ce 11       		.uleb128 0x11
+ 2144 00cf 01       		.uleb128 0x1
+ 2145 00d0 12       		.uleb128 0x12
+ 2146 00d1 06       		.uleb128 0x6
+ 2147 00d2 40       		.uleb128 0x40
+ 2148 00d3 18       		.uleb128 0x18
+ 2149 00d4 9742     		.uleb128 0x2117
+ 2150 00d6 19       		.uleb128 0x19
+ 2151 00d7 00       		.byte	0
+ 2152 00d8 00       		.byte	0
+ 2153 00d9 0E       		.uleb128 0xe
+ 2154 00da 2E       		.uleb128 0x2e
+ 2155 00db 01       		.byte	0x1
+ 2156 00dc 3F       		.uleb128 0x3f
+ 2157 00dd 19       		.uleb128 0x19
+ 2158 00de 03       		.uleb128 0x3
+ 2159 00df 08       		.uleb128 0x8
+ 2160 00e0 3A       		.uleb128 0x3a
+ 2161 00e1 0B       		.uleb128 0xb
+ 2162 00e2 3B       		.uleb128 0x3b
+ 2163 00e3 05       		.uleb128 0x5
+ 2164 00e4 11       		.uleb128 0x11
+ 2165 00e5 01       		.uleb128 0x1
+ 2166 00e6 12       		.uleb128 0x12
+ 2167 00e7 06       		.uleb128 0x6
+ 2168 00e8 40       		.uleb128 0x40
+ 2169 00e9 18       		.uleb128 0x18
+ 2170 00ea 9642     		.uleb128 0x2116
+ 2171 00ec 19       		.uleb128 0x19
+ 2172 00ed 01       		.uleb128 0x1
+ 2173 00ee 13       		.uleb128 0x13
+ 2174 00ef 00       		.byte	0
+ 2175 00f0 00       		.byte	0
+ 2176 00f1 0F       		.uleb128 0xf
+ 2177 00f2 34       		.uleb128 0x34
+ 2178 00f3 00       		.byte	0
+ 2179 00f4 03       		.uleb128 0x3
+ 2180 00f5 08       		.uleb128 0x8
+ 2181 00f6 3A       		.uleb128 0x3a
+ 2182 00f7 0B       		.uleb128 0xb
+ 2183 00f8 3B       		.uleb128 0x3b
+ 2184 00f9 05       		.uleb128 0x5
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 50
+
+
+ 2185 00fa 49       		.uleb128 0x49
+ 2186 00fb 13       		.uleb128 0x13
+ 2187 00fc 02       		.uleb128 0x2
+ 2188 00fd 18       		.uleb128 0x18
+ 2189 00fe 00       		.byte	0
+ 2190 00ff 00       		.byte	0
+ 2191 0100 10       		.uleb128 0x10
+ 2192 0101 2E       		.uleb128 0x2e
+ 2193 0102 01       		.byte	0x1
+ 2194 0103 3F       		.uleb128 0x3f
+ 2195 0104 19       		.uleb128 0x19
+ 2196 0105 03       		.uleb128 0x3
+ 2197 0106 0E       		.uleb128 0xe
+ 2198 0107 3A       		.uleb128 0x3a
+ 2199 0108 0B       		.uleb128 0xb
+ 2200 0109 3B       		.uleb128 0x3b
+ 2201 010a 05       		.uleb128 0x5
+ 2202 010b 27       		.uleb128 0x27
+ 2203 010c 19       		.uleb128 0x19
+ 2204 010d 49       		.uleb128 0x49
+ 2205 010e 13       		.uleb128 0x13
+ 2206 010f 11       		.uleb128 0x11
+ 2207 0110 01       		.uleb128 0x1
+ 2208 0111 12       		.uleb128 0x12
+ 2209 0112 06       		.uleb128 0x6
+ 2210 0113 40       		.uleb128 0x40
+ 2211 0114 18       		.uleb128 0x18
+ 2212 0115 9642     		.uleb128 0x2116
+ 2213 0117 19       		.uleb128 0x19
+ 2214 0118 01       		.uleb128 0x1
+ 2215 0119 13       		.uleb128 0x13
+ 2216 011a 00       		.byte	0
+ 2217 011b 00       		.byte	0
+ 2218 011c 11       		.uleb128 0x11
+ 2219 011d 05       		.uleb128 0x5
+ 2220 011e 00       		.byte	0
+ 2221 011f 03       		.uleb128 0x3
+ 2222 0120 0E       		.uleb128 0xe
+ 2223 0121 3A       		.uleb128 0x3a
+ 2224 0122 0B       		.uleb128 0xb
+ 2225 0123 3B       		.uleb128 0x3b
+ 2226 0124 05       		.uleb128 0x5
+ 2227 0125 49       		.uleb128 0x49
+ 2228 0126 13       		.uleb128 0x13
+ 2229 0127 02       		.uleb128 0x2
+ 2230 0128 18       		.uleb128 0x18
+ 2231 0129 00       		.byte	0
+ 2232 012a 00       		.byte	0
+ 2233 012b 12       		.uleb128 0x12
+ 2234 012c 0F       		.uleb128 0xf
+ 2235 012d 00       		.byte	0
+ 2236 012e 0B       		.uleb128 0xb
+ 2237 012f 0B       		.uleb128 0xb
+ 2238 0130 49       		.uleb128 0x49
+ 2239 0131 13       		.uleb128 0x13
+ 2240 0132 00       		.byte	0
+ 2241 0133 00       		.byte	0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 51
+
+
+ 2242 0134 13       		.uleb128 0x13
+ 2243 0135 2E       		.uleb128 0x2e
+ 2244 0136 01       		.byte	0x1
+ 2245 0137 3F       		.uleb128 0x3f
+ 2246 0138 19       		.uleb128 0x19
+ 2247 0139 03       		.uleb128 0x3
+ 2248 013a 0E       		.uleb128 0xe
+ 2249 013b 3A       		.uleb128 0x3a
+ 2250 013c 0B       		.uleb128 0xb
+ 2251 013d 3B       		.uleb128 0x3b
+ 2252 013e 05       		.uleb128 0x5
+ 2253 013f 11       		.uleb128 0x11
+ 2254 0140 01       		.uleb128 0x1
+ 2255 0141 12       		.uleb128 0x12
+ 2256 0142 06       		.uleb128 0x6
+ 2257 0143 40       		.uleb128 0x40
+ 2258 0144 18       		.uleb128 0x18
+ 2259 0145 9642     		.uleb128 0x2116
+ 2260 0147 19       		.uleb128 0x19
+ 2261 0148 01       		.uleb128 0x1
+ 2262 0149 13       		.uleb128 0x13
+ 2263 014a 00       		.byte	0
+ 2264 014b 00       		.byte	0
+ 2265 014c 14       		.uleb128 0x14
+ 2266 014d 34       		.uleb128 0x34
+ 2267 014e 00       		.byte	0
+ 2268 014f 03       		.uleb128 0x3
+ 2269 0150 0E       		.uleb128 0xe
+ 2270 0151 3A       		.uleb128 0x3a
+ 2271 0152 0B       		.uleb128 0xb
+ 2272 0153 3B       		.uleb128 0x3b
+ 2273 0154 05       		.uleb128 0x5
+ 2274 0155 49       		.uleb128 0x49
+ 2275 0156 13       		.uleb128 0x13
+ 2276 0157 02       		.uleb128 0x2
+ 2277 0158 18       		.uleb128 0x18
+ 2278 0159 00       		.byte	0
+ 2279 015a 00       		.byte	0
+ 2280 015b 15       		.uleb128 0x15
+ 2281 015c 2E       		.uleb128 0x2e
+ 2282 015d 01       		.byte	0x1
+ 2283 015e 3F       		.uleb128 0x3f
+ 2284 015f 19       		.uleb128 0x19
+ 2285 0160 03       		.uleb128 0x3
+ 2286 0161 0E       		.uleb128 0xe
+ 2287 0162 3A       		.uleb128 0x3a
+ 2288 0163 0B       		.uleb128 0xb
+ 2289 0164 3B       		.uleb128 0x3b
+ 2290 0165 05       		.uleb128 0x5
+ 2291 0166 49       		.uleb128 0x49
+ 2292 0167 13       		.uleb128 0x13
+ 2293 0168 11       		.uleb128 0x11
+ 2294 0169 01       		.uleb128 0x1
+ 2295 016a 12       		.uleb128 0x12
+ 2296 016b 06       		.uleb128 0x6
+ 2297 016c 40       		.uleb128 0x40
+ 2298 016d 18       		.uleb128 0x18
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 52
+
+
+ 2299 016e 9642     		.uleb128 0x2116
+ 2300 0170 19       		.uleb128 0x19
+ 2301 0171 01       		.uleb128 0x1
+ 2302 0172 13       		.uleb128 0x13
+ 2303 0173 00       		.byte	0
+ 2304 0174 00       		.byte	0
+ 2305 0175 16       		.uleb128 0x16
+ 2306 0176 0B       		.uleb128 0xb
+ 2307 0177 01       		.byte	0x1
+ 2308 0178 11       		.uleb128 0x11
+ 2309 0179 01       		.uleb128 0x1
+ 2310 017a 12       		.uleb128 0x12
+ 2311 017b 06       		.uleb128 0x6
+ 2312 017c 00       		.byte	0
+ 2313 017d 00       		.byte	0
+ 2314 017e 17       		.uleb128 0x17
+ 2315 017f 01       		.uleb128 0x1
+ 2316 0180 01       		.byte	0x1
+ 2317 0181 49       		.uleb128 0x49
+ 2318 0182 13       		.uleb128 0x13
+ 2319 0183 01       		.uleb128 0x1
+ 2320 0184 13       		.uleb128 0x13
+ 2321 0185 00       		.byte	0
+ 2322 0186 00       		.byte	0
+ 2323 0187 18       		.uleb128 0x18
+ 2324 0188 21       		.uleb128 0x21
+ 2325 0189 00       		.byte	0
+ 2326 018a 49       		.uleb128 0x49
+ 2327 018b 13       		.uleb128 0x13
+ 2328 018c 2F       		.uleb128 0x2f
+ 2329 018d 0B       		.uleb128 0xb
+ 2330 018e 00       		.byte	0
+ 2331 018f 00       		.byte	0
+ 2332 0190 19       		.uleb128 0x19
+ 2333 0191 34       		.uleb128 0x34
+ 2334 0192 00       		.byte	0
+ 2335 0193 03       		.uleb128 0x3
+ 2336 0194 0E       		.uleb128 0xe
+ 2337 0195 3A       		.uleb128 0x3a
+ 2338 0196 0B       		.uleb128 0xb
+ 2339 0197 3B       		.uleb128 0x3b
+ 2340 0198 0B       		.uleb128 0xb
+ 2341 0199 49       		.uleb128 0x49
+ 2342 019a 13       		.uleb128 0x13
+ 2343 019b 3F       		.uleb128 0x3f
+ 2344 019c 19       		.uleb128 0x19
+ 2345 019d 02       		.uleb128 0x2
+ 2346 019e 18       		.uleb128 0x18
+ 2347 019f 00       		.byte	0
+ 2348 01a0 00       		.byte	0
+ 2349 01a1 1A       		.uleb128 0x1a
+ 2350 01a2 34       		.uleb128 0x34
+ 2351 01a3 00       		.byte	0
+ 2352 01a4 03       		.uleb128 0x3
+ 2353 01a5 0E       		.uleb128 0xe
+ 2354 01a6 3A       		.uleb128 0x3a
+ 2355 01a7 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 53
+
+
+ 2356 01a8 3B       		.uleb128 0x3b
+ 2357 01a9 05       		.uleb128 0x5
+ 2358 01aa 49       		.uleb128 0x49
+ 2359 01ab 13       		.uleb128 0x13
+ 2360 01ac 3F       		.uleb128 0x3f
+ 2361 01ad 19       		.uleb128 0x19
+ 2362 01ae 02       		.uleb128 0x2
+ 2363 01af 18       		.uleb128 0x18
+ 2364 01b0 00       		.byte	0
+ 2365 01b1 00       		.byte	0
+ 2366 01b2 00       		.byte	0
+ 2367              		.section	.debug_aranges,"",%progbits
+ 2368 0000 84000000 		.4byte	0x84
+ 2369 0004 0200     		.2byte	0x2
+ 2370 0006 00000000 		.4byte	.Ldebug_info0
+ 2371 000a 04       		.byte	0x4
+ 2372 000b 00       		.byte	0
+ 2373 000c 0000     		.2byte	0
+ 2374 000e 0000     		.2byte	0
+ 2375 0010 00000000 		.4byte	.LFB33
+ 2376 0014 28000000 		.4byte	.LFE33-.LFB33
+ 2377 0018 00000000 		.4byte	.LFB34
+ 2378 001c 0C010000 		.4byte	.LFE34-.LFB34
+ 2379 0020 00000000 		.4byte	.LFB35
+ 2380 0024 4C000000 		.4byte	.LFE35-.LFB35
+ 2381 0028 00000000 		.4byte	.LFB36
+ 2382 002c 08000000 		.4byte	.LFE36-.LFB36
+ 2383 0030 00000000 		.4byte	.LFB37
+ 2384 0034 44000000 		.4byte	.LFE37-.LFB37
+ 2385 0038 00000000 		.4byte	.LFB38
+ 2386 003c 08000000 		.4byte	.LFE38-.LFB38
+ 2387 0040 00000000 		.4byte	.LFB39
+ 2388 0044 48000000 		.4byte	.LFE39-.LFB39
+ 2389 0048 00000000 		.4byte	.LFB40
+ 2390 004c 48000000 		.4byte	.LFE40-.LFB40
+ 2391 0050 00000000 		.4byte	.LFB41
+ 2392 0054 08000000 		.4byte	.LFE41-.LFB41
+ 2393 0058 00000000 		.4byte	.LFB42
+ 2394 005c 88000000 		.4byte	.LFE42-.LFB42
+ 2395 0060 00000000 		.4byte	.LFB43
+ 2396 0064 78000000 		.4byte	.LFE43-.LFB43
+ 2397 0068 00000000 		.4byte	.LFB44
+ 2398 006c 88000000 		.4byte	.LFE44-.LFB44
+ 2399 0070 00000000 		.4byte	.LFB45
+ 2400 0074 28010000 		.4byte	.LFE45-.LFB45
+ 2401 0078 00000000 		.4byte	.LFB46
+ 2402 007c E4000000 		.4byte	.LFE46-.LFB46
+ 2403 0080 00000000 		.4byte	0
+ 2404 0084 00000000 		.4byte	0
+ 2405              		.section	.debug_ranges,"",%progbits
+ 2406              	.Ldebug_ranges0:
+ 2407 0000 00000000 		.4byte	.LFB33
+ 2408 0004 28000000 		.4byte	.LFE33
+ 2409 0008 00000000 		.4byte	.LFB34
+ 2410 000c 0C010000 		.4byte	.LFE34
+ 2411 0010 00000000 		.4byte	.LFB35
+ 2412 0014 4C000000 		.4byte	.LFE35
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 54
+
+
+ 2413 0018 00000000 		.4byte	.LFB36
+ 2414 001c 08000000 		.4byte	.LFE36
+ 2415 0020 00000000 		.4byte	.LFB37
+ 2416 0024 44000000 		.4byte	.LFE37
+ 2417 0028 00000000 		.4byte	.LFB38
+ 2418 002c 08000000 		.4byte	.LFE38
+ 2419 0030 00000000 		.4byte	.LFB39
+ 2420 0034 48000000 		.4byte	.LFE39
+ 2421 0038 00000000 		.4byte	.LFB40
+ 2422 003c 48000000 		.4byte	.LFE40
+ 2423 0040 00000000 		.4byte	.LFB41
+ 2424 0044 08000000 		.4byte	.LFE41
+ 2425 0048 00000000 		.4byte	.LFB42
+ 2426 004c 88000000 		.4byte	.LFE42
+ 2427 0050 00000000 		.4byte	.LFB43
+ 2428 0054 78000000 		.4byte	.LFE43
+ 2429 0058 00000000 		.4byte	.LFB44
+ 2430 005c 88000000 		.4byte	.LFE44
+ 2431 0060 00000000 		.4byte	.LFB45
+ 2432 0064 28010000 		.4byte	.LFE45
+ 2433 0068 00000000 		.4byte	.LFB46
+ 2434 006c E4000000 		.4byte	.LFE46
+ 2435 0070 00000000 		.4byte	0
+ 2436 0074 00000000 		.4byte	0
+ 2437              		.section	.debug_line,"",%progbits
+ 2438              	.Ldebug_line0:
+ 2439 0000 9D020000 		.section	.debug_str,"MS",%progbits,1
+ 2439      0200BF00 
+ 2439      00000201 
+ 2439      FB0E0D00 
+ 2439      01010101 
+ 2440              	.LASF34:
+ 2441 0000 6C5F7374 		.ascii	"l_start\000"
+ 2441      61727400 
+ 2442              	.LASF76:
+ 2443 0008 77726973 		.ascii	"wristRotate_state\000"
+ 2443      74526F74 
+ 2443      6174655F 
+ 2443      73746174 
+ 2443      6500
+ 2444              	.LASF19:
+ 2445 001a 73686C64 		.ascii	"shldr_init\000"
+ 2445      725F696E 
+ 2445      697400
+ 2446              	.LASF25:
+ 2447 0025 74696C74 		.ascii	"tilt_start\000"
+ 2447      5F737461 
+ 2447      727400
+ 2448              	.LASF47:
+ 2449 0030 66696C6C 		.ascii	"fill_data_array\000"
+ 2449      5F646174 
+ 2449      615F6172 
+ 2449      72617900 
+ 2450              	.LASF70:
+ 2451 0040 73657276 		.ascii	"servo_array\000"
+ 2451      6F5F6172 
+ 2451      72617900 
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 55
+
+
+ 2452              	.LASF79:
+ 2453 004c 73657276 		.ascii	"servo1_state\000"
+ 2453      6F315F73 
+ 2453      74617465 
+ 2453      00
+ 2454              	.LASF30:
+ 2455 0059 726F7461 		.ascii	"rotate_start\000"
+ 2455      74655F73 
+ 2455      74617274 
+ 2455      00
+ 2456              	.LASF16:
+ 2457 0066 73697A65 		.ascii	"sizetype\000"
+ 2457      74797065 
+ 2457      00
+ 2458              	.LASF28:
+ 2459 006f 77726973 		.ascii	"wristRotate_states\000"
+ 2459      74526F74 
+ 2459      6174655F 
+ 2459      73746174 
+ 2459      657300
+ 2460              	.LASF66:
+ 2461 0082 77697A6E 		.ascii	"wiznet\000"
+ 2461      657400
+ 2462              	.LASF6:
+ 2463 0089 6C6F6E67 		.ascii	"long long int\000"
+ 2463      206C6F6E 
+ 2463      6720696E 
+ 2463      7400
+ 2464              	.LASF2:
+ 2465 0097 73686F72 		.ascii	"short int\000"
+ 2465      7420696E 
+ 2465      7400
+ 2466              	.LASF37:
+ 2467 00a1 73657276 		.ascii	"servo_states\000"
+ 2467      6F5F7374 
+ 2467      61746573 
+ 2467      00
+ 2468              	.LASF51:
+ 2469 00ae 656C626F 		.ascii	"elbow\000"
+ 2469      7700
+ 2470              	.LASF44:
+ 2471 00b4 73315F65 		.ascii	"s1_execute\000"
+ 2471      78656375 
+ 2471      746500
+ 2472              	.LASF10:
+ 2473 00bf 75696E74 		.ascii	"uint16\000"
+ 2473      313600
+ 2474              	.LASF53:
+ 2475 00c6 77726973 		.ascii	"wristRotate\000"
+ 2475      74526F74 
+ 2475      61746500 
+ 2476              	.LASF12:
+ 2477 00d2 696E7431 		.ascii	"int16\000"
+ 2477      3600
+ 2478              	.LASF29:
+ 2479 00d8 726F7461 		.ascii	"rotate_init\000"
+ 2479      74655F69 
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 56
+
+
+ 2479      6E697400 
+ 2480              	.LASF73:
+ 2481 00e4 74696D65 		.ascii	"timerFlag\000"
+ 2481      72466C61 
+ 2481      6700
+ 2482              	.LASF82:
+ 2483 00ee 433A5C55 		.ascii	"C:\\Users\\Samuel\\Documents\\GitHub\\BYU-MarsRover"
+ 2483      73657273 
+ 2483      5C53616D 
+ 2483      75656C5C 
+ 2483      446F6375 
+ 2484 011c 5C41726D 		.ascii	"\\Arm\\arm_controller_v2\\arm_controller_v2.cydsn\000"
+ 2484      5C61726D 
+ 2484      5F636F6E 
+ 2484      74726F6C 
+ 2484      6C65725F 
+ 2485              	.LASF0:
+ 2486 014b 7369676E 		.ascii	"signed char\000"
+ 2486      65642063 
+ 2486      68617200 
+ 2487              	.LASF68:
+ 2488 0157 74657374 		.ascii	"test_array\000"
+ 2488      5F617272 
+ 2488      617900
+ 2489              	.LASF13:
+ 2490 0162 666C6F61 		.ascii	"float\000"
+ 2490      7400
+ 2491              	.LASF49:
+ 2492 0168 62617365 		.ascii	"baseAzimuth\000"
+ 2492      417A696D 
+ 2492      75746800 
+ 2493              	.LASF52:
+ 2494 0174 77726973 		.ascii	"wristTilt\000"
+ 2494      7454696C 
+ 2494      7400
+ 2495              	.LASF31:
+ 2496 017e 726F7461 		.ascii	"rotate_control\000"
+ 2496      74655F63 
+ 2496      6F6E7472 
+ 2496      6F6C00
+ 2497              	.LASF4:
+ 2498 018d 6C6F6E67 		.ascii	"long int\000"
+ 2498      20696E74 
+ 2498      00
+ 2499              	.LASF22:
+ 2500 0196 73686C64 		.ascii	"shldr_states\000"
+ 2500      725F7374 
+ 2500      61746573 
+ 2500      00
+ 2501              	.LASF74:
+ 2502 01a3 73686C64 		.ascii	"shldr_state\000"
+ 2502      725F7374 
+ 2502      61746500 
+ 2503              	.LASF24:
+ 2504 01af 74696C74 		.ascii	"tilt_init\000"
+ 2504      5F696E69 
+ 2504      7400
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 57
+
+
+ 2505              	.LASF69:
+ 2506 01b9 73657276 		.ascii	"serv_arr_cspot\000"
+ 2506      5F617272 
+ 2506      5F637370 
+ 2506      6F7400
+ 2507              	.LASF18:
+ 2508 01c8 73686C64 		.ascii	"shldr_start\000"
+ 2508      725F7374 
+ 2508      61727400 
+ 2509              	.LASF81:
+ 2510 01d4 2E5C6D61 		.ascii	".\\main.c\000"
+ 2510      696E2E63 
+ 2510      00
+ 2511              	.LASF54:
+ 2512 01dd 73656E64 		.ascii	"send_feedback\000"
+ 2512      5F666565 
+ 2512      64626163 
+ 2512      6B00
+ 2513              	.LASF1:
+ 2514 01eb 756E7369 		.ascii	"unsigned char\000"
+ 2514      676E6564 
+ 2514      20636861 
+ 2514      7200
+ 2515              	.LASF46:
+ 2516 01f9 6973725F 		.ascii	"isr_var\000"
+ 2516      76617200 
+ 2517              	.LASF62:
+ 2518 0201 636F756E 		.ascii	"counter\000"
+ 2518      74657200 
+ 2519              	.LASF36:
+ 2520 0209 6C5F7761 		.ascii	"l_wait\000"
+ 2520      697400
+ 2521              	.LASF64:
+ 2522 0210 72616E64 		.ascii	"random_number\000"
+ 2522      6F6D5F6E 
+ 2522      756D6265 
+ 2522      7200
+ 2523              	.LASF27:
+ 2524 021e 74696C74 		.ascii	"tilt_feedback\000"
+ 2524      5F666565 
+ 2524      64626163 
+ 2524      6B00
+ 2525              	.LASF20:
+ 2526 022c 73686C64 		.ascii	"shldr_fdbk\000"
+ 2526      725F6664 
+ 2526      626B00
+ 2527              	.LASF56:
+ 2528 0237 6E756D5F 		.ascii	"num_items\000"
+ 2528      6974656D 
+ 2528      7300
+ 2529              	.LASF72:
+ 2530 0241 66656564 		.ascii	"feedback_count\000"
+ 2530      6261636B 
+ 2530      5F636F75 
+ 2530      6E7400
+ 2531              	.LASF7:
+ 2532 0250 6C6F6E67 		.ascii	"long long unsigned int\000"
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 58
+
+
+ 2532      206C6F6E 
+ 2532      6720756E 
+ 2532      7369676E 
+ 2532      65642069 
+ 2533              	.LASF41:
+ 2534 0267 73657276 		.ascii	"servo1_states\000"
+ 2534      6F315F73 
+ 2534      74617465 
+ 2534      7300
+ 2535              	.LASF8:
+ 2536 0275 756E7369 		.ascii	"unsigned int\000"
+ 2536      676E6564 
+ 2536      20696E74 
+ 2536      00
+ 2537              	.LASF5:
+ 2538 0282 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2538      20756E73 
+ 2538      69676E65 
+ 2538      6420696E 
+ 2538      7400
+ 2539              	.LASF3:
+ 2540 0294 73686F72 		.ascii	"short unsigned int\000"
+ 2540      7420756E 
+ 2540      7369676E 
+ 2540      65642069 
+ 2540      6E7400
+ 2541              	.LASF23:
+ 2542 02a7 77726973 		.ascii	"wristTilt_states\000"
+ 2542      7454696C 
+ 2542      745F7374 
+ 2542      61746573 
+ 2542      00
+ 2543              	.LASF15:
+ 2544 02b8 63686172 		.ascii	"char\000"
+ 2544      00
+ 2545              	.LASF61:
+ 2546 02bd 6D61696E 		.ascii	"main\000"
+ 2546      00
+ 2547              	.LASF75:
+ 2548 02c2 77726973 		.ascii	"wristTilt_state\000"
+ 2548      7454696C 
+ 2548      745F7374 
+ 2548      61746500 
+ 2549              	.LASF58:
+ 2550 02d2 73657276 		.ascii	"servo1\000"
+ 2550      6F3100
+ 2551              	.LASF33:
+ 2552 02d9 6C65645F 		.ascii	"led_states\000"
+ 2552      73746174 
+ 2552      657300
+ 2553              	.LASF9:
+ 2554 02e4 75696E74 		.ascii	"uint8\000"
+ 2554      3800
+ 2555              	.LASF42:
+ 2556 02ea 73315F73 		.ascii	"s1_start\000"
+ 2556      74617274 
+ 2556      00
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 59
+
+
+ 2557              	.LASF50:
+ 2558 02f3 73686F75 		.ascii	"shoulder\000"
+ 2558      6C646572 
+ 2558      00
+ 2559              	.LASF11:
+ 2560 02fc 75696E74 		.ascii	"uint32\000"
+ 2560      333200
+ 2561              	.LASF21:
+ 2562 0303 73686C64 		.ascii	"shldr_exe\000"
+ 2562      725F6578 
+ 2562      6500
+ 2563              	.LASF26:
+ 2564 030d 74696C74 		.ascii	"tilt_control\000"
+ 2564      5F636F6E 
+ 2564      74726F6C 
+ 2564      00
+ 2565              	.LASF14:
+ 2566 031a 646F7562 		.ascii	"double\000"
+ 2566      6C6500
+ 2567              	.LASF63:
+ 2568 0321 636F756E 		.ascii	"counter_five\000"
+ 2568      7465725F 
+ 2568      66697665 
+ 2568      00
+ 2569              	.LASF17:
+ 2570 032e 74696D65 		.ascii	"time_t\000"
+ 2570      5F7400
+ 2571              	.LASF55:
+ 2572 0335 61727261 		.ascii	"array\000"
+ 2572      7900
+ 2573              	.LASF39:
+ 2574 033b 735F6469 		.ascii	"s_different\000"
+ 2574      66666572 
+ 2574      656E7400 
+ 2575              	.LASF57:
+ 2576 0347 73657276 		.ascii	"servo\000"
+ 2576      6F00
+ 2577              	.LASF38:
+ 2578 034d 735F7374 		.ascii	"s_start\000"
+ 2578      61727400 
+ 2579              	.LASF77:
+ 2580 0355 6C65645F 		.ascii	"led_state\000"
+ 2580      73746174 
+ 2580      6500
+ 2581              	.LASF43:
+ 2582 035f 73315F69 		.ascii	"s1_init\000"
+ 2582      6E697400 
+ 2583              	.LASF78:
+ 2584 0367 73657276 		.ascii	"servo_state\000"
+ 2584      6F5F7374 
+ 2584      61746500 
+ 2585              	.LASF48:
+ 2586 0373 66696C6C 		.ascii	"fill_data_array1\000"
+ 2586      5F646174 
+ 2586      615F6172 
+ 2586      72617931 
+ 2586      00
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccinkFoT.s 			page 60
+
+
+ 2587              	.LASF59:
+ 2588 0384 636F6D6D 		.ascii	"command\000"
+ 2588      616E6400 
+ 2589              	.LASF60:
+ 2590 038c 74696D65 		.ascii	"timer_isr\000"
+ 2590      725F6973 
+ 2590      7200
+ 2591              	.LASF67:
+ 2592 0396 6E65775F 		.ascii	"new_pack\000"
+ 2592      7061636B 
+ 2592      00
+ 2593              	.LASF40:
+ 2594 039f 735F7761 		.ascii	"s_wait\000"
+ 2594      697400
+ 2595              	.LASF80:
+ 2596 03a6 474E5520 		.ascii	"GNU C 4.8.4 20140526 (release) [ARM/embedded-4_8-br"
+ 2596      4320342E 
+ 2596      382E3420 
+ 2596      32303134 
+ 2596      30353236 
+ 2597 03d9 616E6368 		.ascii	"anch revision 211358] -mcpu=cortex-m0 -mthumb -g -O"
+ 2597      20726576 
+ 2597      6973696F 
+ 2597      6E203231 
+ 2597      31333538 
+ 2598 040c 30202D73 		.ascii	"0 -std=gnu99 -ffunction-sections\000"
+ 2598      74643D67 
+ 2598      6E753939 
+ 2598      202D6666 
+ 2598      756E6374 
+ 2599              	.LASF83:
+ 2600 042d 61766572 		.ascii	"average\000"
+ 2600      61676500 
+ 2601              	.LASF65:
+ 2602 0435 64617461 		.ascii	"data_array\000"
+ 2602      5F617272 
+ 2602      617900
+ 2603              	.LASF35:
+ 2604 0440 6C5F6469 		.ascii	"l_different\000"
+ 2604      66666572 
+ 2604      656E7400 
+ 2605              	.LASF45:
+ 2606 044c 73315F77 		.ascii	"s1_wait\000"
+ 2606      61697400 
+ 2607              	.LASF32:
+ 2608 0454 726F7461 		.ascii	"rotate_feedback\000"
+ 2608      74655F66 
+ 2608      65656462 
+ 2608      61636B00 
+ 2609              	.LASF71:
+ 2610 0464 73657276 		.ascii	"serv_avg_count\000"
+ 2610      5F617667 
+ 2610      5F636F75 
+ 2610      6E7400
+ 2611              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.8.4 20140526 (release) [ARM/embedded-4_8-br

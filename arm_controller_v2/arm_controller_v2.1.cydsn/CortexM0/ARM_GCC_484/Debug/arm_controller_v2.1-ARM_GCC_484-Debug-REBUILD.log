@@ -1,0 +1,21 @@
+--------------- Rebuild Started: 03/11/2015 17:10:52 Project: main.c, Configuration: ARM GCC 4.8.4 Debug ---------------
+arm-none-eabi-gcc.exe -mcpu=cortex-m0 -mthumb -Wno-main -I. -I.\Generated_Source\PSoC4 -Wa,-alh=.\CortexM0\ARM_GCC_484\Debug/main.lst -g -D DEBUG -Wall -ffunction-sections -O0 -std=gnu99 -c .\main.c -o .\CortexM0\ARM_GCC_484\Debug\main.o
+.\main.c: In function 'wristTilt':
+.\main.c:489:5: warning: enumeration value 'tilt_feedback' not handled in switch [-Wswitch]
+     switch(wristTilt_state){ //actions
+     ^
+.\main.c:536:5: warning: enumeration value 'tilt_feedback' not handled in switch [-Wswitch]
+     switch(wristTilt_state){ //transitions
+     ^
+.\main.c: In function 'wristRotate':
+.\main.c:591:5: warning: enumeration value 'rotate_feedback' not handled in switch [-Wswitch]
+     switch(wristRotate_state){ //actions
+     ^
+.\main.c:639:5: warning: enumeration value 'rotate_feedback' not handled in switch [-Wswitch]
+     switch(wristRotate_state){ //transitions
+     ^
+.\main.c: In function 'main':
+.\main.c:1051:9: warning: unused variable 'direction' [-Wunused-variable]
+     int direction = 0;
+         ^
+--------------- Rebuild Succeeded: 03/11/2015 17:10:53 ---------------

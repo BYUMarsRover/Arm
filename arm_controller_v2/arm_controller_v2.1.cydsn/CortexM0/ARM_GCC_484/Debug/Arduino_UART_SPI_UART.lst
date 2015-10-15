@@ -1,0 +1,1990 @@
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"Arduino_UART_SPI_UART.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.comm	Arduino_UART_rxBufferHead,4,4
+  18              		.comm	Arduino_UART_rxBufferTail,4,4
+  19              		.comm	Arduino_UART_rxBufferOverflow,1,1
+  20              		.comm	Arduino_UART_rxBufferInternal,13,4
+  21              		.section	.text.Arduino_UART_SpiUartReadRxData,"ax",%progbits
+  22              		.align	2
+  23              		.global	Arduino_UART_SpiUartReadRxData
+  24              		.code	16
+  25              		.thumb_func
+  26              		.type	Arduino_UART_SpiUartReadRxData, %function
+  27              	Arduino_UART_SpiUartReadRxData:
+  28              	.LFB0:
+  29              		.file 1 ".\\Generated_Source\\PSoC4\\Arduino_UART_SPI_UART.c"
+   1:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** /*******************************************************************************
+   2:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * File Name: Arduino_UART_SPI_UART.c
+   3:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Version 2.0
+   4:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+   5:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Description:
+   6:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  This file provides the source code to the API for the SCB Component in
+   7:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  SPI and UART modes.
+   8:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+   9:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Note:
+  10:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+  11:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *******************************************************************************
+  12:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Copyright 2013-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  13:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * You may use this file only in accordance with the license, terms, conditions,
+  14:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * disclaimers, and limitations in the end user license agreement accompanying
+  15:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * the software package with which this file was provided.
+  16:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *******************************************************************************/
+  17:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  18:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #include "Arduino_UART_PVT.h"
+  19:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #include "Arduino_UART_SPI_UART_PVT.h"
+  20:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  21:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** /***************************************
+  22:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *        SPI/UART Private Vars
+  23:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** ***************************************/
+  24:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  25:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST)
+  26:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint32 Arduino_UART_rxBufferHead;
+  27:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint32 Arduino_UART_rxBufferTail;
+  28:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint8  Arduino_UART_rxBufferOverflow;
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 2
+
+
+  29:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST) */
+  30:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  31:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST)
+  32:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint32 Arduino_UART_txBufferHead;
+  33:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint32 Arduino_UART_txBufferTail;
+  34:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST) */
+  35:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  36:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_INTERNAL_RX_SW_BUFFER)
+  37:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /* Add one element to the buffer to receive full packet. One byte in receive buffer is always e
+  38:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint8 Arduino_UART_rxBufferInternal[Arduino_UART_RX_BUFFER_SIZE];
+  39:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_INTERNAL_RX_SW_BUFFER) */
+  40:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  41:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_INTERNAL_TX_SW_BUFFER)
+  42:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     volatile uint8 Arduino_UART_txBufferInternal[Arduino_UART_TX_BUFFER_SIZE];
+  43:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_INTERNAL_TX_SW_BUFFER) */
+  44:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  45:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  46:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_RX_DIRECTION)
+  47:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  48:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+  49:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartReadRxData
+  50:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+  51:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+  52:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+  53:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Retrieves the next data element from the receive buffer.
+  54:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *   - RX software buffer is disabled: Returns data element retrieved from
+  55:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *     RX FIFO. Undefined data will be returned if the RX FIFO is empty.
+  56:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *   - RX software buffer is enabled: Returns data element from the software
+  57:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *     receive buffer. Zero value is returned if the software receive buffer
+  58:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *     is empty.
+  59:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+  60:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+  61:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+  62:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+  63:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+  64:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Next data element from the receive buffer.
+  65:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+  66:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Global Variables:
+  67:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Look into Arduino_UART_SpiInit for description.
+  68:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+  69:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+  70:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     uint32 Arduino_UART_SpiUartReadRxData(void)
+  71:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+  30              		.loc 1 71 0
+  31              		.cfi_startproc
+  32 0000 80B5     		push	{r7, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 82B0     		sub	sp, sp, #8
+  37              		.cfi_def_cfa_offset 16
+  38 0004 00AF     		add	r7, sp, #0
+  39              		.cfi_def_cfa_register 7
+  72:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         uint32 rxData = 0u;
+  40              		.loc 1 72 0
+  41 0006 0023     		mov	r3, #0
+  42 0008 7B60     		str	r3, [r7, #4]
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 3
+
+
+  73:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  74:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST)
+  75:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 locTail;
+  76:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST) */
+  77:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  78:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_RX_SW_BUFFER)
+  79:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+  80:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             if(Arduino_UART_rxBufferHead != Arduino_UART_rxBufferTail)
+  43              		.loc 1 80 0
+  44 000a 0E4B     		ldr	r3, .L5
+  45 000c 1A68     		ldr	r2, [r3]
+  46 000e 0E4B     		ldr	r3, .L5+4
+  47 0010 1B68     		ldr	r3, [r3]
+  48 0012 9A42     		cmp	r2, r3
+  49 0014 11D0     		beq	.L2
+  81:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+  82:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* There is data in RX software buffer */
+  83:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  84:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Calculate index to read from */
+  85:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 locTail = (Arduino_UART_rxBufferTail + 1u);
+  50              		.loc 1 85 0
+  51 0016 0C4B     		ldr	r3, .L5+4
+  52 0018 1B68     		ldr	r3, [r3]
+  53 001a 0133     		add	r3, r3, #1
+  54 001c 3B60     		str	r3, [r7]
+  86:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  87:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 if(Arduino_UART_RX_BUFFER_SIZE == locTail)
+  55              		.loc 1 87 0
+  56 001e 3B68     		ldr	r3, [r7]
+  57 0020 0D2B     		cmp	r3, #13
+  58 0022 01D1     		bne	.L3
+  88:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 {
+  89:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                     locTail = 0u;
+  59              		.loc 1 89 0
+  60 0024 0023     		mov	r3, #0
+  61 0026 3B60     		str	r3, [r7]
+  62              	.L3:
+  90:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 }
+  91:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  92:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Get data from RX software buffer */
+  93:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 rxData = Arduino_UART_GetWordFromRxBuffer(locTail);
+  63              		.loc 1 93 0
+  64 0028 084A     		ldr	r2, .L5+8
+  65 002a 3B68     		ldr	r3, [r7]
+  66 002c D318     		add	r3, r2, r3
+  67 002e 1B78     		ldrb	r3, [r3]
+  68 0030 DBB2     		uxtb	r3, r3
+  69 0032 7B60     		str	r3, [r7, #4]
+  94:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+  95:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Change index in the buffer */
+  96:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_rxBufferTail = locTail;
+  70              		.loc 1 96 0
+  71 0034 044B     		ldr	r3, .L5+4
+  72 0036 3A68     		ldr	r2, [r7]
+  73 0038 1A60     		str	r2, [r3]
+  74              	.L2:
+  97:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 4
+
+
+  98:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+  99:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 100:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 101:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             rxData = Arduino_UART_RX_FIFO_RD_REG; /* Read data from RX FIFO */
+ 102:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 103:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 104:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 105:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         return(rxData);
+  75              		.loc 1 105 0
+  76 003a 7B68     		ldr	r3, [r7, #4]
+ 106:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+  77              		.loc 1 106 0
+  78 003c 181C     		mov	r0, r3
+  79 003e BD46     		mov	sp, r7
+  80 0040 02B0     		add	sp, sp, #8
+  81              		@ sp needed
+  82 0042 80BD     		pop	{r7, pc}
+  83              	.L6:
+  84              		.align	2
+  85              	.L5:
+  86 0044 00000000 		.word	Arduino_UART_rxBufferHead
+  87 0048 00000000 		.word	Arduino_UART_rxBufferTail
+  88 004c 00000000 		.word	Arduino_UART_rxBufferInternal
+  89              		.cfi_endproc
+  90              	.LFE0:
+  91              		.size	Arduino_UART_SpiUartReadRxData, .-Arduino_UART_SpiUartReadRxData
+  92              		.section	.text.Arduino_UART_SpiUartGetRxBufferSize,"ax",%progbits
+  93              		.align	2
+  94              		.global	Arduino_UART_SpiUartGetRxBufferSize
+  95              		.code	16
+  96              		.thumb_func
+  97              		.type	Arduino_UART_SpiUartGetRxBufferSize, %function
+  98              	Arduino_UART_SpiUartGetRxBufferSize:
+  99              	.LFB1:
+ 107:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 108:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 109:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 110:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartGetRxBufferSize
+ 111:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 112:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 113:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 114:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Returns the number of received data elements in the receive buffer.
+ 115:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *   - RX software buffer disabled: returns the number of used entries in
+ 116:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *     RX FIFO.
+ 117:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *   - RX software buffer enabled: returns the number of elements which were
+ 118:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *     placed in the receive buffer. This does not include the hardware RX FIFO.
+ 119:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 120:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 121:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 122:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 123:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 124:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Number of received data elements
+ 125:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 126:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 127:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     uint32 Arduino_UART_SpiUartGetRxBufferSize(void)
+ 128:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 100              		.loc 1 128 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 5
+
+
+ 101              		.cfi_startproc
+ 102 0000 80B5     		push	{r7, lr}
+ 103              		.cfi_def_cfa_offset 8
+ 104              		.cfi_offset 7, -8
+ 105              		.cfi_offset 14, -4
+ 106 0002 82B0     		sub	sp, sp, #8
+ 107              		.cfi_def_cfa_offset 16
+ 108 0004 00AF     		add	r7, sp, #0
+ 109              		.cfi_def_cfa_register 7
+ 129:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         uint32 size;
+ 130:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST)
+ 131:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 locHead;
+ 132:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST) */
+ 133:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 134:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_RX_SW_BUFFER)
+ 135:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 136:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             locHead = Arduino_UART_rxBufferHead;
+ 110              		.loc 1 136 0
+ 111 0006 0C4B     		ldr	r3, .L11
+ 112 0008 1B68     		ldr	r3, [r3]
+ 113 000a 3B60     		str	r3, [r7]
+ 137:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 138:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             if(locHead >= Arduino_UART_rxBufferTail)
+ 114              		.loc 1 138 0
+ 115 000c 0B4B     		ldr	r3, .L11+4
+ 116 000e 1B68     		ldr	r3, [r3]
+ 117 0010 3A68     		ldr	r2, [r7]
+ 118 0012 9A42     		cmp	r2, r3
+ 119 0014 05D3     		bcc	.L8
+ 139:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 140:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 size = (locHead - Arduino_UART_rxBufferTail);
+ 120              		.loc 1 140 0
+ 121 0016 094B     		ldr	r3, .L11+4
+ 122 0018 1B68     		ldr	r3, [r3]
+ 123 001a 3A68     		ldr	r2, [r7]
+ 124 001c D31A     		sub	r3, r2, r3
+ 125 001e 7B60     		str	r3, [r7, #4]
+ 126 0020 05E0     		b	.L9
+ 127              	.L8:
+ 141:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 142:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             else
+ 143:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 144:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 size = (locHead + (Arduino_UART_RX_BUFFER_SIZE - Arduino_UART_rxBufferTail));
+ 128              		.loc 1 144 0
+ 129 0022 064B     		ldr	r3, .L11+4
+ 130 0024 1B68     		ldr	r3, [r3]
+ 131 0026 3A68     		ldr	r2, [r7]
+ 132 0028 D31A     		sub	r3, r2, r3
+ 133 002a 0D33     		add	r3, r3, #13
+ 134 002c 7B60     		str	r3, [r7, #4]
+ 135              	.L9:
+ 145:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 146:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 147:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 148:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 149:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             size = Arduino_UART_GET_RX_FIFO_ENTRIES;
+ 150:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 6
+
+
+ 151:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 152:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 153:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         return(size);
+ 136              		.loc 1 153 0
+ 137 002e 7B68     		ldr	r3, [r7, #4]
+ 154:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 138              		.loc 1 154 0
+ 139 0030 181C     		mov	r0, r3
+ 140 0032 BD46     		mov	sp, r7
+ 141 0034 02B0     		add	sp, sp, #8
+ 142              		@ sp needed
+ 143 0036 80BD     		pop	{r7, pc}
+ 144              	.L12:
+ 145              		.align	2
+ 146              	.L11:
+ 147 0038 00000000 		.word	Arduino_UART_rxBufferHead
+ 148 003c 00000000 		.word	Arduino_UART_rxBufferTail
+ 149              		.cfi_endproc
+ 150              	.LFE1:
+ 151              		.size	Arduino_UART_SpiUartGetRxBufferSize, .-Arduino_UART_SpiUartGetRxBufferSize
+ 152              		.section	.text.Arduino_UART_SpiUartClearRxBuffer,"ax",%progbits
+ 153              		.align	2
+ 154              		.global	Arduino_UART_SpiUartClearRxBuffer
+ 155              		.code	16
+ 156              		.thumb_func
+ 157              		.type	Arduino_UART_SpiUartClearRxBuffer, %function
+ 158              	Arduino_UART_SpiUartClearRxBuffer:
+ 159              	.LFB2:
+ 155:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 156:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 157:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 158:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartClearRxBuffer
+ 159:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 160:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 161:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 162:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Clears the receive buffer and RX FIFO.
+ 163:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 164:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 165:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 166:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 167:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 168:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 169:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 170:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 171:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     void Arduino_UART_SpiUartClearRxBuffer(void)
+ 172:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 160              		.loc 1 172 0
+ 161              		.cfi_startproc
+ 162 0000 80B5     		push	{r7, lr}
+ 163              		.cfi_def_cfa_offset 8
+ 164              		.cfi_offset 7, -8
+ 165              		.cfi_offset 14, -4
+ 166 0002 82B0     		sub	sp, sp, #8
+ 167              		.cfi_def_cfa_offset 16
+ 168 0004 00AF     		add	r7, sp, #0
+ 169              		.cfi_def_cfa_register 7
+ 173:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST)
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 7
+
+
+ 174:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 intSourceMask;
+ 175:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_RX_SW_BUFFER_CONST) */
+ 176:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 177:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_RX_SW_BUFFER)
+ 178:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 179:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             intSourceMask = Arduino_UART_SpiUartDisableIntRx();
+ 170              		.loc 1 179 0
+ 171 0006 FFF7FEFF 		bl	Arduino_UART_SpiUartDisableIntRx
+ 172 000a 031C     		mov	r3, r0
+ 173 000c 7B60     		str	r3, [r7, #4]
+ 180:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 181:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_CLEAR_RX_FIFO;
+ 174              		.loc 1 181 0
+ 175 000e 0E4B     		ldr	r3, .L14
+ 176 0010 0D4A     		ldr	r2, .L14
+ 177 0012 1268     		ldr	r2, [r2]
+ 178 0014 8021     		mov	r1, #128
+ 179 0016 4902     		lsl	r1, r1, #9
+ 180 0018 0A43     		orr	r2, r1
+ 181 001a 1A60     		str	r2, [r3]
+ 182 001c 0A4B     		ldr	r3, .L14
+ 183 001e 0A4A     		ldr	r2, .L14
+ 184 0020 1168     		ldr	r1, [r2]
+ 185 0022 0A4A     		ldr	r2, .L14+4
+ 186 0024 0A40     		and	r2, r1
+ 187 0026 1A60     		str	r2, [r3]
+ 182:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 183:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Flush RX software buffer */
+ 184:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_rxBufferHead     = Arduino_UART_rxBufferTail;
+ 188              		.loc 1 184 0
+ 189 0028 094B     		ldr	r3, .L14+8
+ 190 002a 1A68     		ldr	r2, [r3]
+ 191 002c 094B     		ldr	r3, .L14+12
+ 192 002e 1A60     		str	r2, [r3]
+ 185:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_rxBufferOverflow = 0u;
+ 193              		.loc 1 185 0
+ 194 0030 094B     		ldr	r3, .L14+16
+ 195 0032 0022     		mov	r2, #0
+ 196 0034 1A70     		strb	r2, [r3]
+ 186:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 187:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* End RX transfer */
+ 188:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_ClearRxInterruptSource(Arduino_UART_INTR_RX_ALL);
+ 197              		.loc 1 188 0
+ 198 0036 094B     		ldr	r3, .L14+20
+ 199 0038 094A     		ldr	r2, .L14+24
+ 200 003a 1A60     		str	r2, [r3]
+ 189:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 190:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_SpiUartEnableIntRx(intSourceMask);
+ 201              		.loc 1 190 0
+ 202 003c 094B     		ldr	r3, .L14+28
+ 203 003e 7A68     		ldr	r2, [r7, #4]
+ 204 0040 1A60     		str	r2, [r3]
+ 191:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 192:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 193:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 194:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_CLEAR_RX_FIFO;
+ 195:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 8
+
+
+ 196:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 197:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 205              		.loc 1 197 0
+ 206 0042 BD46     		mov	sp, r7
+ 207 0044 02B0     		add	sp, sp, #8
+ 208              		@ sp needed
+ 209 0046 80BD     		pop	{r7, pc}
+ 210              	.L15:
+ 211              		.align	2
+ 212              	.L14:
+ 213 0048 04030740 		.word	1074201348
+ 214 004c FFFFFEFF 		.word	-65537
+ 215 0050 00000000 		.word	Arduino_UART_rxBufferTail
+ 216 0054 00000000 		.word	Arduino_UART_rxBufferHead
+ 217 0058 00000000 		.word	Arduino_UART_rxBufferOverflow
+ 218 005c C00F0740 		.word	1074204608
+ 219 0060 ED0F0000 		.word	4077
+ 220 0064 C80F0740 		.word	1074204616
+ 221              		.cfi_endproc
+ 222              	.LFE2:
+ 223              		.size	Arduino_UART_SpiUartClearRxBuffer, .-Arduino_UART_SpiUartClearRxBuffer
+ 224              		.section	.text.Arduino_UART_SpiUartWriteTxData,"ax",%progbits
+ 225              		.align	2
+ 226              		.global	Arduino_UART_SpiUartWriteTxData
+ 227              		.code	16
+ 228              		.thumb_func
+ 229              		.type	Arduino_UART_SpiUartWriteTxData, %function
+ 230              	Arduino_UART_SpiUartWriteTxData:
+ 231              	.LFB3:
+ 198:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 199:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_RX_DIRECTION) */
+ 200:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 201:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 202:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #if(Arduino_UART_TX_DIRECTION)
+ 203:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 204:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 205:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartWriteTxData
+ 206:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 207:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 208:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 209:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Places a data entry into the transmit buffer to be sent at the next available
+ 210:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  bus time.
+ 211:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  This function is blocking and waits until there is space available to put the
+ 212:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  requested data in the transmit buffer.
+ 213:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 214:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 215:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  txDataByte: the data to be transmitted.
+ 216:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 217:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 218:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 219:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 220:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 221:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     void Arduino_UART_SpiUartWriteTxData(uint32 txData)
+ 222:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 232              		.loc 1 222 0
+ 233              		.cfi_startproc
+ 234 0000 80B5     		push	{r7, lr}
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 9
+
+
+ 235              		.cfi_def_cfa_offset 8
+ 236              		.cfi_offset 7, -8
+ 237              		.cfi_offset 14, -4
+ 238 0002 82B0     		sub	sp, sp, #8
+ 239              		.cfi_def_cfa_offset 16
+ 240 0004 00AF     		add	r7, sp, #0
+ 241              		.cfi_def_cfa_register 7
+ 242 0006 7860     		str	r0, [r7, #4]
+ 223:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST)
+ 224:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 locHead;
+ 225:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 intSourceMask;
+ 226:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST) */
+ 227:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 228:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_TX_SW_BUFFER)
+ 229:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 230:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Head index to put data */
+ 231:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             locHead = (Arduino_UART_txBufferHead + 1u);
+ 232:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 233:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Adjust TX software buffer index */
+ 234:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             if(Arduino_UART_TX_BUFFER_SIZE == locHead)
+ 235:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 236:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 locHead = 0u;
+ 237:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 238:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 239:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             while(locHead == Arduino_UART_txBufferTail)
+ 240:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 241:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Wait for space in TX software buffer */
+ 242:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 243:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 244:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* TX software buffer has at least one room */
+ 245:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 246:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             if((Arduino_UART_txBufferHead == Arduino_UART_txBufferTail) &&
+ 247:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                (Arduino_UART_SPI_UART_FIFO_SIZE != Arduino_UART_GET_TX_FIFO_ENTRIES))
+ 248:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 249:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* TX software buffer is empty: put data directly in TX FIFO */
+ 250:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_TX_FIFO_WR_REG = txData;
+ 251:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 252:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Put data in TX software buffer */
+ 253:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             else
+ 254:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 255:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Clear old status of INTR_TX_NOT_FULL. It sets at the end of transfer when TX FIF
+ 256:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_ClearTxInterruptSource(Arduino_UART_INTR_TX_NOT_FULL);
+ 257:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 258:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_PutWordInTxBuffer(locHead, txData);
+ 259:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 260:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_txBufferHead = locHead;
+ 261:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 262:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Enable interrupt to transmit */
+ 263:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 intSourceMask  = Arduino_UART_INTR_TX_NOT_FULL;
+ 264:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 intSourceMask |= Arduino_UART_GetTxInterruptMode();
+ 265:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 Arduino_UART_SpiUartEnableIntTx(intSourceMask);
+ 266:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 267:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 268:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 269:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 270:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             while(Arduino_UART_SPI_UART_FIFO_SIZE == Arduino_UART_GET_TX_FIFO_ENTRIES)
+ 243              		.loc 1 270 0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 10
+
+
+ 244 0008 C046     		mov	r8, r8
+ 245              	.L17:
+ 246              		.loc 1 270 0 is_stmt 0 discriminator 1
+ 247 000a 064B     		ldr	r3, .L18
+ 248 000c 1A68     		ldr	r2, [r3]
+ 249 000e 0F23     		mov	r3, #15
+ 250 0010 1340     		and	r3, r2
+ 251 0012 082B     		cmp	r3, #8
+ 252 0014 F9D0     		beq	.L17
+ 271:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 272:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 /* Block while TX FIFO is FULL */
+ 273:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 274:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 275:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_TX_FIFO_WR_REG = txData;
+ 253              		.loc 1 275 0 is_stmt 1
+ 254 0016 044B     		ldr	r3, .L18+4
+ 255 0018 7A68     		ldr	r2, [r7, #4]
+ 256 001a 1A60     		str	r2, [r3]
+ 276:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 277:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 278:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 257              		.loc 1 278 0
+ 258 001c BD46     		mov	sp, r7
+ 259 001e 02B0     		add	sp, sp, #8
+ 260              		@ sp needed
+ 261 0020 80BD     		pop	{r7, pc}
+ 262              	.L19:
+ 263 0022 C046     		.align	2
+ 264              	.L18:
+ 265 0024 08020740 		.word	1074201096
+ 266 0028 40020740 		.word	1074201152
+ 267              		.cfi_endproc
+ 268              	.LFE3:
+ 269              		.size	Arduino_UART_SpiUartWriteTxData, .-Arduino_UART_SpiUartWriteTxData
+ 270              		.section	.text.Arduino_UART_SpiUartPutArray,"ax",%progbits
+ 271              		.align	2
+ 272              		.global	Arduino_UART_SpiUartPutArray
+ 273              		.code	16
+ 274              		.thumb_func
+ 275              		.type	Arduino_UART_SpiUartPutArray, %function
+ 276              	Arduino_UART_SpiUartPutArray:
+ 277              	.LFB4:
+ 279:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 280:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 281:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 282:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartPutArray
+ 283:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 284:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 285:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 286:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Places an array of data into the transmit buffer to be sent.
+ 287:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  This function is blocking and waits until there is a space available to put
+ 288:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  all the requested data in the transmit buffer. The array size can be greater
+ 289:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  than transmit buffer size.
+ 290:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 291:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 292:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  wrBuf:  pointer to an array with data to be placed in transmit buffer.
+ 293:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  count:  number of data elements to be placed in the transmit buffer.
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 11
+
+
+ 294:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 295:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 296:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 297:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 298:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 299:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     void Arduino_UART_SpiUartPutArray(const uint8 wrBuf[], uint32 count)
+ 300:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 278              		.loc 1 300 0
+ 279              		.cfi_startproc
+ 280 0000 80B5     		push	{r7, lr}
+ 281              		.cfi_def_cfa_offset 8
+ 282              		.cfi_offset 7, -8
+ 283              		.cfi_offset 14, -4
+ 284 0002 84B0     		sub	sp, sp, #16
+ 285              		.cfi_def_cfa_offset 24
+ 286 0004 00AF     		add	r7, sp, #0
+ 287              		.cfi_def_cfa_register 7
+ 288 0006 7860     		str	r0, [r7, #4]
+ 289 0008 3960     		str	r1, [r7]
+ 301:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         uint32 i;
+ 302:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 303:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         for(i=0u; i < count; i++)
+ 290              		.loc 1 303 0
+ 291 000a 0023     		mov	r3, #0
+ 292 000c FB60     		str	r3, [r7, #12]
+ 293 000e 09E0     		b	.L21
+ 294              	.L22:
+ 304:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 305:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_SpiUartWriteTxData((uint32) wrBuf[i]);
+ 295              		.loc 1 305 0 discriminator 2
+ 296 0010 7A68     		ldr	r2, [r7, #4]
+ 297 0012 FB68     		ldr	r3, [r7, #12]
+ 298 0014 D318     		add	r3, r2, r3
+ 299 0016 1B78     		ldrb	r3, [r3]
+ 300 0018 181C     		mov	r0, r3
+ 301 001a FFF7FEFF 		bl	Arduino_UART_SpiUartWriteTxData
+ 303:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         for(i=0u; i < count; i++)
+ 302              		.loc 1 303 0 discriminator 2
+ 303 001e FB68     		ldr	r3, [r7, #12]
+ 304 0020 0133     		add	r3, r3, #1
+ 305 0022 FB60     		str	r3, [r7, #12]
+ 306              	.L21:
+ 303:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         for(i=0u; i < count; i++)
+ 307              		.loc 1 303 0 is_stmt 0 discriminator 1
+ 308 0024 FA68     		ldr	r2, [r7, #12]
+ 309 0026 3B68     		ldr	r3, [r7]
+ 310 0028 9A42     		cmp	r2, r3
+ 311 002a F1D3     		bcc	.L22
+ 306:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 307:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 312              		.loc 1 307 0 is_stmt 1
+ 313 002c BD46     		mov	sp, r7
+ 314 002e 04B0     		add	sp, sp, #16
+ 315              		@ sp needed
+ 316 0030 80BD     		pop	{r7, pc}
+ 317              		.cfi_endproc
+ 318              	.LFE4:
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 12
+
+
+ 319              		.size	Arduino_UART_SpiUartPutArray, .-Arduino_UART_SpiUartPutArray
+ 320 0032 C046     		.section	.text.Arduino_UART_SpiUartGetTxBufferSize,"ax",%progbits
+ 321              		.align	2
+ 322              		.global	Arduino_UART_SpiUartGetTxBufferSize
+ 323              		.code	16
+ 324              		.thumb_func
+ 325              		.type	Arduino_UART_SpiUartGetTxBufferSize, %function
+ 326              	Arduino_UART_SpiUartGetTxBufferSize:
+ 327              	.LFB5:
+ 308:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 309:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 310:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 311:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartGetTxBufferSize
+ 312:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 313:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 314:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 315:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Returns the number of elements currently in the transmit buffer.
+ 316:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  - TX software buffer is disabled: returns the number of used entries in
+ 317:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *    TX FIFO.
+ 318:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  - TX software buffer is enabled: returns the number of elements currently
+ 319:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *    used in the transmit buffer. This number does not include used entries in
+ 320:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *    the TX FIFO. The transmit buffer size is zero until the TX FIFO is
+ 321:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *    not full.
+ 322:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 323:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 324:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 325:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 326:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 327:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Number of data elements ready to transmit.
+ 328:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 329:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 330:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     uint32 Arduino_UART_SpiUartGetTxBufferSize(void)
+ 331:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 328              		.loc 1 331 0
+ 329              		.cfi_startproc
+ 330 0000 80B5     		push	{r7, lr}
+ 331              		.cfi_def_cfa_offset 8
+ 332              		.cfi_offset 7, -8
+ 333              		.cfi_offset 14, -4
+ 334 0002 82B0     		sub	sp, sp, #8
+ 335              		.cfi_def_cfa_offset 16
+ 336 0004 00AF     		add	r7, sp, #0
+ 337              		.cfi_def_cfa_register 7
+ 332:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         uint32 size;
+ 333:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST)
+ 334:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 locTail;
+ 335:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST) */
+ 336:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 337:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_TX_SW_BUFFER)
+ 338:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 339:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Get current Tail index */
+ 340:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             locTail = Arduino_UART_txBufferTail;
+ 341:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 342:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             if(Arduino_UART_txBufferHead >= locTail)
+ 343:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 344:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 size = (Arduino_UART_txBufferHead - locTail);
+ 345:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 13
+
+
+ 346:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             else
+ 347:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             {
+ 348:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****                 size = (Arduino_UART_txBufferHead + (Arduino_UART_TX_BUFFER_SIZE - locTail));
+ 349:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             }
+ 350:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 351:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 352:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 353:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             size = Arduino_UART_GET_TX_FIFO_ENTRIES;
+ 338              		.loc 1 353 0
+ 339 0006 054B     		ldr	r3, .L25
+ 340 0008 1A68     		ldr	r2, [r3]
+ 341 000a 0F23     		mov	r3, #15
+ 342 000c 1340     		and	r3, r2
+ 343 000e 7B60     		str	r3, [r7, #4]
+ 354:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 355:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 356:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 357:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         return(size);
+ 344              		.loc 1 357 0
+ 345 0010 7B68     		ldr	r3, [r7, #4]
+ 358:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 346              		.loc 1 358 0
+ 347 0012 181C     		mov	r0, r3
+ 348 0014 BD46     		mov	sp, r7
+ 349 0016 02B0     		add	sp, sp, #8
+ 350              		@ sp needed
+ 351 0018 80BD     		pop	{r7, pc}
+ 352              	.L26:
+ 353 001a C046     		.align	2
+ 354              	.L25:
+ 355 001c 08020740 		.word	1074201096
+ 356              		.cfi_endproc
+ 357              	.LFE5:
+ 358              		.size	Arduino_UART_SpiUartGetTxBufferSize, .-Arduino_UART_SpiUartGetTxBufferSize
+ 359              		.section	.text.Arduino_UART_SpiUartClearTxBuffer,"ax",%progbits
+ 360              		.align	2
+ 361              		.global	Arduino_UART_SpiUartClearTxBuffer
+ 362              		.code	16
+ 363              		.thumb_func
+ 364              		.type	Arduino_UART_SpiUartClearTxBuffer, %function
+ 365              	Arduino_UART_SpiUartClearTxBuffer:
+ 366              	.LFB6:
+ 359:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 360:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 361:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     /*******************************************************************************
+ 362:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Function Name: Arduino_UART_SpiUartClearTxBuffer
+ 363:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     ********************************************************************************
+ 364:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 365:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Summary:
+ 366:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  Clears the transmit buffer and TX FIFO.
+ 367:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 368:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Parameters:
+ 369:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 370:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ 371:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     * Return:
+ 372:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *  None
+ 373:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 14
+
+
+ 374:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     *******************************************************************************/
+ 375:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     void Arduino_UART_SpiUartClearTxBuffer(void)
+ 376:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     {
+ 367              		.loc 1 376 0
+ 368              		.cfi_startproc
+ 369 0000 80B5     		push	{r7, lr}
+ 370              		.cfi_def_cfa_offset 8
+ 371              		.cfi_offset 7, -8
+ 372              		.cfi_offset 14, -4
+ 373 0002 00AF     		add	r7, sp, #0
+ 374              		.cfi_def_cfa_register 7
+ 377:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST)
+ 378:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             uint32 intSourceMask;
+ 379:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif /* (Arduino_UART_INTERNAL_TX_SW_BUFFER_CONST) */
+ 380:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 381:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #if(Arduino_UART_CHECK_TX_SW_BUFFER)
+ 382:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 383:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             intSourceMask = Arduino_UART_SpiUartDisableIntTx();
+ 384:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 385:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_CLEAR_TX_FIFO;
+ 386:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 387:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* Flush TX software buffer */
+ 388:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_txBufferHead = Arduino_UART_txBufferTail;
+ 389:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 390:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             /* End TX transfer if it is in progress */
+ 391:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             intSourceMask &= (uint32) ~Arduino_UART_INTR_TX_NOT_FULL;
+ 392:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 393:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_SpiUartEnableIntTx(intSourceMask);
+ 394:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 395:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #else
+ 396:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         {
+ 397:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****             Arduino_UART_CLEAR_TX_FIFO;
+ 375              		.loc 1 397 0
+ 376 0004 074B     		ldr	r3, .L28
+ 377 0006 074A     		ldr	r2, .L28
+ 378 0008 1268     		ldr	r2, [r2]
+ 379 000a 8021     		mov	r1, #128
+ 380 000c 4902     		lsl	r1, r1, #9
+ 381 000e 0A43     		orr	r2, r1
+ 382 0010 1A60     		str	r2, [r3]
+ 383 0012 044B     		ldr	r3, .L28
+ 384 0014 034A     		ldr	r2, .L28
+ 385 0016 1168     		ldr	r1, [r2]
+ 386 0018 034A     		ldr	r2, .L28+4
+ 387 001a 0A40     		and	r2, r1
+ 388 001c 1A60     		str	r2, [r3]
+ 398:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         }
+ 399:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****         #endif
+ 400:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     }
+ 389              		.loc 1 400 0
+ 390 001e BD46     		mov	sp, r7
+ 391              		@ sp needed
+ 392 0020 80BD     		pop	{r7, pc}
+ 393              	.L29:
+ 394 0022 C046     		.align	2
+ 395              	.L28:
+ 396 0024 04020740 		.word	1074201092
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 15
+
+
+ 397 0028 FFFFFEFF 		.word	-65537
+ 398              		.cfi_endproc
+ 399              	.LFE6:
+ 400              		.size	Arduino_UART_SpiUartClearTxBuffer, .-Arduino_UART_SpiUartClearTxBuffer
+ 401              		.section	.text.Arduino_UART_SpiUartDisableIntRx,"ax",%progbits
+ 402              		.align	2
+ 403              		.global	Arduino_UART_SpiUartDisableIntRx
+ 404              		.code	16
+ 405              		.thumb_func
+ 406              		.type	Arduino_UART_SpiUartDisableIntRx, %function
+ 407              	Arduino_UART_SpiUartDisableIntRx:
+ 408              	.LFB7:
+ 401:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 402:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** #endif /* (Arduino_UART_TX_DIRECTION) */
+ 403:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 404:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 405:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** /*******************************************************************************
+ 406:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Function Name: Arduino_UART_SpiUartDisableIntRx
+ 407:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** ********************************************************************************
+ 408:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 409:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Summary:
+ 410:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  Disables the RX interrupt sources.
+ 411:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 412:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Parameters:
+ 413:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  None
+ 414:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 415:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Return:
+ 416:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  Returns the RX interrupt sources enabled before the function call.
+ 417:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 418:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *******************************************************************************/
+ 419:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** uint32 Arduino_UART_SpiUartDisableIntRx(void)
+ 420:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** {
+ 409              		.loc 1 420 0
+ 410              		.cfi_startproc
+ 411 0000 80B5     		push	{r7, lr}
+ 412              		.cfi_def_cfa_offset 8
+ 413              		.cfi_offset 7, -8
+ 414              		.cfi_offset 14, -4
+ 415 0002 82B0     		sub	sp, sp, #8
+ 416              		.cfi_def_cfa_offset 16
+ 417 0004 00AF     		add	r7, sp, #0
+ 418              		.cfi_def_cfa_register 7
+ 421:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     uint32 intSource;
+ 422:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 423:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     intSource = Arduino_UART_GetRxInterruptMode();
+ 419              		.loc 1 423 0
+ 420 0006 054B     		ldr	r3, .L32
+ 421 0008 1B68     		ldr	r3, [r3]
+ 422 000a 7B60     		str	r3, [r7, #4]
+ 424:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 425:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     Arduino_UART_SetRxInterruptMode(Arduino_UART_NO_INTR_SOURCES);
+ 423              		.loc 1 425 0
+ 424 000c 034B     		ldr	r3, .L32
+ 425 000e 0022     		mov	r2, #0
+ 426 0010 1A60     		str	r2, [r3]
+ 426:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 427:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     return(intSource);
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 16
+
+
+ 427              		.loc 1 427 0
+ 428 0012 7B68     		ldr	r3, [r7, #4]
+ 428:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** }
+ 429              		.loc 1 428 0
+ 430 0014 181C     		mov	r0, r3
+ 431 0016 BD46     		mov	sp, r7
+ 432 0018 02B0     		add	sp, sp, #8
+ 433              		@ sp needed
+ 434 001a 80BD     		pop	{r7, pc}
+ 435              	.L33:
+ 436              		.align	2
+ 437              	.L32:
+ 438 001c C80F0740 		.word	1074204616
+ 439              		.cfi_endproc
+ 440              	.LFE7:
+ 441              		.size	Arduino_UART_SpiUartDisableIntRx, .-Arduino_UART_SpiUartDisableIntRx
+ 442              		.section	.text.Arduino_UART_SpiUartDisableIntTx,"ax",%progbits
+ 443              		.align	2
+ 444              		.global	Arduino_UART_SpiUartDisableIntTx
+ 445              		.code	16
+ 446              		.thumb_func
+ 447              		.type	Arduino_UART_SpiUartDisableIntTx, %function
+ 448              	Arduino_UART_SpiUartDisableIntTx:
+ 449              	.LFB8:
+ 429:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 430:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 431:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** /*******************************************************************************
+ 432:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Function Name: Arduino_UART_SpiUartDisableIntTx
+ 433:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** ********************************************************************************
+ 434:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 435:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Summary:
+ 436:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  Disables TX interrupt sources.
+ 437:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 438:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Parameters:
+ 439:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  None
+ 440:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 441:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** * Return:
+ 442:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *  Returns TX interrupt sources enabled before function call.
+ 443:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *
+ 444:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** *******************************************************************************/
+ 445:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** uint32 Arduino_UART_SpiUartDisableIntTx(void)
+ 446:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** {
+ 450              		.loc 1 446 0
+ 451              		.cfi_startproc
+ 452 0000 80B5     		push	{r7, lr}
+ 453              		.cfi_def_cfa_offset 8
+ 454              		.cfi_offset 7, -8
+ 455              		.cfi_offset 14, -4
+ 456 0002 82B0     		sub	sp, sp, #8
+ 457              		.cfi_def_cfa_offset 16
+ 458 0004 00AF     		add	r7, sp, #0
+ 459              		.cfi_def_cfa_register 7
+ 447:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     uint32 intSourceMask;
+ 448:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 449:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     intSourceMask = Arduino_UART_GetTxInterruptMode();
+ 460              		.loc 1 449 0
+ 461 0006 054B     		ldr	r3, .L36
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 17
+
+
+ 462 0008 1B68     		ldr	r3, [r3]
+ 463 000a 7B60     		str	r3, [r7, #4]
+ 450:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 451:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     Arduino_UART_SetTxInterruptMode(Arduino_UART_NO_INTR_SOURCES);
+ 464              		.loc 1 451 0
+ 465 000c 034B     		ldr	r3, .L36
+ 466 000e 0022     		mov	r2, #0
+ 467 0010 1A60     		str	r2, [r3]
+ 452:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** 
+ 453:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c ****     return(intSourceMask);
+ 468              		.loc 1 453 0
+ 469 0012 7B68     		ldr	r3, [r7, #4]
+ 454:.\Generated_Source\PSoC4/Arduino_UART_SPI_UART.c **** }
+ 470              		.loc 1 454 0
+ 471 0014 181C     		mov	r0, r3
+ 472 0016 BD46     		mov	sp, r7
+ 473 0018 02B0     		add	sp, sp, #8
+ 474              		@ sp needed
+ 475 001a 80BD     		pop	{r7, pc}
+ 476              	.L37:
+ 477              		.align	2
+ 478              	.L36:
+ 479 001c 880F0740 		.word	1074204552
+ 480              		.cfi_endproc
+ 481              	.LFE8:
+ 482              		.size	Arduino_UART_SpiUartDisableIntTx, .-Arduino_UART_SpiUartDisableIntTx
+ 483              		.text
+ 484              	.Letext0:
+ 485              		.file 2 ".\\Generated_Source\\PSoC4/cytypes.h"
+ 486              		.section	.debug_info,"",%progbits
+ 487              	.Ldebug_info0:
+ 488 0000 9A020000 		.4byte	0x29a
+ 489 0004 0400     		.2byte	0x4
+ 490 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 491 000a 04       		.byte	0x4
+ 492 000b 01       		.uleb128 0x1
+ 493 000c D0000000 		.4byte	.LASF37
+ 494 0010 01       		.byte	0x1
+ 495 0011 64020000 		.4byte	.LASF38
+ 496 0015 A6020000 		.4byte	.LASF39
+ 497 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 498 001d 00000000 		.4byte	0
+ 499 0021 00000000 		.4byte	.Ldebug_line0
+ 500 0025 02       		.uleb128 0x2
+ 501 0026 01       		.byte	0x1
+ 502 0027 06       		.byte	0x6
+ 503 0028 5F030000 		.4byte	.LASF0
+ 504 002c 02       		.uleb128 0x2
+ 505 002d 01       		.byte	0x1
+ 506 002e 08       		.byte	0x8
+ 507 002f E2010000 		.4byte	.LASF1
+ 508 0033 02       		.uleb128 0x2
+ 509 0034 02       		.byte	0x2
+ 510 0035 05       		.byte	0x5
+ 511 0036 4C030000 		.4byte	.LASF2
+ 512 003a 02       		.uleb128 0x2
+ 513 003b 02       		.byte	0x2
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 18
+
+
+ 514 003c 07       		.byte	0x7
+ 515 003d 6B030000 		.4byte	.LASF3
+ 516 0041 02       		.uleb128 0x2
+ 517 0042 04       		.byte	0x4
+ 518 0043 05       		.byte	0x5
+ 519 0044 56030000 		.4byte	.LASF4
+ 520 0048 02       		.uleb128 0x2
+ 521 0049 04       		.byte	0x4
+ 522 004a 07       		.byte	0x7
+ 523 004b 9B010000 		.4byte	.LASF5
+ 524 004f 02       		.uleb128 0x2
+ 525 0050 08       		.byte	0x8
+ 526 0051 05       		.byte	0x5
+ 527 0052 F7020000 		.4byte	.LASF6
+ 528 0056 02       		.uleb128 0x2
+ 529 0057 08       		.byte	0x8
+ 530 0058 07       		.byte	0x7
+ 531 0059 4D020000 		.4byte	.LASF7
+ 532 005d 03       		.uleb128 0x3
+ 533 005e 04       		.byte	0x4
+ 534 005f 05       		.byte	0x5
+ 535 0060 696E7400 		.ascii	"int\000"
+ 536 0064 02       		.uleb128 0x2
+ 537 0065 04       		.byte	0x4
+ 538 0066 07       		.byte	0x7
+ 539 0067 B5000000 		.4byte	.LASF8
+ 540 006b 04       		.uleb128 0x4
+ 541 006c AD010000 		.4byte	.LASF9
+ 542 0070 02       		.byte	0x2
+ 543 0071 A1       		.byte	0xa1
+ 544 0072 2C000000 		.4byte	0x2c
+ 545 0076 04       		.uleb128 0x4
+ 546 0077 14020000 		.4byte	.LASF10
+ 547 007b 02       		.byte	0x2
+ 548 007c A3       		.byte	0xa3
+ 549 007d 48000000 		.4byte	0x48
+ 550 0081 02       		.uleb128 0x2
+ 551 0082 04       		.byte	0x4
+ 552 0083 04       		.byte	0x4
+ 553 0084 CA000000 		.4byte	.LASF11
+ 554 0088 02       		.uleb128 0x2
+ 555 0089 08       		.byte	0x8
+ 556 008a 04       		.byte	0x4
+ 557 008b 0D020000 		.4byte	.LASF12
+ 558 008f 02       		.uleb128 0x2
+ 559 0090 01       		.byte	0x1
+ 560 0091 08       		.byte	0x8
+ 561 0092 26030000 		.4byte	.LASF13
+ 562 0096 05       		.uleb128 0x5
+ 563 0097 6B000000 		.4byte	0x6b
+ 564 009b 06       		.uleb128 0x6
+ 565 009c 00000000 		.4byte	.LASF14
+ 566 00a0 02       		.byte	0x2
+ 567 00a1 4D01     		.2byte	0x14d
+ 568 00a3 A7000000 		.4byte	0xa7
+ 569 00a7 05       		.uleb128 0x5
+ 570 00a8 76000000 		.4byte	0x76
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 19
+
+
+ 571 00ac 02       		.uleb128 0x2
+ 572 00ad 04       		.byte	0x4
+ 573 00ae 07       		.byte	0x7
+ 574 00af 9D020000 		.4byte	.LASF15
+ 575 00b3 07       		.uleb128 0x7
+ 576 00b4 5C010000 		.4byte	.LASF18
+ 577 00b8 01       		.byte	0x1
+ 578 00b9 46       		.byte	0x46
+ 579 00ba 76000000 		.4byte	0x76
+ 580 00be 00000000 		.4byte	.LFB0
+ 581 00c2 50000000 		.4byte	.LFE0-.LFB0
+ 582 00c6 01       		.uleb128 0x1
+ 583 00c7 9C       		.byte	0x9c
+ 584 00c8 E9000000 		.4byte	0xe9
+ 585 00cc 08       		.uleb128 0x8
+ 586 00cd D5010000 		.4byte	.LASF16
+ 587 00d1 01       		.byte	0x1
+ 588 00d2 48       		.byte	0x48
+ 589 00d3 76000000 		.4byte	0x76
+ 590 00d7 02       		.uleb128 0x2
+ 591 00d8 91       		.byte	0x91
+ 592 00d9 74       		.sleb128 -12
+ 593 00da 08       		.uleb128 0x8
+ 594 00db 95020000 		.4byte	.LASF17
+ 595 00df 01       		.byte	0x1
+ 596 00e0 4B       		.byte	0x4b
+ 597 00e1 76000000 		.4byte	0x76
+ 598 00e5 02       		.uleb128 0x2
+ 599 00e6 91       		.byte	0x91
+ 600 00e7 70       		.sleb128 -16
+ 601 00e8 00       		.byte	0
+ 602 00e9 07       		.uleb128 0x7
+ 603 00ea 73000000 		.4byte	.LASF19
+ 604 00ee 01       		.byte	0x1
+ 605 00ef 7F       		.byte	0x7f
+ 606 00f0 76000000 		.4byte	0x76
+ 607 00f4 00000000 		.4byte	.LFB1
+ 608 00f8 40000000 		.4byte	.LFE1-.LFB1
+ 609 00fc 01       		.uleb128 0x1
+ 610 00fd 9C       		.byte	0x9c
+ 611 00fe 1F010000 		.4byte	0x11f
+ 612 0102 08       		.uleb128 0x8
+ 613 0103 57010000 		.4byte	.LASF20
+ 614 0107 01       		.byte	0x1
+ 615 0108 81       		.byte	0x81
+ 616 0109 76000000 		.4byte	0x76
+ 617 010d 02       		.uleb128 0x2
+ 618 010e 91       		.byte	0x91
+ 619 010f 74       		.sleb128 -12
+ 620 0110 08       		.uleb128 0x8
+ 621 0111 C2000000 		.4byte	.LASF21
+ 622 0115 01       		.byte	0x1
+ 623 0116 83       		.byte	0x83
+ 624 0117 76000000 		.4byte	0x76
+ 625 011b 02       		.uleb128 0x2
+ 626 011c 91       		.byte	0x91
+ 627 011d 70       		.sleb128 -16
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 20
+
+
+ 628 011e 00       		.byte	0
+ 629 011f 09       		.uleb128 0x9
+ 630 0120 2A000000 		.4byte	.LASF23
+ 631 0124 01       		.byte	0x1
+ 632 0125 AB       		.byte	0xab
+ 633 0126 00000000 		.4byte	.LFB2
+ 634 012a 68000000 		.4byte	.LFE2-.LFB2
+ 635 012e 01       		.uleb128 0x1
+ 636 012f 9C       		.byte	0x9c
+ 637 0130 43010000 		.4byte	0x143
+ 638 0134 08       		.uleb128 0x8
+ 639 0135 35020000 		.4byte	.LASF22
+ 640 0139 01       		.byte	0x1
+ 641 013a AE       		.byte	0xae
+ 642 013b 76000000 		.4byte	0x76
+ 643 013f 02       		.uleb128 0x2
+ 644 0140 91       		.byte	0x91
+ 645 0141 74       		.sleb128 -12
+ 646 0142 00       		.byte	0
+ 647 0143 0A       		.uleb128 0xa
+ 648 0144 7B010000 		.4byte	.LASF24
+ 649 0148 01       		.byte	0x1
+ 650 0149 DD       		.byte	0xdd
+ 651 014a 00000000 		.4byte	.LFB3
+ 652 014e 2C000000 		.4byte	.LFE3-.LFB3
+ 653 0152 01       		.uleb128 0x1
+ 654 0153 9C       		.byte	0x9c
+ 655 0154 67010000 		.4byte	0x167
+ 656 0158 0B       		.uleb128 0xb
+ 657 0159 6C000000 		.4byte	.LASF26
+ 658 015d 01       		.byte	0x1
+ 659 015e DD       		.byte	0xdd
+ 660 015f 76000000 		.4byte	0x76
+ 661 0163 02       		.uleb128 0x2
+ 662 0164 91       		.byte	0x91
+ 663 0165 74       		.sleb128 -12
+ 664 0166 00       		.byte	0
+ 665 0167 0C       		.uleb128 0xc
+ 666 0168 F0010000 		.4byte	.LASF25
+ 667 016c 01       		.byte	0x1
+ 668 016d 2B01     		.2byte	0x12b
+ 669 016f 00000000 		.4byte	.LFB4
+ 670 0173 32000000 		.4byte	.LFE4-.LFB4
+ 671 0177 01       		.uleb128 0x1
+ 672 0178 9C       		.byte	0x9c
+ 673 0179 A9010000 		.4byte	0x1a9
+ 674 017d 0D       		.uleb128 0xd
+ 675 017e DC010000 		.4byte	.LASF27
+ 676 0182 01       		.byte	0x1
+ 677 0183 2B01     		.2byte	0x12b
+ 678 0185 A9010000 		.4byte	0x1a9
+ 679 0189 02       		.uleb128 0x2
+ 680 018a 91       		.byte	0x91
+ 681 018b 6C       		.sleb128 -20
+ 682 018c 0D       		.uleb128 0xd
+ 683 018d 66000000 		.4byte	.LASF28
+ 684 0191 01       		.byte	0x1
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 21
+
+
+ 685 0192 2B01     		.2byte	0x12b
+ 686 0194 76000000 		.4byte	0x76
+ 687 0198 02       		.uleb128 0x2
+ 688 0199 91       		.byte	0x91
+ 689 019a 68       		.sleb128 -24
+ 690 019b 0E       		.uleb128 0xe
+ 691 019c 6900     		.ascii	"i\000"
+ 692 019e 01       		.byte	0x1
+ 693 019f 2D01     		.2byte	0x12d
+ 694 01a1 76000000 		.4byte	0x76
+ 695 01a5 02       		.uleb128 0x2
+ 696 01a6 91       		.byte	0x91
+ 697 01a7 74       		.sleb128 -12
+ 698 01a8 00       		.byte	0
+ 699 01a9 0F       		.uleb128 0xf
+ 700 01aa 04       		.byte	0x4
+ 701 01ab AF010000 		.4byte	0x1af
+ 702 01af 10       		.uleb128 0x10
+ 703 01b0 6B000000 		.4byte	0x6b
+ 704 01b4 11       		.uleb128 0x11
+ 705 01b5 06000000 		.4byte	.LASF29
+ 706 01b9 01       		.byte	0x1
+ 707 01ba 4A01     		.2byte	0x14a
+ 708 01bc 76000000 		.4byte	0x76
+ 709 01c0 00000000 		.4byte	.LFB5
+ 710 01c4 20000000 		.4byte	.LFE5-.LFB5
+ 711 01c8 01       		.uleb128 0x1
+ 712 01c9 9C       		.byte	0x9c
+ 713 01ca DE010000 		.4byte	0x1de
+ 714 01ce 12       		.uleb128 0x12
+ 715 01cf 57010000 		.4byte	.LASF20
+ 716 01d3 01       		.byte	0x1
+ 717 01d4 4C01     		.2byte	0x14c
+ 718 01d6 76000000 		.4byte	0x76
+ 719 01da 02       		.uleb128 0x2
+ 720 01db 91       		.byte	0x91
+ 721 01dc 74       		.sleb128 -12
+ 722 01dd 00       		.byte	0
+ 723 01de 13       		.uleb128 0x13
+ 724 01df B3010000 		.4byte	.LASF40
+ 725 01e3 01       		.byte	0x1
+ 726 01e4 7701     		.2byte	0x177
+ 727 01e6 00000000 		.4byte	.LFB6
+ 728 01ea 2C000000 		.4byte	.LFE6-.LFB6
+ 729 01ee 01       		.uleb128 0x1
+ 730 01ef 9C       		.byte	0x9c
+ 731 01f0 11       		.uleb128 0x11
+ 732 01f1 05030000 		.4byte	.LASF30
+ 733 01f5 01       		.byte	0x1
+ 734 01f6 A301     		.2byte	0x1a3
+ 735 01f8 76000000 		.4byte	0x76
+ 736 01fc 00000000 		.4byte	.LFB7
+ 737 0200 20000000 		.4byte	.LFE7-.LFB7
+ 738 0204 01       		.uleb128 0x1
+ 739 0205 9C       		.byte	0x9c
+ 740 0206 1A020000 		.4byte	0x21a
+ 741 020a 12       		.uleb128 0x12
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 22
+
+
+ 742 020b 43020000 		.4byte	.LASF31
+ 743 020f 01       		.byte	0x1
+ 744 0210 A501     		.2byte	0x1a5
+ 745 0212 76000000 		.4byte	0x76
+ 746 0216 02       		.uleb128 0x2
+ 747 0217 91       		.byte	0x91
+ 748 0218 74       		.sleb128 -12
+ 749 0219 00       		.byte	0
+ 750 021a 11       		.uleb128 0x11
+ 751 021b 2B030000 		.4byte	.LASF32
+ 752 021f 01       		.byte	0x1
+ 753 0220 BD01     		.2byte	0x1bd
+ 754 0222 76000000 		.4byte	0x76
+ 755 0226 00000000 		.4byte	.LFB8
+ 756 022a 20000000 		.4byte	.LFE8-.LFB8
+ 757 022e 01       		.uleb128 0x1
+ 758 022f 9C       		.byte	0x9c
+ 759 0230 44020000 		.4byte	0x244
+ 760 0234 12       		.uleb128 0x12
+ 761 0235 35020000 		.4byte	.LASF22
+ 762 0239 01       		.byte	0x1
+ 763 023a BF01     		.2byte	0x1bf
+ 764 023c 76000000 		.4byte	0x76
+ 765 0240 02       		.uleb128 0x2
+ 766 0241 91       		.byte	0x91
+ 767 0242 74       		.sleb128 -12
+ 768 0243 00       		.byte	0
+ 769 0244 14       		.uleb128 0x14
+ 770 0245 4C000000 		.4byte	.LASF33
+ 771 0249 01       		.byte	0x1
+ 772 024a 1A       		.byte	0x1a
+ 773 024b A7000000 		.4byte	0xa7
+ 774 024f 05       		.uleb128 0x5
+ 775 0250 03       		.byte	0x3
+ 776 0251 00000000 		.4byte	Arduino_UART_rxBufferHead
+ 777 0255 14       		.uleb128 0x14
+ 778 0256 1B020000 		.4byte	.LASF34
+ 779 025a 01       		.byte	0x1
+ 780 025b 1B       		.byte	0x1b
+ 781 025c A7000000 		.4byte	0xa7
+ 782 0260 05       		.uleb128 0x5
+ 783 0261 03       		.byte	0x3
+ 784 0262 00000000 		.4byte	Arduino_UART_rxBufferTail
+ 785 0266 14       		.uleb128 0x14
+ 786 0267 97000000 		.4byte	.LASF35
+ 787 026b 01       		.byte	0x1
+ 788 026c 1C       		.byte	0x1c
+ 789 026d 96000000 		.4byte	0x96
+ 790 0271 05       		.uleb128 0x5
+ 791 0272 03       		.byte	0x3
+ 792 0273 00000000 		.4byte	Arduino_UART_rxBufferOverflow
+ 793 0277 15       		.uleb128 0x15
+ 794 0278 6B000000 		.4byte	0x6b
+ 795 027c 87020000 		.4byte	0x287
+ 796 0280 16       		.uleb128 0x16
+ 797 0281 AC000000 		.4byte	0xac
+ 798 0285 0C       		.byte	0xc
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 23
+
+
+ 799 0286 00       		.byte	0
+ 800 0287 14       		.uleb128 0x14
+ 801 0288 7E030000 		.4byte	.LASF36
+ 802 028c 01       		.byte	0x1
+ 803 028d 26       		.byte	0x26
+ 804 028e 98020000 		.4byte	0x298
+ 805 0292 05       		.uleb128 0x5
+ 806 0293 03       		.byte	0x3
+ 807 0294 00000000 		.4byte	Arduino_UART_rxBufferInternal
+ 808 0298 05       		.uleb128 0x5
+ 809 0299 77020000 		.4byte	0x277
+ 810 029d 00       		.byte	0
+ 811              		.section	.debug_abbrev,"",%progbits
+ 812              	.Ldebug_abbrev0:
+ 813 0000 01       		.uleb128 0x1
+ 814 0001 11       		.uleb128 0x11
+ 815 0002 01       		.byte	0x1
+ 816 0003 25       		.uleb128 0x25
+ 817 0004 0E       		.uleb128 0xe
+ 818 0005 13       		.uleb128 0x13
+ 819 0006 0B       		.uleb128 0xb
+ 820 0007 03       		.uleb128 0x3
+ 821 0008 0E       		.uleb128 0xe
+ 822 0009 1B       		.uleb128 0x1b
+ 823 000a 0E       		.uleb128 0xe
+ 824 000b 55       		.uleb128 0x55
+ 825 000c 17       		.uleb128 0x17
+ 826 000d 11       		.uleb128 0x11
+ 827 000e 01       		.uleb128 0x1
+ 828 000f 10       		.uleb128 0x10
+ 829 0010 17       		.uleb128 0x17
+ 830 0011 00       		.byte	0
+ 831 0012 00       		.byte	0
+ 832 0013 02       		.uleb128 0x2
+ 833 0014 24       		.uleb128 0x24
+ 834 0015 00       		.byte	0
+ 835 0016 0B       		.uleb128 0xb
+ 836 0017 0B       		.uleb128 0xb
+ 837 0018 3E       		.uleb128 0x3e
+ 838 0019 0B       		.uleb128 0xb
+ 839 001a 03       		.uleb128 0x3
+ 840 001b 0E       		.uleb128 0xe
+ 841 001c 00       		.byte	0
+ 842 001d 00       		.byte	0
+ 843 001e 03       		.uleb128 0x3
+ 844 001f 24       		.uleb128 0x24
+ 845 0020 00       		.byte	0
+ 846 0021 0B       		.uleb128 0xb
+ 847 0022 0B       		.uleb128 0xb
+ 848 0023 3E       		.uleb128 0x3e
+ 849 0024 0B       		.uleb128 0xb
+ 850 0025 03       		.uleb128 0x3
+ 851 0026 08       		.uleb128 0x8
+ 852 0027 00       		.byte	0
+ 853 0028 00       		.byte	0
+ 854 0029 04       		.uleb128 0x4
+ 855 002a 16       		.uleb128 0x16
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 24
+
+
+ 856 002b 00       		.byte	0
+ 857 002c 03       		.uleb128 0x3
+ 858 002d 0E       		.uleb128 0xe
+ 859 002e 3A       		.uleb128 0x3a
+ 860 002f 0B       		.uleb128 0xb
+ 861 0030 3B       		.uleb128 0x3b
+ 862 0031 0B       		.uleb128 0xb
+ 863 0032 49       		.uleb128 0x49
+ 864 0033 13       		.uleb128 0x13
+ 865 0034 00       		.byte	0
+ 866 0035 00       		.byte	0
+ 867 0036 05       		.uleb128 0x5
+ 868 0037 35       		.uleb128 0x35
+ 869 0038 00       		.byte	0
+ 870 0039 49       		.uleb128 0x49
+ 871 003a 13       		.uleb128 0x13
+ 872 003b 00       		.byte	0
+ 873 003c 00       		.byte	0
+ 874 003d 06       		.uleb128 0x6
+ 875 003e 16       		.uleb128 0x16
+ 876 003f 00       		.byte	0
+ 877 0040 03       		.uleb128 0x3
+ 878 0041 0E       		.uleb128 0xe
+ 879 0042 3A       		.uleb128 0x3a
+ 880 0043 0B       		.uleb128 0xb
+ 881 0044 3B       		.uleb128 0x3b
+ 882 0045 05       		.uleb128 0x5
+ 883 0046 49       		.uleb128 0x49
+ 884 0047 13       		.uleb128 0x13
+ 885 0048 00       		.byte	0
+ 886 0049 00       		.byte	0
+ 887 004a 07       		.uleb128 0x7
+ 888 004b 2E       		.uleb128 0x2e
+ 889 004c 01       		.byte	0x1
+ 890 004d 3F       		.uleb128 0x3f
+ 891 004e 19       		.uleb128 0x19
+ 892 004f 03       		.uleb128 0x3
+ 893 0050 0E       		.uleb128 0xe
+ 894 0051 3A       		.uleb128 0x3a
+ 895 0052 0B       		.uleb128 0xb
+ 896 0053 3B       		.uleb128 0x3b
+ 897 0054 0B       		.uleb128 0xb
+ 898 0055 27       		.uleb128 0x27
+ 899 0056 19       		.uleb128 0x19
+ 900 0057 49       		.uleb128 0x49
+ 901 0058 13       		.uleb128 0x13
+ 902 0059 11       		.uleb128 0x11
+ 903 005a 01       		.uleb128 0x1
+ 904 005b 12       		.uleb128 0x12
+ 905 005c 06       		.uleb128 0x6
+ 906 005d 40       		.uleb128 0x40
+ 907 005e 18       		.uleb128 0x18
+ 908 005f 9742     		.uleb128 0x2117
+ 909 0061 19       		.uleb128 0x19
+ 910 0062 01       		.uleb128 0x1
+ 911 0063 13       		.uleb128 0x13
+ 912 0064 00       		.byte	0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 25
+
+
+ 913 0065 00       		.byte	0
+ 914 0066 08       		.uleb128 0x8
+ 915 0067 34       		.uleb128 0x34
+ 916 0068 00       		.byte	0
+ 917 0069 03       		.uleb128 0x3
+ 918 006a 0E       		.uleb128 0xe
+ 919 006b 3A       		.uleb128 0x3a
+ 920 006c 0B       		.uleb128 0xb
+ 921 006d 3B       		.uleb128 0x3b
+ 922 006e 0B       		.uleb128 0xb
+ 923 006f 49       		.uleb128 0x49
+ 924 0070 13       		.uleb128 0x13
+ 925 0071 02       		.uleb128 0x2
+ 926 0072 18       		.uleb128 0x18
+ 927 0073 00       		.byte	0
+ 928 0074 00       		.byte	0
+ 929 0075 09       		.uleb128 0x9
+ 930 0076 2E       		.uleb128 0x2e
+ 931 0077 01       		.byte	0x1
+ 932 0078 3F       		.uleb128 0x3f
+ 933 0079 19       		.uleb128 0x19
+ 934 007a 03       		.uleb128 0x3
+ 935 007b 0E       		.uleb128 0xe
+ 936 007c 3A       		.uleb128 0x3a
+ 937 007d 0B       		.uleb128 0xb
+ 938 007e 3B       		.uleb128 0x3b
+ 939 007f 0B       		.uleb128 0xb
+ 940 0080 27       		.uleb128 0x27
+ 941 0081 19       		.uleb128 0x19
+ 942 0082 11       		.uleb128 0x11
+ 943 0083 01       		.uleb128 0x1
+ 944 0084 12       		.uleb128 0x12
+ 945 0085 06       		.uleb128 0x6
+ 946 0086 40       		.uleb128 0x40
+ 947 0087 18       		.uleb128 0x18
+ 948 0088 9642     		.uleb128 0x2116
+ 949 008a 19       		.uleb128 0x19
+ 950 008b 01       		.uleb128 0x1
+ 951 008c 13       		.uleb128 0x13
+ 952 008d 00       		.byte	0
+ 953 008e 00       		.byte	0
+ 954 008f 0A       		.uleb128 0xa
+ 955 0090 2E       		.uleb128 0x2e
+ 956 0091 01       		.byte	0x1
+ 957 0092 3F       		.uleb128 0x3f
+ 958 0093 19       		.uleb128 0x19
+ 959 0094 03       		.uleb128 0x3
+ 960 0095 0E       		.uleb128 0xe
+ 961 0096 3A       		.uleb128 0x3a
+ 962 0097 0B       		.uleb128 0xb
+ 963 0098 3B       		.uleb128 0x3b
+ 964 0099 0B       		.uleb128 0xb
+ 965 009a 27       		.uleb128 0x27
+ 966 009b 19       		.uleb128 0x19
+ 967 009c 11       		.uleb128 0x11
+ 968 009d 01       		.uleb128 0x1
+ 969 009e 12       		.uleb128 0x12
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 26
+
+
+ 970 009f 06       		.uleb128 0x6
+ 971 00a0 40       		.uleb128 0x40
+ 972 00a1 18       		.uleb128 0x18
+ 973 00a2 9742     		.uleb128 0x2117
+ 974 00a4 19       		.uleb128 0x19
+ 975 00a5 01       		.uleb128 0x1
+ 976 00a6 13       		.uleb128 0x13
+ 977 00a7 00       		.byte	0
+ 978 00a8 00       		.byte	0
+ 979 00a9 0B       		.uleb128 0xb
+ 980 00aa 05       		.uleb128 0x5
+ 981 00ab 00       		.byte	0
+ 982 00ac 03       		.uleb128 0x3
+ 983 00ad 0E       		.uleb128 0xe
+ 984 00ae 3A       		.uleb128 0x3a
+ 985 00af 0B       		.uleb128 0xb
+ 986 00b0 3B       		.uleb128 0x3b
+ 987 00b1 0B       		.uleb128 0xb
+ 988 00b2 49       		.uleb128 0x49
+ 989 00b3 13       		.uleb128 0x13
+ 990 00b4 02       		.uleb128 0x2
+ 991 00b5 18       		.uleb128 0x18
+ 992 00b6 00       		.byte	0
+ 993 00b7 00       		.byte	0
+ 994 00b8 0C       		.uleb128 0xc
+ 995 00b9 2E       		.uleb128 0x2e
+ 996 00ba 01       		.byte	0x1
+ 997 00bb 3F       		.uleb128 0x3f
+ 998 00bc 19       		.uleb128 0x19
+ 999 00bd 03       		.uleb128 0x3
+ 1000 00be 0E       		.uleb128 0xe
+ 1001 00bf 3A       		.uleb128 0x3a
+ 1002 00c0 0B       		.uleb128 0xb
+ 1003 00c1 3B       		.uleb128 0x3b
+ 1004 00c2 05       		.uleb128 0x5
+ 1005 00c3 27       		.uleb128 0x27
+ 1006 00c4 19       		.uleb128 0x19
+ 1007 00c5 11       		.uleb128 0x11
+ 1008 00c6 01       		.uleb128 0x1
+ 1009 00c7 12       		.uleb128 0x12
+ 1010 00c8 06       		.uleb128 0x6
+ 1011 00c9 40       		.uleb128 0x40
+ 1012 00ca 18       		.uleb128 0x18
+ 1013 00cb 9642     		.uleb128 0x2116
+ 1014 00cd 19       		.uleb128 0x19
+ 1015 00ce 01       		.uleb128 0x1
+ 1016 00cf 13       		.uleb128 0x13
+ 1017 00d0 00       		.byte	0
+ 1018 00d1 00       		.byte	0
+ 1019 00d2 0D       		.uleb128 0xd
+ 1020 00d3 05       		.uleb128 0x5
+ 1021 00d4 00       		.byte	0
+ 1022 00d5 03       		.uleb128 0x3
+ 1023 00d6 0E       		.uleb128 0xe
+ 1024 00d7 3A       		.uleb128 0x3a
+ 1025 00d8 0B       		.uleb128 0xb
+ 1026 00d9 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 27
+
+
+ 1027 00da 05       		.uleb128 0x5
+ 1028 00db 49       		.uleb128 0x49
+ 1029 00dc 13       		.uleb128 0x13
+ 1030 00dd 02       		.uleb128 0x2
+ 1031 00de 18       		.uleb128 0x18
+ 1032 00df 00       		.byte	0
+ 1033 00e0 00       		.byte	0
+ 1034 00e1 0E       		.uleb128 0xe
+ 1035 00e2 34       		.uleb128 0x34
+ 1036 00e3 00       		.byte	0
+ 1037 00e4 03       		.uleb128 0x3
+ 1038 00e5 08       		.uleb128 0x8
+ 1039 00e6 3A       		.uleb128 0x3a
+ 1040 00e7 0B       		.uleb128 0xb
+ 1041 00e8 3B       		.uleb128 0x3b
+ 1042 00e9 05       		.uleb128 0x5
+ 1043 00ea 49       		.uleb128 0x49
+ 1044 00eb 13       		.uleb128 0x13
+ 1045 00ec 02       		.uleb128 0x2
+ 1046 00ed 18       		.uleb128 0x18
+ 1047 00ee 00       		.byte	0
+ 1048 00ef 00       		.byte	0
+ 1049 00f0 0F       		.uleb128 0xf
+ 1050 00f1 0F       		.uleb128 0xf
+ 1051 00f2 00       		.byte	0
+ 1052 00f3 0B       		.uleb128 0xb
+ 1053 00f4 0B       		.uleb128 0xb
+ 1054 00f5 49       		.uleb128 0x49
+ 1055 00f6 13       		.uleb128 0x13
+ 1056 00f7 00       		.byte	0
+ 1057 00f8 00       		.byte	0
+ 1058 00f9 10       		.uleb128 0x10
+ 1059 00fa 26       		.uleb128 0x26
+ 1060 00fb 00       		.byte	0
+ 1061 00fc 49       		.uleb128 0x49
+ 1062 00fd 13       		.uleb128 0x13
+ 1063 00fe 00       		.byte	0
+ 1064 00ff 00       		.byte	0
+ 1065 0100 11       		.uleb128 0x11
+ 1066 0101 2E       		.uleb128 0x2e
+ 1067 0102 01       		.byte	0x1
+ 1068 0103 3F       		.uleb128 0x3f
+ 1069 0104 19       		.uleb128 0x19
+ 1070 0105 03       		.uleb128 0x3
+ 1071 0106 0E       		.uleb128 0xe
+ 1072 0107 3A       		.uleb128 0x3a
+ 1073 0108 0B       		.uleb128 0xb
+ 1074 0109 3B       		.uleb128 0x3b
+ 1075 010a 05       		.uleb128 0x5
+ 1076 010b 27       		.uleb128 0x27
+ 1077 010c 19       		.uleb128 0x19
+ 1078 010d 49       		.uleb128 0x49
+ 1079 010e 13       		.uleb128 0x13
+ 1080 010f 11       		.uleb128 0x11
+ 1081 0110 01       		.uleb128 0x1
+ 1082 0111 12       		.uleb128 0x12
+ 1083 0112 06       		.uleb128 0x6
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 28
+
+
+ 1084 0113 40       		.uleb128 0x40
+ 1085 0114 18       		.uleb128 0x18
+ 1086 0115 9742     		.uleb128 0x2117
+ 1087 0117 19       		.uleb128 0x19
+ 1088 0118 01       		.uleb128 0x1
+ 1089 0119 13       		.uleb128 0x13
+ 1090 011a 00       		.byte	0
+ 1091 011b 00       		.byte	0
+ 1092 011c 12       		.uleb128 0x12
+ 1093 011d 34       		.uleb128 0x34
+ 1094 011e 00       		.byte	0
+ 1095 011f 03       		.uleb128 0x3
+ 1096 0120 0E       		.uleb128 0xe
+ 1097 0121 3A       		.uleb128 0x3a
+ 1098 0122 0B       		.uleb128 0xb
+ 1099 0123 3B       		.uleb128 0x3b
+ 1100 0124 05       		.uleb128 0x5
+ 1101 0125 49       		.uleb128 0x49
+ 1102 0126 13       		.uleb128 0x13
+ 1103 0127 02       		.uleb128 0x2
+ 1104 0128 18       		.uleb128 0x18
+ 1105 0129 00       		.byte	0
+ 1106 012a 00       		.byte	0
+ 1107 012b 13       		.uleb128 0x13
+ 1108 012c 2E       		.uleb128 0x2e
+ 1109 012d 00       		.byte	0
+ 1110 012e 3F       		.uleb128 0x3f
+ 1111 012f 19       		.uleb128 0x19
+ 1112 0130 03       		.uleb128 0x3
+ 1113 0131 0E       		.uleb128 0xe
+ 1114 0132 3A       		.uleb128 0x3a
+ 1115 0133 0B       		.uleb128 0xb
+ 1116 0134 3B       		.uleb128 0x3b
+ 1117 0135 05       		.uleb128 0x5
+ 1118 0136 27       		.uleb128 0x27
+ 1119 0137 19       		.uleb128 0x19
+ 1120 0138 11       		.uleb128 0x11
+ 1121 0139 01       		.uleb128 0x1
+ 1122 013a 12       		.uleb128 0x12
+ 1123 013b 06       		.uleb128 0x6
+ 1124 013c 40       		.uleb128 0x40
+ 1125 013d 18       		.uleb128 0x18
+ 1126 013e 9742     		.uleb128 0x2117
+ 1127 0140 19       		.uleb128 0x19
+ 1128 0141 00       		.byte	0
+ 1129 0142 00       		.byte	0
+ 1130 0143 14       		.uleb128 0x14
+ 1131 0144 34       		.uleb128 0x34
+ 1132 0145 00       		.byte	0
+ 1133 0146 03       		.uleb128 0x3
+ 1134 0147 0E       		.uleb128 0xe
+ 1135 0148 3A       		.uleb128 0x3a
+ 1136 0149 0B       		.uleb128 0xb
+ 1137 014a 3B       		.uleb128 0x3b
+ 1138 014b 0B       		.uleb128 0xb
+ 1139 014c 49       		.uleb128 0x49
+ 1140 014d 13       		.uleb128 0x13
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 29
+
+
+ 1141 014e 3F       		.uleb128 0x3f
+ 1142 014f 19       		.uleb128 0x19
+ 1143 0150 02       		.uleb128 0x2
+ 1144 0151 18       		.uleb128 0x18
+ 1145 0152 00       		.byte	0
+ 1146 0153 00       		.byte	0
+ 1147 0154 15       		.uleb128 0x15
+ 1148 0155 01       		.uleb128 0x1
+ 1149 0156 01       		.byte	0x1
+ 1150 0157 49       		.uleb128 0x49
+ 1151 0158 13       		.uleb128 0x13
+ 1152 0159 01       		.uleb128 0x1
+ 1153 015a 13       		.uleb128 0x13
+ 1154 015b 00       		.byte	0
+ 1155 015c 00       		.byte	0
+ 1156 015d 16       		.uleb128 0x16
+ 1157 015e 21       		.uleb128 0x21
+ 1158 015f 00       		.byte	0
+ 1159 0160 49       		.uleb128 0x49
+ 1160 0161 13       		.uleb128 0x13
+ 1161 0162 2F       		.uleb128 0x2f
+ 1162 0163 0B       		.uleb128 0xb
+ 1163 0164 00       		.byte	0
+ 1164 0165 00       		.byte	0
+ 1165 0166 00       		.byte	0
+ 1166              		.section	.debug_aranges,"",%progbits
+ 1167 0000 5C000000 		.4byte	0x5c
+ 1168 0004 0200     		.2byte	0x2
+ 1169 0006 00000000 		.4byte	.Ldebug_info0
+ 1170 000a 04       		.byte	0x4
+ 1171 000b 00       		.byte	0
+ 1172 000c 0000     		.2byte	0
+ 1173 000e 0000     		.2byte	0
+ 1174 0010 00000000 		.4byte	.LFB0
+ 1175 0014 50000000 		.4byte	.LFE0-.LFB0
+ 1176 0018 00000000 		.4byte	.LFB1
+ 1177 001c 40000000 		.4byte	.LFE1-.LFB1
+ 1178 0020 00000000 		.4byte	.LFB2
+ 1179 0024 68000000 		.4byte	.LFE2-.LFB2
+ 1180 0028 00000000 		.4byte	.LFB3
+ 1181 002c 2C000000 		.4byte	.LFE3-.LFB3
+ 1182 0030 00000000 		.4byte	.LFB4
+ 1183 0034 32000000 		.4byte	.LFE4-.LFB4
+ 1184 0038 00000000 		.4byte	.LFB5
+ 1185 003c 20000000 		.4byte	.LFE5-.LFB5
+ 1186 0040 00000000 		.4byte	.LFB6
+ 1187 0044 2C000000 		.4byte	.LFE6-.LFB6
+ 1188 0048 00000000 		.4byte	.LFB7
+ 1189 004c 20000000 		.4byte	.LFE7-.LFB7
+ 1190 0050 00000000 		.4byte	.LFB8
+ 1191 0054 20000000 		.4byte	.LFE8-.LFB8
+ 1192 0058 00000000 		.4byte	0
+ 1193 005c 00000000 		.4byte	0
+ 1194              		.section	.debug_ranges,"",%progbits
+ 1195              	.Ldebug_ranges0:
+ 1196 0000 00000000 		.4byte	.LFB0
+ 1197 0004 50000000 		.4byte	.LFE0
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 30
+
+
+ 1198 0008 00000000 		.4byte	.LFB1
+ 1199 000c 40000000 		.4byte	.LFE1
+ 1200 0010 00000000 		.4byte	.LFB2
+ 1201 0014 68000000 		.4byte	.LFE2
+ 1202 0018 00000000 		.4byte	.LFB3
+ 1203 001c 2C000000 		.4byte	.LFE3
+ 1204 0020 00000000 		.4byte	.LFB4
+ 1205 0024 32000000 		.4byte	.LFE4
+ 1206 0028 00000000 		.4byte	.LFB5
+ 1207 002c 20000000 		.4byte	.LFE5
+ 1208 0030 00000000 		.4byte	.LFB6
+ 1209 0034 2C000000 		.4byte	.LFE6
+ 1210 0038 00000000 		.4byte	.LFB7
+ 1211 003c 20000000 		.4byte	.LFE7
+ 1212 0040 00000000 		.4byte	.LFB8
+ 1213 0044 20000000 		.4byte	.LFE8
+ 1214 0048 00000000 		.4byte	0
+ 1215 004c 00000000 		.4byte	0
+ 1216              		.section	.debug_line,"",%progbits
+ 1217              	.Ldebug_line0:
+ 1218 0000 34010000 		.section	.debug_str,"MS",%progbits,1
+ 1218      02005400 
+ 1218      00000201 
+ 1218      FB0E0D00 
+ 1218      01010101 
+ 1219              	.LASF14:
+ 1220 0000 72656733 		.ascii	"reg32\000"
+ 1220      3200
+ 1221              	.LASF29:
+ 1222 0006 41726475 		.ascii	"Arduino_UART_SpiUartGetTxBufferSize\000"
+ 1222      696E6F5F 
+ 1222      55415254 
+ 1222      5F537069 
+ 1222      55617274 
+ 1223              	.LASF23:
+ 1224 002a 41726475 		.ascii	"Arduino_UART_SpiUartClearRxBuffer\000"
+ 1224      696E6F5F 
+ 1224      55415254 
+ 1224      5F537069 
+ 1224      55617274 
+ 1225              	.LASF33:
+ 1226 004c 41726475 		.ascii	"Arduino_UART_rxBufferHead\000"
+ 1226      696E6F5F 
+ 1226      55415254 
+ 1226      5F727842 
+ 1226      75666665 
+ 1227              	.LASF28:
+ 1228 0066 636F756E 		.ascii	"count\000"
+ 1228      7400
+ 1229              	.LASF26:
+ 1230 006c 74784461 		.ascii	"txData\000"
+ 1230      746100
+ 1231              	.LASF19:
+ 1232 0073 41726475 		.ascii	"Arduino_UART_SpiUartGetRxBufferSize\000"
+ 1232      696E6F5F 
+ 1232      55415254 
+ 1232      5F537069 
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 31
+
+
+ 1232      55617274 
+ 1233              	.LASF35:
+ 1234 0097 41726475 		.ascii	"Arduino_UART_rxBufferOverflow\000"
+ 1234      696E6F5F 
+ 1234      55415254 
+ 1234      5F727842 
+ 1234      75666665 
+ 1235              	.LASF8:
+ 1236 00b5 756E7369 		.ascii	"unsigned int\000"
+ 1236      676E6564 
+ 1236      20696E74 
+ 1236      00
+ 1237              	.LASF21:
+ 1238 00c2 6C6F6348 		.ascii	"locHead\000"
+ 1238      65616400 
+ 1239              	.LASF11:
+ 1240 00ca 666C6F61 		.ascii	"float\000"
+ 1240      7400
+ 1241              	.LASF37:
+ 1242 00d0 474E5520 		.ascii	"GNU C 4.8.4 20140526 (release) [ARM/embedded-4_8-br"
+ 1242      4320342E 
+ 1242      382E3420 
+ 1242      32303134 
+ 1242      30353236 
+ 1243 0103 616E6368 		.ascii	"anch revision 211358] -mcpu=cortex-m0 -mthumb -g -O"
+ 1243      20726576 
+ 1243      6973696F 
+ 1243      6E203231 
+ 1243      31333538 
+ 1244 0136 30202D73 		.ascii	"0 -std=gnu99 -ffunction-sections\000"
+ 1244      74643D67 
+ 1244      6E753939 
+ 1244      202D6666 
+ 1244      756E6374 
+ 1245              	.LASF20:
+ 1246 0157 73697A65 		.ascii	"size\000"
+ 1246      00
+ 1247              	.LASF18:
+ 1248 015c 41726475 		.ascii	"Arduino_UART_SpiUartReadRxData\000"
+ 1248      696E6F5F 
+ 1248      55415254 
+ 1248      5F537069 
+ 1248      55617274 
+ 1249              	.LASF24:
+ 1250 017b 41726475 		.ascii	"Arduino_UART_SpiUartWriteTxData\000"
+ 1250      696E6F5F 
+ 1250      55415254 
+ 1250      5F537069 
+ 1250      55617274 
+ 1251              	.LASF5:
+ 1252 019b 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1252      20756E73 
+ 1252      69676E65 
+ 1252      6420696E 
+ 1252      7400
+ 1253              	.LASF9:
+ 1254 01ad 75696E74 		.ascii	"uint8\000"
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 32
+
+
+ 1254      3800
+ 1255              	.LASF40:
+ 1256 01b3 41726475 		.ascii	"Arduino_UART_SpiUartClearTxBuffer\000"
+ 1256      696E6F5F 
+ 1256      55415254 
+ 1256      5F537069 
+ 1256      55617274 
+ 1257              	.LASF16:
+ 1258 01d5 72784461 		.ascii	"rxData\000"
+ 1258      746100
+ 1259              	.LASF27:
+ 1260 01dc 77724275 		.ascii	"wrBuf\000"
+ 1260      6600
+ 1261              	.LASF1:
+ 1262 01e2 756E7369 		.ascii	"unsigned char\000"
+ 1262      676E6564 
+ 1262      20636861 
+ 1262      7200
+ 1263              	.LASF25:
+ 1264 01f0 41726475 		.ascii	"Arduino_UART_SpiUartPutArray\000"
+ 1264      696E6F5F 
+ 1264      55415254 
+ 1264      5F537069 
+ 1264      55617274 
+ 1265              	.LASF12:
+ 1266 020d 646F7562 		.ascii	"double\000"
+ 1266      6C6500
+ 1267              	.LASF10:
+ 1268 0214 75696E74 		.ascii	"uint32\000"
+ 1268      333200
+ 1269              	.LASF34:
+ 1270 021b 41726475 		.ascii	"Arduino_UART_rxBufferTail\000"
+ 1270      696E6F5F 
+ 1270      55415254 
+ 1270      5F727842 
+ 1270      75666665 
+ 1271              	.LASF22:
+ 1272 0235 696E7453 		.ascii	"intSourceMask\000"
+ 1272      6F757263 
+ 1272      654D6173 
+ 1272      6B00
+ 1273              	.LASF31:
+ 1274 0243 696E7453 		.ascii	"intSource\000"
+ 1274      6F757263 
+ 1274      6500
+ 1275              	.LASF7:
+ 1276 024d 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1276      206C6F6E 
+ 1276      6720756E 
+ 1276      7369676E 
+ 1276      65642069 
+ 1277              	.LASF38:
+ 1278 0264 2E5C4765 		.ascii	".\\Generated_Source\\PSoC4\\Arduino_UART_SPI_UART.c"
+ 1278      6E657261 
+ 1278      7465645F 
+ 1278      536F7572 
+ 1278      63655C50 
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 33
+
+
+ 1279 0294 00       		.ascii	"\000"
+ 1280              	.LASF17:
+ 1281 0295 6C6F6354 		.ascii	"locTail\000"
+ 1281      61696C00 
+ 1282              	.LASF15:
+ 1283 029d 73697A65 		.ascii	"sizetype\000"
+ 1283      74797065 
+ 1283      00
+ 1284              	.LASF39:
+ 1285 02a6 433A5C55 		.ascii	"C:\\Users\\Samuel\\Documents\\GitHub\\Arm\\arm_cont"
+ 1285      73657273 
+ 1285      5C53616D 
+ 1285      75656C5C 
+ 1285      446F6375 
+ 1286 02d3 726F6C6C 		.ascii	"roller_v2\\arm_controller_v2.1.cydsn\000"
+ 1286      65725F76 
+ 1286      325C6172 
+ 1286      6D5F636F 
+ 1286      6E74726F 
+ 1287              	.LASF6:
+ 1288 02f7 6C6F6E67 		.ascii	"long long int\000"
+ 1288      206C6F6E 
+ 1288      6720696E 
+ 1288      7400
+ 1289              	.LASF30:
+ 1290 0305 41726475 		.ascii	"Arduino_UART_SpiUartDisableIntRx\000"
+ 1290      696E6F5F 
+ 1290      55415254 
+ 1290      5F537069 
+ 1290      55617274 
+ 1291              	.LASF13:
+ 1292 0326 63686172 		.ascii	"char\000"
+ 1292      00
+ 1293              	.LASF32:
+ 1294 032b 41726475 		.ascii	"Arduino_UART_SpiUartDisableIntTx\000"
+ 1294      696E6F5F 
+ 1294      55415254 
+ 1294      5F537069 
+ 1294      55617274 
+ 1295              	.LASF2:
+ 1296 034c 73686F72 		.ascii	"short int\000"
+ 1296      7420696E 
+ 1296      7400
+ 1297              	.LASF4:
+ 1298 0356 6C6F6E67 		.ascii	"long int\000"
+ 1298      20696E74 
+ 1298      00
+ 1299              	.LASF0:
+ 1300 035f 7369676E 		.ascii	"signed char\000"
+ 1300      65642063 
+ 1300      68617200 
+ 1301              	.LASF3:
+ 1302 036b 73686F72 		.ascii	"short unsigned int\000"
+ 1302      7420756E 
+ 1302      7369676E 
+ 1302      65642069 
+ 1302      6E7400
+ARM GAS  C:\Users\Samuel\AppData\Local\Temp\ccqqIa5p.s 			page 34
+
+
+ 1303              	.LASF36:
+ 1304 037e 41726475 		.ascii	"Arduino_UART_rxBufferInternal\000"
+ 1304      696E6F5F 
+ 1304      55415254 
+ 1304      5F727842 
+ 1304      75666665 
+ 1305              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.8.4 20140526 (release) [ARM/embedded-4_8-br
